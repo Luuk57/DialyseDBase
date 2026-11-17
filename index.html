@@ -3,7 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dialyse Beheer & Vocht Monitor (Firebase)</title>
+  <title>Dialyse Beheer & Vocht Monitor</title>
+  
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  
+  <!-- SheetJS voor Excel Export -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
   <style>
     :root {
       --primary: #0056b3;
@@ -63,6 +71,8 @@
     .btn-success:hover { background: #218838; }
     .btn-secondary { background: #6c757d; }
     .btn-secondary:hover { background: #5a6268; }
+    .btn-excel { background: #1f7344; }
+    .btn-excel:hover { background: #15572b; }
     .btn-sm { padding: 6px 12px; font-size: 0.85rem; }
 
     .table-container { overflow-x: auto; margin-top: 15px; }
@@ -87,12 +97,12 @@
 <div class="container">
   <h1>
     <span>Dialyse Beheer & Vocht Monitor</span>
-    <span id="dryWeightLabel" style="font-size: 0.85rem; font-weight: normal; color: #555;">Drooggewicht: 109 kg</span>
+    <span id="dryWeightLabel" style="font-size: 0.85rem; font-weight: normal; color: #555;">Huidig Drooggewicht: 118.0 kg</span>
   </h1>
 
   <div class="nav-tabs">
     <button class="tab-btn active" onclick="switchTab('formTab', this)">Nieuwe Sessie / Bewerken</button>
-    <button class="tab-btn" onclick="switchTab('listTab', this)">Overzicht & PDF Export</button>
+    <button class="tab-btn" onclick="switchTab('listTab', this)">Overzicht & Exporteren</button>
   </div>
 
   <!-- TAB 1: FORMULIER -->
@@ -136,12 +146,12 @@
 
         <div class="form-group">
           <label>Pre Gewicht (kg)</label>
-          <input type="number" step="0.1" id="preGewicht" oninput="calculateCalculations()" placeholder="bijv. 112.5" required>
+          <input type="number" step="0.1" id="preGewicht" oninput="calculateCalculations()" placeholder="bijv. 120.5" required>
         </div>
 
         <div class="form-group">
           <label>Post Gewicht (kg)</label>
-          <input type="number" step="0.1" id="postGewicht" oninput="calculateCalculations()" placeholder="bijv. 109.1">
+          <input type="number" step="0.1" id="postGewicht" oninput="calculateCalculations()" placeholder="bijv. 117.5" required>
         </div>
 
         <div class="form-group">
@@ -214,12 +224,13 @@
     </form>
   </div>
 
-  <!-- TAB 2: OVERZICHT & PDF EXPORT -->
+  <!-- TAB 2: OVERZICHT & EXPORT -->
   <div id="listTab" class="tab-content">
     <div class="actions-bar">
       <input type="text" id="searchBox" class="search-box" placeholder="Zoek in records..." onkeyup="filterRecords()">
-      <div>
-        <button class="btn btn-secondary" onclick="exportPDF()">Exporteer / Print naar PDF</button>
+      <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <button class="btn btn-excel" onclick="exportToExcel()">Exporteer naar Excel (.xlsx)</button>
+        <button class="btn btn-secondary" onclick="exportPDF()">Print naar PDF</button>
         <button class="btn" onclick="loadData()">Gegevens Vernieuwen</button>
       </div>
     </div>
@@ -233,6 +244,7 @@
             <th>Soort</th>
             <th>Pre Gew.</th>
             <th>Post Gew.</th>
+            <th>Droog Gew.</th>
             <th>UF Advies</th>
             <th>UF Werk.</th>
             <th>Verpleging</th>
@@ -240,18 +252,15 @@
           </tr>
         </thead>
         <tbody id="tableBody">
-          <tr><td colspan="9" style="text-align:center;">Gegevens laden uit Firebase...</td></tr>
+          <tr><td colspan="10" style="text-align:center;">Gegevens laden uit Firebase...</td></tr>
         </tbody>
       </table>
     </div>
   </div>
 </div>
 
-<!-- Firebase SDKs (Modular v9) via CDN -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-  import { getFirestore, collection, doc, setDoc, getDoc, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
-
+<script>
+  // Jouw Firebase configuratie
   const firebaseConfig = {
     apiKey: "AIzaSyBWaKFaJ1sUhSvXqK2pOCSDwJ3eMqDJag8",
     authDomain: "dialysedbase.firebaseapp.com",
@@ -261,10 +270,9 @@
     appId: "1:36507381882:web:6cf9725f87c963c51ccbc3"
   };
 
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
 
-  let dryWeight = 109.0;
   let nursesList = [];
   let allRecords = [];
 
@@ -273,45 +281,37 @@
     loadData();
   };
 
-  async function loadSettings() {
-    try {
-      const docRef = doc(db, 'settings', 'config');
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        const data = docSnap.data();
-        dryWeight = data.dryWeight || 109.0;
+  function loadSettings() {
+    db.collection('settings').doc('config').get().then(doc => {
+      if (doc.exists) {
+        const data = doc.data();
         nursesList = data.nurses || ['Marissa', 'Iris', 'Alice', 'Irmee', 'Sandra'];
       } else {
         nursesList = ['Marissa', 'Iris', 'Alice', 'Irmee', 'Sandra'];
-        await setDoc(docRef, { dryWeight: dryWeight, nurses: nursesList });
+        db.collection('settings').doc('config').set({ nurses: nursesList });
       }
-      document.getElementById('dryWeightLabel').innerText = `Drooggewicht: ${dryWeight} kg`;
       renderNurseCheckboxes([]);
       calculateCalculations();
-    } catch (err) {
+    }).catch(err => {
       console.error("Fout bij laden instellingen: ", err);
-    }
+    });
   }
 
-  window.addNewNurseLive = async function() {
+  function addNewNurseLive() {
     const input = document.getElementById('newNurseName');
     const name = input.value.trim();
     if (!name) return;
 
     if (!nursesList.includes(name)) {
       nursesList.push(name);
-      try {
-        const docRef = doc(db, 'settings', 'config');
-        await setDoc(docRef, { dryWeight: dryWeight, nurses: nursesList }, { merge: true });
+      db.collection('settings').doc('config').update({ nurses: nursesList }).then(() => {
         let selected = getSelectedNurses();
         selected.push(name);
         renderNurseCheckboxes(selected);
         input.value = '';
-      } catch (err) {
-        console.error("Fout bij toevoegen verpleging:", err);
-      }
+      });
     }
-  };
+  }
 
   function renderNurseCheckboxes(selectedNurses = []) {
     const container = document.getElementById('nurseCheckboxes');
@@ -338,14 +338,14 @@
     return selected;
   }
 
-  window.switchTab = function(tabId, btn) {
+  function switchTab(tabId, btn) {
     document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
     document.getElementById(tabId).classList.add('active');
     btn.classList.add('active');
-  };
+  }
 
-  window.onAfspraakTijdChanged = function() {
+  function onAfspraakTijdChanged() {
     const afspraakVal = document.getElementById('afspraakTijd').value;
     if (!afspraakVal) return;
 
@@ -367,12 +367,12 @@
     }
 
     updateEindTijdEnDuur();
-  };
+  }
 
-  window.onSoortOfAfspraakChanged = function() {
+  function onSoortOfAfspraakChanged() {
     updateEindTijdEnDuur();
     calculateCalculations();
-  };
+  }
 
   function updateEindTijdEnDuur() {
     const startVal = document.getElementById('startTijd').value;
@@ -396,7 +396,7 @@
     calculateDuration();
   }
 
-  window.calculateDuration = function() {
+  function calculateDuration() {
     const start = new Date(document.getElementById('startTijd').value);
     const eind = new Date(document.getElementById('eindTijd').value);
     const duurField = document.getElementById('duur');
@@ -409,18 +409,47 @@
     } else {
       duurField.value = '';
     }
-  };
+  }
 
-  window.calculateCalculations = function() {
+  // Bepaal dynamisch drooggewicht op basis van chronologische volgorde van records
+  // Start op 118 kg. Als post-gewicht < huidig drooggewicht, wordt dat het nieuwe drooggewicht.
+  function getDryWeightForSession(currentSessionTime, allSortedRecords) {
+    let currentDry = 118.0;
+    // Sorteer oud naar nieuw om historisch door te rekenen
+    let chronological = [...allSortedRecords].reverse();
+    
+    for (let r of chronological) {
+      if (r.afspraakTijd && currentSessionTime && r.afspraakTijd >= currentSessionTime) {
+        break; // Stop bij de huidige sessie
+      }
+      let post = parseFloat(r.postGewicht);
+      if (!isNaN(post)) {
+        if (post < currentDry) {
+          currentDry = post;
+        }
+      }
+    }
+    return currentDry;
+  }
+
+  function calculateCalculations() {
     const preGewicht = parseFloat(document.getElementById('preGewicht').value);
     const postGewicht = parseFloat(document.getElementById('postGewicht').value);
     const soort = document.getElementById('soortDialyse').value;
+    const afspraakVal = document.getElementById('afspraakTijd').value;
     const ufAdviesField = document.getElementById('ufAdvies');
     const ufWerkelijkField = document.getElementById('ufWerkelijk');
 
+    // Bereken het dynamische drooggewicht op dit moment
+    let activeDryWeight = 118.0;
+    if (allRecords.length > 0) {
+      activeDryWeight = getDryWeightForSession(afspraakVal, allRecords);
+    }
+    document.getElementById('dryWeightLabel').innerText = `Huidig Drooggewicht: ${activeDryWeight.toFixed(1)} kg`;
+
     if (!isNaN(preGewicht)) {
       const correctie = (soort === 'Nacht') ? 0.3 : 0.6;
-      const advies = preGewicht - dryWeight + correctie;
+      const advies = preGewicht - activeDryWeight + correctie;
       ufAdviesField.value = advies.toFixed(2) + ' kg';
 
       ufAdviesField.className = 'readonly-field';
@@ -442,17 +471,12 @@
     } else {
       ufWerkelijkField.value = '';
     }
-  };
+  }
 
-  window.handleFormSubmit = async function(event) {
+  function handleFormSubmit(event) {
     event.preventDefault();
     
     const docId = document.getElementById('recordId').value;
-    if (!docId) {
-      alert('Vul een geldig afspraaktijdstip in zodat er een ID gegenereerd kan worden.');
-      return;
-    }
-
     const selectedNurses = getSelectedNurses().join(', ');
 
     const formData = {
@@ -462,8 +486,8 @@
       startTijd: document.getElementById('startTijd').value,
       eindTijd: document.getElementById('eindTijd').value,
       duur: document.getElementById('duur').value,
-      preGewicht: document.getElementById('preGewicht').value,
-      postGewicht: document.getElementById('postGewicht').value,
+      preGewicht: parseFloat(document.getElementById('preGewicht').value) || 0,
+      postGewicht: parseFloat(document.getElementById('postGewicht').value) || 0,
       ufAdvies: document.getElementById('ufAdvies').value,
       ufIngesteld: document.getElementById('ufIngesteld').value,
       ufWerkelijk: document.getElementById('ufWerkelijk').value,
@@ -473,61 +497,62 @@
       ijzer: document.getElementById('ijzer').checked ? 'Ja' : 'Nee',
       epo: document.getElementById('epo').checked ? 'Ja' : 'Nee',
       verslag: document.getElementById('verslag').value,
-      updatedAt: new Date().toISOString()
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
     };
 
-    try {
-      await setDoc(doc(db, 'dialyse_records', docId), formData);
+    db.collection('dialyse_records').doc(docId).set(formData).then(() => {
       alert('Succesvol opgeslagen in Firebase!');
       resetForm();
       loadData();
       switchTab('listTab', document.querySelectorAll('.tab-btn')[1]);
-    } catch (error) {
+    }).catch(error => {
       alert('Fout bij opslaan: ' + error.message);
-    }
-  };
+    });
+  }
 
-  window.resetForm = function() {
+  function resetForm() {
     document.getElementById('dialysisForm').reset();
     document.getElementById('recordId').value = '';
     document.getElementById('displayId').value = '';
     document.getElementById('ufAdvies').className = 'readonly-field';
     renderNurseCheckboxes([]);
-  };
+    loadData();
+  }
 
-  window.loadData = async function() {
-    try {
-      const q = query(collection(db, 'dialyse_records'), orderBy('afspraakTijd', 'desc'));
-      const querySnapshot = await getDocs(q);
+  function loadData() {
+    db.collection('dialyse_records').orderBy('afspraakTijd', 'desc').get().then(snapshot => {
       allRecords = [];
-      querySnapshot.forEach((doc) => {
+      snapshot.forEach(doc => {
         allRecords.push(doc.data());
       });
       renderTable(allRecords);
-    } catch (err) {
+      calculateCalculations();
+    }).catch(err => {
       console.error("Fout bij ophalen records: ", err);
-      // Fallback zonder orderBy als index nog aangemaakt moet worden
-      try {
-        const querySnapshot = await getDocs(collection(db, 'dialyse_records'));
-        allRecords = [];
-        querySnapshot.forEach((doc) => {
-          allRecords.push(doc.data());
-        });
-        renderTable(allRecords);
-      } catch (e) {
-        console.error("Fallback mislukt:", e);
-      }
-    }
-  };
+    });
+  }
 
   function renderTable(records) {
     const tbody = document.getElementById('tableBody');
     tbody.innerHTML = '';
 
     if (!records || records.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;">Geen records gevonden in Firebase.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;">Geen records gevonden in Firebase.</td></tr>';
       return;
     }
+
+    // Om drooggewicht per rij dynamisch te berekenen, sorteren we records chronologisch
+    let sortedAsc = [...records].sort((a,b) => (a.afspraakTijd || "").localeCompare(b.afspraakTijd || ""));
+    let runningDry = 118.0;
+    let dryWeightMap = {};
+
+    sortedAsc.forEach(r => {
+      let post = parseFloat(r.postGewicht);
+      dryWeightMap[r.id] = runningDry;
+      if (!isNaN(post) && post < runningDry) {
+        runningDry = post;
+      }
+    });
 
     records.forEach((r) => {
       let ufVal = String(r.ufAdvies || '');
@@ -539,6 +564,8 @@
         else ufClass = 'uf-green';
       }
 
+      let sessionDry = dryWeightMap[r.id] !== undefined ? dryWeightMap[r.id] : 118.0;
+
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td>${r.id || '-'}</td>
@@ -546,18 +573,19 @@
         <td>${r.soortDialyse || '-'}</td>
         <td>${r.preGewicht || '-'} kg</td>
         <td>${r.postGewicht ? r.postGewicht + ' kg' : '-'}</td>
+        <td><b>${sessionDry.toFixed(1)} kg</b></td>
         <td><span class="status-badge ${ufClass}">${ufVal}</span></td>
         <td>${r.ufWerkelijk || '-'}</td>
         <td>${r.verpleging || '-'}</td>
         <td>
-          <button class="btn btn-sm" onclick='editRecordFromStr(${JSON.stringify(r)})'>Bewerken</button>
+          <button class="btn btn-sm" onclick='editRecord(${JSON.stringify(r)})'>Bewerken</button>
         </td>
       `;
       tbody.appendChild(tr);
     });
   }
 
-  window.editRecordFromStr = function(r) {
+  function editRecord(r) {
     document.getElementById('recordId').value = r.id;
     document.getElementById('displayId').value = r.id;
     document.getElementById('soortDialyse').value = r.soortDialyse || 'Nacht';
@@ -581,19 +609,67 @@
 
     calculateCalculations();
     switchTab('formTab', document.querySelectorAll('.tab-btn')[0]);
-  };
+  }
 
-  window.filterRecords = function() {
-    const queryStr = document.getElementById('searchBox').value.toLowerCase();
+  function filterRecords() {
+    const query = document.getElementById('searchBox').value.toLowerCase();
     const filtered = allRecords.filter(r => {
-      return Object.values(r).some(val => String(val).toLowerCase().includes(queryStr));
+      return Object.values(r).some(val => String(val).toLowerCase().includes(query));
     });
     renderTable(filtered);
-  };
+  }
 
-  window.exportPDF = function() {
+  function exportToExcel() {
+    if (!allRecords || allRecords.length === 0) {
+      alert("Geen records om te exporteren.");
+      return;
+    }
+
+    // Bereken dynamisch drooggewicht per record voor de export
+    let sortedAsc = [...allRecords].sort((a,b) => (a.afspraakTijd || "").localeCompare(b.afspraakTijd || ""));
+    let runningDry = 118.0;
+    let dryWeightMap = {};
+
+    sortedAsc.forEach(r => {
+      let post = parseFloat(r.postGewicht);
+      dryWeightMap[r.id] = runningDry;
+      if (!isNaN(post) && post < runningDry) {
+        runningDry = post;
+      }
+    });
+
+    let excelData = allRecords.map(r => ({
+      "Sessie ID": r.id,
+      "Afspraak Tijdstip": r.afspraakTijd,
+      "Soort Dialyse": r.soortDialyse,
+      "Start Tijd": r.startTijd,
+      "Eind Tijd": r.eindTijd,
+      "Duur": r.duur,
+      "Pre Gewicht (kg)": r.preGewicht,
+      "Post Gewicht (kg)": r.postGewicht,
+      "Drooggewicht (kg)": dryWeightMap[r.id] !== undefined ? dryWeightMap[r.id] : 118.0,
+      "UF Advies": r.ufAdvies,
+      "UF Ingesteld": r.ufIngesteld,
+      "UF Werkelijk": r.ufWerkelijk,
+      "Verpleging": r.verpleging,
+      "Fragmin 2500": r.fragmin2500,
+      "Fragmin 5000": r.fragnin5000,
+      "IJzer": r.ijzer,
+      "Epo": r.epo,
+      "Verslag": r.verslag
+    }));
+
+    let worksheet = XLSX.utils.json_to_sheet(excelData);
+    let workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Dialyse Overzicht");
+
+    // Genereer Excel bestand en download
+    XLSX.writeFile(workbook, "Dialyse_Overzicht_Rapport.xlsx");
+  }
+
+  function exportPDF() {
     window.print();
-  };
+  }
 </script>
 
 </body>
