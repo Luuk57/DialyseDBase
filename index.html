@@ -675,5 +675,16 @@
   }
 </script>
 
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('./sw.js')
+      .catch(function (error) {
+        console.error('Service worker registratie mislukt:', error);
+      });
+  });
+}
+</script>
+
 </body>
 </html>
