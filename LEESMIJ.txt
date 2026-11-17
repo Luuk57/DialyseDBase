@@ -1,0 +1,43 @@
+DIALYSEDBASE PWA-BESTANDEN
+
+Deze bestanden zijn bedoeld voor de bestaande GitHub-repository: https://github.com/Luuk57/DialyseDBase
+De website gebruikt Firebase. De PWA bewaart alleen de app-shell/iconen; Firebase-data ophalen en opslaan blijft internet vereisen.
+
+BESTANDEN TOEVOEGEN IN DE ROOT VAN DE REPOSITORY
+- manifest.json
+- sw.js
+- icon.png
+- map icons/ met icon-192.png en icon-512.png
+
+INDEX.HTML AANPASSEN (2 kleine toevoegingen; laat de rest van de code ongewijzigd)
+
+1) Voeg binnen <head>, direct na de <title>...</title>, toe:
+
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#005b46">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
+<link rel="apple-touch-icon" href="./icons/icon-192.png">
+
+2) Voeg vlak vóór </body> toe:
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('./sw.js').catch(function (error) {
+      console.error('Service worker kon niet worden geregistreerd:', error);
+    });
+  });
+}
+</script>
+
+PUBLICEREN
+1. Open GitHub > Luuk57/DialyseDBase > Add file > Upload files.
+2. Upload manifest.json, sw.js, icon.png en de map icons/ (met beide PNG-bestanden). Commit changes.
+3. Open index.html via GitHub, klik op het potlood (Edit), voeg de twee blokken hierboven toe en commit. Verander geen bestaande Firebase-code.
+4. Wacht tot GitHub Pages klaar is en open https://luuk57.github.io/DialyseDBase/ in Chrome.
+5. Chrome-menu ⋮ > App installeren (of Installeren / Toevoegen aan startscherm).
+
+Let op: dit maakt de website installeerbaar en opent haar zonder adresbalk. De service worker maakt de pagina zelf eventueel offline zichtbaar na eerder laden, maar live Firebase-functies werken niet zonder internet.
