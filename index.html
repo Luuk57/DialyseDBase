@@ -413,8 +413,17 @@
         <span id="agendaCountLabel" style="font-size: 0.9rem; color: #555;">0 afspraken</span>
       </div>
 
+      <div class="form-card" id="agendaCategoryManageCard">
+        <h3 style="margin-bottom: 10px; color: #333;">Categorieën Beheren</h3>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:10px;">
+          <input type="text" id="newAgendaCategoryInput" placeholder="Nieuwe categorie (bijv. Controle, Fysiotherapie)..." style="flex:1; min-width:220px;">
+          <button type="button" class="btn btn-success" onclick="handleAddAgendaCategory()">+ Categorie Toevoegen</button>
+        </div>
+        <div id="agendaCategoryChips" class="folder-bar" style="margin-bottom:0;"></div>
+      </div>
+
       <div class="form-card" id="agendaFormCard">
-        <h3 id="agendaFormTitle" style="margin-bottom: 12px; color: #333;">Nieuwe Afspraak Toevoegen</h3>
+        <h3 id="agendaFormTitle" style="margin-bottom: 12px; color: #333;">Nieuwe Afspraak Toevoegen / Plannen</h3>
         <form onsubmit="handleAgendaSubmit(event)">
           <input type="hidden" id="editAgendaId" value="">
           <div class="form-grid">
@@ -424,12 +433,7 @@
             </div>
             <div class="form-group">
               <label>Categorie</label>
-              <select id="agendaCategorySelect">
-                <option value="dialyse">Dialyse</option>
-                <option value="ziekenhuis">Ziekenhuis / Arts</option>
-                <option value="inr">INR / Bloedprikken</option>
-                <option value="overig">Overig</option>
-              </select>
+              <select id="agendaCategorySelect"></select>
             </div>
             <div class="form-group">
               <label>Start Datum & Tijd</label>
@@ -440,12 +444,37 @@
               <input type="datetime-local" id="agendaEndInput">
             </div>
             <div class="form-group">
-              <label>Arts / Specialist (optioneel)</label>
-              <input type="text" id="agendaDoctorInput" placeholder="bijv. Dr. Jansen">
+              <label>Arts / Specialist</label>
+              <select id="agendaDoctorSelect" onchange="checkAgendaNewOption(this, 'doctors', 'Nieuwe arts')">
+                <option value="">-- Geen / Kies arts --</option>
+              </select>
             </div>
             <div class="form-group">
-              <label>Locatie (optioneel)</label>
-              <input type="text" id="agendaLocationInput" placeholder="bijv. DKE Boermarkeweg 60 Emmen">
+              <label>Locatie</label>
+              <select id="agendaLocationSelect" onchange="checkAgendaNewOption(this, 'locations', 'Nieuwe locatie')">
+                <option value="">-- Geen / Kies locatie --</option>
+              </select>
+            </div>
+            <div class="form-group" id="agendaRepeatGroup">
+              <label>Herhaling / Planning</label>
+              <select id="agendaRepeatSelect" onchange="onAgendaRepeatChanged()">
+                <option value="single">1 malig</option>
+                <option value="daily">Elke dag</option>
+                <option value="alternate">Om de dag</option>
+                <option value="mwf">Ma - Wo - Vrij</option>
+                <option value="tts">Di - Do - Za</option>
+              </select>
+            </div>
+            <div class="form-group" id="agendaEndModeGroup" style="display:none;">
+              <label>Plannen tot</label>
+              <select id="agendaEndModeSelect" onchange="onAgendaEndModeChanged()">
+                <option value="date">Specifieke einddatum</option>
+                <option value="month">Voorlopende maand (einde huidige maand)</option>
+              </select>
+            </div>
+            <div class="form-group" id="agendaRepeatEndDateGroup" style="display:none;">
+              <label>Einddatum herhaling</label>
+              <input type="date" id="agendaRepeatEndDateInput">
             </div>
             <div class="form-group full">
               <label>Notities / Voorbereiding (optioneel)</label>
@@ -472,6 +501,7 @@
         <div style="display:flex; gap:10px; flex-wrap:wrap;">
           <input type="text" id="agendaSearchBox" class="search-box" placeholder="Zoek op titel, arts of locatie..." onkeyup="renderAgendaList()">
           <button type="button" class="btn btn-excel" onclick="exportAgendaExcel()">Excel (.xlsx)</button>
+          <button type="button" class="btn btn-pdf" onclick="exportAgendaPdf()">PDF / Print</button>
         </div>
       </div>
 
@@ -1252,7 +1282,13 @@
   let currentUserData = null;
 
   // Agenda state
+  const defaultAgendaCategories = ['Dialyse', 'Ziekenhuis / Arts', 'INR / Bloedprikken', 'Overig'];
   let agendaEventsList = [];
+  let agendaSettings = {
+    categories: defaultAgendaCategories.slice(),
+    doctors: [],
+    locations: ['DKE Boermarkeweg 60 Emmen']
+  };
 
   // Module lijsten
   let allDialyseRecords = [];
@@ -1375,8 +1411,10 @@
     document.getElementById('tileAgenda').style.display = hasAgenda ? 'flex' : 'none';
     if (hasAgenda) {
       visibleCount++;
-      document.getElementById('agendaFormCard').style.display = (isAdmin || agendaPerm === 'write') ? 'block' : 'none';
-      loadAgendaEvents();
+      const canWriteAg = isAdmin || agendaPerm === 'write';
+      document.getElementById('agendaFormCard').style.display = canWriteAg ? 'block' : 'none';
+      document.getElementById('agendaCategoryManageCard').style.display = canWriteAg ? 'block' : 'none';
+      loadAgendaSettingsAndEvents();
     }
 
     // 1. Dialyse Beheer
@@ -1510,6 +1548,144 @@
   }
 
   // --- AGENDA MODULE ---
+  function loadAgendaSettingsAndEvents() {
+    db.collection('agenda_settings').doc(currentUser.uid).get().then(doc => {
+      if (doc.exists) {
+        const d = doc.data();
+        const cats = Array.isArray(d.categories) && d.categories.length > 0 ? d.categories : defaultAgendaCategories.slice();
+        defaultAgendaCategories.forEach(defCat => {
+          if (!cats.includes(defCat)) cats.unshift(defCat);
+        });
+        agendaSettings.categories = cats;
+        agendaSettings.doctors = Array.isArray(d.doctors) ? d.doctors : [];
+        agendaSettings.locations = Array.isArray(d.locations) && d.locations.length > 0 ? d.locations : ['DKE Boermarkeweg 60 Emmen'];
+      }
+      renderAgendaDropdownsAndCategories();
+      loadAgendaEvents();
+    }).catch(() => {
+      renderAgendaDropdownsAndCategories();
+      loadAgendaEvents();
+    });
+  }
+
+  function saveAgendaSettings() {
+    if (!currentUser) return Promise.resolve();
+    return db.collection('agenda_settings').doc(currentUser.uid).set(agendaSettings, { merge: true });
+  }
+
+  function renderAgendaDropdownsAndCategories() {
+    const catSelect = document.getElementById('agendaCategorySelect');
+    if (catSelect) {
+      const prevCat = catSelect.value;
+      catSelect.innerHTML = '';
+      agendaSettings.categories.forEach(cat => {
+        catSelect.innerHTML += `<option value="${cat}">${cat}</option>`;
+      });
+      if (prevCat && agendaSettings.categories.includes(prevCat)) catSelect.value = prevCat;
+    }
+
+    const chipBox = document.getElementById('agendaCategoryChips');
+    if (chipBox) {
+      const allowWrite = canWriteAgenda();
+      chipBox.innerHTML = '';
+      agendaSettings.categories.forEach(cat => {
+        const isDefault = defaultAgendaCategories.includes(cat);
+        const delBtn = (allowWrite && !isDefault)
+          ? ` <span onclick="event.stopPropagation(); deleteAgendaCategory('${cat.replace(/'/g, "\\'")}')" title="Categorie verwijderen">&times;</span>`
+          : '';
+        chipBox.innerHTML += `<span class="folder-chip">${cat}${delBtn}</span>`;
+      });
+    }
+
+    populateAgendaOptionSelect('agendaDoctorSelect', agendaSettings.doctors, '+ Nieuwe arts toevoegen...');
+    populateAgendaOptionSelect('agendaLocationSelect', agendaSettings.locations, '+ Nieuwe locatie toevoegen...');
+  }
+
+  function populateAgendaOptionSelect(selectId, list, addLabel) {
+    const sel = document.getElementById(selectId);
+    if (!sel) return;
+    const prevVal = sel.value;
+    sel.innerHTML = '<option value="">-- Geen --</option>';
+    (list || []).slice().sort().forEach(item => {
+      sel.innerHTML += `<option value="${item}">${item}</option>`;
+    });
+    sel.innerHTML += `<option value="__ADD_NEW__">${addLabel}</option>`;
+    if (prevVal && prevVal !== '__ADD_NEW__' && (list || []).includes(prevVal)) {
+      sel.value = prevVal;
+    }
+  }
+
+  function checkAgendaNewOption(selectEl, fieldKey, labelText) {
+    if (selectEl.value !== '__ADD_NEW__') return;
+    const entered = prompt(`${labelText} invoeren:`);
+    if (entered && entered.trim()) {
+      const clean = entered.trim();
+      if (!Array.isArray(agendaSettings[fieldKey])) agendaSettings[fieldKey] = [];
+      if (!agendaSettings[fieldKey].includes(clean)) {
+        agendaSettings[fieldKey].push(clean);
+        saveAgendaSettings();
+      }
+      renderAgendaDropdownsAndCategories();
+      selectEl.value = clean;
+    } else {
+      selectEl.value = '';
+    }
+  }
+
+  function handleAddAgendaCategory() {
+    if (!canWriteAgenda()) return;
+    const input = document.getElementById('newAgendaCategoryInput');
+    const name = input.value.trim();
+    if (!name) return;
+    if (!agendaSettings.categories.includes(name)) {
+      agendaSettings.categories.push(name);
+      saveAgendaSettings().then(() => {
+        input.value = '';
+        renderAgendaDropdownsAndCategories();
+        document.getElementById('agendaCategorySelect').value = name;
+      });
+    }
+  }
+
+  function deleteAgendaCategory(catName) {
+    if (!canWriteAgenda()) return;
+    if (defaultAgendaCategories.includes(catName)) {
+      alert("Standaardcategorieën kunnen niet worden verwijderd.");
+      return;
+    }
+    if (!confirm(`Categorie '${catName}' verwijderen? Afspraken in deze categorie worden gezet op 'Overig'.`)) return;
+
+    agendaSettings.categories = agendaSettings.categories.filter(c => c !== catName);
+    const affected = agendaEventsList.filter(e => e.category === catName);
+    const batch = db.batch();
+    affected.forEach(ev => {
+      ev.category = 'Overig';
+      batch.update(db.collection('agenda_events').doc(ev.id), { category: 'Overig' });
+    });
+    batch.set(db.collection('agenda_settings').doc(currentUser.uid), agendaSettings, { merge: true });
+
+    batch.commit().then(() => {
+      renderAgendaDropdownsAndCategories();
+      renderAgendaList();
+    });
+  }
+
+  function onAgendaRepeatChanged() {
+    const isEdit = Boolean(document.getElementById('editAgendaId').value);
+    const repeat = document.getElementById('agendaRepeatSelect').value;
+    const showRepeatEnd = !isEdit && repeat !== 'single';
+    document.getElementById('agendaEndModeGroup').style.display = showRepeatEnd ? 'flex' : 'none';
+    onAgendaEndModeChanged();
+  }
+
+  function onAgendaEndModeChanged() {
+    const isEdit = Boolean(document.getElementById('editAgendaId').value);
+    const repeat = document.getElementById('agendaRepeatSelect').value;
+    const endMode = document.getElementById('agendaEndModeSelect').value;
+    const showDate = !isEdit && repeat !== 'single' && endMode === 'date';
+    document.getElementById('agendaRepeatEndDateGroup').style.display = showDate ? 'flex' : 'none';
+  }
+
   function loadAgendaEvents() {
     db.collection('agenda_events').where('userId', '==', currentUser.uid).get().then(snapshot => {
       agendaEventsList = [];
@@ -1527,25 +1703,130 @@
     if (!canWriteAgenda()) return;
 
     const editId = document.getElementById('editAgendaId').value;
-    const record = {
-      userId: currentUser.uid,
-      title: document.getElementById('agendaTitleInput').value.trim(),
-      category: document.getElementById('agendaCategorySelect').value,
-      start: document.getElementById('agendaStartInput').value,
-      end: document.getElementById('agendaEndInput').value || '',
-      doctor: document.getElementById('agendaDoctorInput').value.trim(),
-      location: document.getElementById('agendaLocationInput').value.trim(),
-      notes: document.getElementById('agendaNotesInput').value.trim(),
-      timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    };
+    const title = document.getElementById('agendaTitleInput').value.trim();
+    const category = document.getElementById('agendaCategorySelect').value || 'Overig';
+    const startVal = document.getElementById('agendaStartInput').value;
+    const endVal = document.getElementById('agendaEndInput').value || '';
+    const doctorRaw = document.getElementById('agendaDoctorSelect').value;
+    const locationRaw = document.getElementById('agendaLocationSelect').value;
+    const doctor = (doctorRaw && doctorRaw !== '__ADD_NEW__') ? doctorRaw : '';
+    const location = (locationRaw && locationRaw !== '__ADD_NEW__') ? locationRaw : '';
+    const notes = document.getElementById('agendaNotesInput').value.trim();
 
-    const req = editId
-      ? db.collection('agenda_events').doc(editId).update(record)
-      : db.collection('agenda_events').add(record);
+    if (!title || !startVal) return;
 
-    req.then(() => {
+    if (editId) {
+      const record = {
+        userId: currentUser.uid,
+        title,
+        category,
+        start: startVal,
+        end: endVal,
+        doctor,
+        location,
+        notes,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      };
+      db.collection('agenda_events').doc(editId).update(record).then(() => {
+        resetAgendaForm();
+        loadAgendaEvents();
+      }).catch(err => alert("Fout bij opslaan afspraak: " + err.message));
+      return;
+    }
+
+    const repeat = document.getElementById('agendaRepeatSelect').value;
+    const startDatePart = startVal.slice(0, 10);
+    const startTimePart = startVal.slice(11, 16) || '09:00';
+    let durationMs = 0;
+    if (endVal) {
+      const dStart = new Date(startVal);
+      const dEnd = new Date(endVal);
+      if (!isNaN(dStart) && !isNaN(dEnd) && dEnd > dStart) {
+        durationMs = dEnd.getTime() - dStart.getTime();
+      }
+    }
+
+    const [sy, sm, sd] = startDatePart.split('-').map(Number);
+    const firstDate = new Date(sy, (sm || 1) - 1, sd || 1, 0, 0, 0, 0);
+
+    let lastDate = new Date(firstDate.getTime());
+    if (repeat !== 'single') {
+      const endMode = document.getElementById('agendaEndModeSelect').value;
+      if (endMode === 'month') {
+        lastDate = new Date(firstDate.getFullYear(), firstDate.getMonth() + 1, 0, 0, 0, 0, 0);
+      } else {
+        const repEndStr = document.getElementById('agendaRepeatEndDateInput').value;
+        if (!repEndStr) {
+          alert("Kies een einddatum voor de herhaling of selecteer 'Voorlopende maand'.");
+          return;
+        }
+        const [ey, em, ed] = repEndStr.split('-').map(Number);
+        lastDate = new Date(ey, (em || 1) - 1, ed || 1, 0, 0, 0, 0);
+      }
+      if (lastDate < firstDate) {
+        alert("De einddatum moet op of na de startdatum liggen.");
+        return;
+      }
+    }
+
+    const datesToCreate = [];
+    const cursor = new Date(firstDate.getTime());
+    let safetyCounter = 0;
+    while (cursor <= lastDate && safetyCounter < 400) {
+      safetyCounter++;
+      const dayOfWeek = cursor.getDay();
+      const diffDays = Math.round((cursor.getTime() - firstDate.getTime()) / 86400000);
+      const match =
+        repeat === 'single' ||
+        repeat === 'daily' ||
+        (repeat === 'alternate' && diffDays % 2 === 0) ||
+        (repeat === 'mwf' && [1, 3, 5].includes(dayOfWeek)) ||
+        (repeat === 'tts' && [2, 4, 6].includes(dayOfWeek));
+
+      if (match) {
+        datesToCreate.push(new Date(cursor.getTime()));
+      }
+      if (repeat === 'single') break;
+      cursor.setDate(cursor.getDate() + 1);
+    }
+
+    if (datesToCreate.length === 0) {
+      alert("Geen afspraakdagen gevonden binnen het gekozen bereik.");
+      return;
+    }
+
+    const batch = db.batch();
+    datesToCreate.forEach(dt => {
+      const dKey = getLocalDateKey(dt);
+      const itemStart = `${dKey}T${startTimePart}`;
+      let itemEnd = '';
+      if (durationMs > 0) {
+        const [sh, smin] = startTimePart.split(':').map(Number);
+        const startFull = new Date(dt.getFullYear(), dt.getMonth(), dt.getDate(), sh || 0, smin || 0, 0, 0);
+        const endFull = new Date(startFull.getTime() + durationMs);
+        itemEnd = `${getLocalDateKey(endFull)}T${String(endFull.getHours()).padStart(2, '0')}:${String(endFull.getMinutes()).padStart(2, '0')}`;
+      }
+      const ref = db.collection('agenda_events').doc();
+      batch.set(ref, {
+        userId: currentUser.uid,
+        title,
+        category,
+        start: itemStart,
+        end: itemEnd,
+        doctor,
+        location,
+        notes,
+        repeatRule: repeat,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    });
+
+    batch.commit().then(() => {
       resetAgendaForm();
       loadAgendaEvents();
+      if (datesToCreate.length > 1) {
+        alert(`${datesToCreate.length} agenda-afspraken ingepland!`);
+      }
     }).catch(err => alert("Fout bij opslaan afspraak: " + err.message));
   }
 
@@ -1554,12 +1835,31 @@
     if (!item) return;
     document.getElementById('editAgendaId').value = item.id;
     document.getElementById('agendaTitleInput').value = item.title || '';
-    document.getElementById('agendaCategorySelect').value = item.category || 'dialyse';
+    const cat = item.category || 'Overig';
+    if (!agendaSettings.categories.includes(cat)) {
+      agendaSettings.categories.push(cat);
+      renderAgendaDropdownsAndCategories();
+    }
+    document.getElementById('agendaCategorySelect').value = cat;
     document.getElementById('agendaStartInput').value = item.start || '';
     document.getElementById('agendaEndInput').value = item.end || '';
-    document.getElementById('agendaDoctorInput').value = item.doctor || '';
-    document.getElementById('agendaLocationInput').value = item.location || '';
+
+    if (item.doctor && !agendaSettings.doctors.includes(item.doctor)) {
+      agendaSettings.doctors.push(item.doctor);
+      renderAgendaDropdownsAndCategories();
+    }
+    document.getElementById('agendaDoctorSelect').value = item.doctor || '';
+
+    if (item.location && !agendaSettings.locations.includes(item.location)) {
+      agendaSettings.locations.push(item.location);
+      renderAgendaDropdownsAndCategories();
+    }
+    document.getElementById('agendaLocationSelect').value = item.location || '';
+
     document.getElementById('agendaNotesInput').value = item.notes || '';
+    document.getElementById('agendaRepeatGroup').style.display = 'none';
+    document.getElementById('agendaEndModeGroup').style.display = 'none';
+    document.getElementById('agendaRepeatEndDateGroup').style.display = 'none';
     document.getElementById('agendaFormTitle').innerText = 'Afspraak Bewerken';
     document.getElementById('agendaSubmitBtn').innerText = 'Wijzigingen Opslaan';
     document.getElementById('agendaCancelEditBtn').style.display = 'inline-block';
@@ -1569,9 +1869,11 @@
   function resetAgendaForm() {
     document.querySelector('#agendaFormCard form').reset();
     document.getElementById('editAgendaId').value = '';
-    document.getElementById('agendaFormTitle').innerText = 'Nieuwe Afspraak Toevoegen';
+    document.getElementById('agendaRepeatGroup').style.display = 'flex';
+    document.getElementById('agendaFormTitle').innerText = 'Nieuwe Afspraak Toevoegen / Plannen';
     document.getElementById('agendaSubmitBtn').innerText = 'Afspraak Opslaan';
     document.getElementById('agendaCancelEditBtn').style.display = 'none';
+    onAgendaRepeatChanged();
   }
 
   function deleteAgendaEvent(id) {
@@ -1581,18 +1883,15 @@
     }
   }
 
-  function getAgendaCategoryLabel(cat) {
-    if (cat === 'dialyse') return 'Dialyse';
-    if (cat === 'ziekenhuis') return 'Ziekenhuis / Arts';
-    if (cat === 'inr') return 'INR / Bloedprikken';
-    return 'Overig';
+  function getAgendaCategoryStyleClass(cat) {
+    const low = String(cat || '').toLowerCase();
+    if (low.includes('dialyse')) return 'cat-dialyse';
+    if (low.includes('ziekenhuis') || low.includes('arts')) return 'cat-ziekenhuis';
+    if (low.includes('inr') || low.includes('bloed')) return 'cat-inr';
+    return 'cat-overig';
   }
 
-  function renderAgendaList() {
-    const container = document.getElementById('agendaListContainer');
-    const countLabel = document.getElementById('agendaCountLabel');
-    if (!container) return;
-
+  function getFilteredAgendaEvents() {
     const period = document.getElementById('agendaPeriodSelect')?.value || 'upcoming';
     const query = (document.getElementById('agendaSearchBox')?.value || '').toLowerCase();
     const now = new Date();
@@ -1601,7 +1900,7 @@
     in7Days.setDate(in7Days.getDate() + 7);
     const max7Key = getLocalDateKey(in7Days);
 
-    const filtered = agendaEventsList.filter(item => {
+    return agendaEventsList.filter(item => {
       const startStr = item.start || '';
       const datePart = startStr.slice(0, 10);
       const startDt = startStr ? new Date(startStr) : null;
@@ -1617,12 +1916,23 @@
 
       const textOk = !query ||
         String(item.title || '').toLowerCase().includes(query) ||
+        String(item.category || '').toLowerCase().includes(query) ||
         String(item.doctor || '').toLowerCase().includes(query) ||
         String(item.location || '').toLowerCase().includes(query) ||
         String(item.notes || '').toLowerCase().includes(query);
 
       return periodOk && textOk;
     });
+  }
+
+  function renderAgendaList() {
+    const container = document.getElementById('agendaListContainer');
+    const countLabel = document.getElementById('agendaCountLabel');
+    if (!container) return;
+
+    const now = new Date();
+    const todayKey = getLocalDateKey(now);
+    const filtered = getFilteredAgendaEvents();
 
     if (countLabel) {
       countLabel.innerText = `${agendaEventsList.length} ${agendaEventsList.length === 1 ? 'afspraak' : 'afspraken'}`;
@@ -1656,11 +1966,11 @@
         : '';
 
       container.innerHTML += `
-        <div class="agenda-item cat-${item.category || 'overig'} ${isPast ? 'past' : ''}">
+        <div class="agenda-item ${getAgendaCategoryStyleClass(item.category)} ${isPast ? 'past' : ''}">
           <div class="agenda-main">
             <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
               ${statusBadge}
-              <span class="badge bg-user">${getAgendaCategoryLabel(item.category)}</span>
+              <span class="badge bg-user">${item.category || 'Overig'}</span>
               <span class="agenda-title">${item.title}</span>
             </div>
             <div class="agenda-details">
@@ -1698,13 +2008,14 @@
   }
 
   function exportAgendaExcel() {
-    if (!agendaEventsList.length) {
+    const list = getFilteredAgendaEvents();
+    if (!list.length) {
       alert("Geen agenda-afspraken om te exporteren.");
       return;
     }
-    const data = agendaEventsList.map(i => ({
+    const data = list.map(i => ({
       "Titel": i.title,
-      "Categorie": getAgendaCategoryLabel(i.category),
+      "Categorie": i.category || 'Overig',
       "Start": i.start ? i.start.replace('T', ' ') : '',
       "Eind": i.end ? i.end.replace('T', ' ') : '',
       "Arts": i.doctor || '',
@@ -1715,6 +2026,74 @@
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Agenda");
     XLSX.writeFile(wb, `Agenda_${new Date().toISOString().slice(0,10)}.xlsx`);
+  }
+
+  function exportAgendaPdf() {
+    const list = getFilteredAgendaEvents();
+    if (!list.length) {
+      alert("Geen agenda-afspraken om naar PDF te exporteren.");
+      return;
+    }
+    const rowsHtml = list.map(i => {
+      const startFmt = i.start ? i.start.replace('T', ' ') : '-';
+      const endFmt = i.end ? i.end.replace('T', ' ') : '-';
+      return `
+        <tr>
+          <td>${i.title || '-'}</td>
+          <td>${i.category || 'Overig'}</td>
+          <td>${startFmt}</td>
+          <td>${endFmt}</td>
+          <td>${i.doctor || '-'}</td>
+          <td>${i.location || '-'}</td>
+          <td>${i.notes || '-'}</td>
+        </tr>
+      `;
+    }).join('');
+
+    const win = window.open('', '_blank');
+    if (!win) {
+      window.print();
+      return;
+    }
+    win.document.write(`
+      <!DOCTYPE html>
+      <html lang="nl">
+      <head>
+        <meta charset="UTF-8">
+        <title>Agenda Overzicht PDF</title>
+        <style>
+          body { font-family: Arial, sans-serif; padding: 24px; color: #1e293b; }
+          h1 { color: #0056b3; font-size: 1.4rem; margin-bottom: 6px; }
+          p { color: #64748b; font-size: 0.85rem; margin-bottom: 16px; }
+          table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+          th, td { border: 1px solid #cbd5e1; padding: 8px; text-align: left; }
+          th { background: #0056b3; color: #fff; }
+          tr:nth-child(even) { background: #f8fafc; }
+        </style>
+      </head>
+      <body>
+        <h1>Agenda Overzicht</h1>
+        <p>Gegenereerd op ${new Date().toLocaleString('nl-NL')}</p>
+        <table>
+          <thead>
+            <tr>
+              <th>Titel</th>
+              <th>Categorie</th>
+              <th>Start</th>
+              <th>Eind</th>
+              <th>Arts</th>
+              <th>Locatie</th>
+              <th>Notities</th>
+            </tr>
+          </thead>
+          <tbody>${rowsHtml}</tbody>
+        </table>
+      </body>
+      </html>
+    `);
+    win.document.close();
+    win.focus();
+    setTimeout(() => win.print(), 250);
   }
 
   // --- MODULE 0: DIALYSE BEHEER ---
