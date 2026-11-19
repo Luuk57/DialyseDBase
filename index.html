@@ -120,6 +120,16 @@
     .pos-tile img { width: 65px; height: 65px; object-fit: cover; border-radius: 8px; margin-bottom: 6px; border: 1px solid #e2e8f0; }
     .pos-tile span { font-size: 0.85rem; font-weight: bold; color: #1e293b; line-height: 1.1; }
 
+    /* BRIEVEN SCANNER & MAPPEN */
+    .folder-bar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 15px; }
+    .folder-chip { background: #f1f5f9; border: 1px solid var(--border-color); color: #1e293b; padding: 7px 14px; border-radius: 999px; cursor: pointer; font-size: 0.85rem; font-weight: bold; transition: all 0.2s; }
+    .folder-chip.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .letter-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 15px; margin-top: 15px; }
+    .letter-card { background: #f8fafc; border: 1px solid var(--border-color); border-radius: 10px; padding: 14px; display: flex; flex-direction: column; justify-content: space-between; gap: 10px; }
+    .letter-thumb { width: 100%; height: 140px; object-fit: cover; border-radius: 8px; border: 1px solid #e2e8f0; background: #fff; }
+    .letter-pdf-box { width: 100%; height: 140px; border-radius: 8px; border: 1px dashed #94a3b8; background: #fff; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #475569; font-size: 0.9rem; }
+    .letter-meta { font-size: 0.8rem; color: #64748b; }
+
     /* MODAL / POP-UP VOOR HOEVEELHEID KIEZEN */
     .modal-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 15px; }
     .modal { background: white; padding: 25px; border-radius: 12px; width: 100%; max-width: 400px; box-shadow: 0 5px 20px rgba(0,0,0,0.2); text-align: center; }
@@ -244,6 +254,7 @@
       <button class="tab-btn" id="tabBtnBp" style="display:none;" onclick="switchTab('bpTab', this)">Bloeddruk & Hartslag</button>
       <button class="tab-btn" id="tabBtnVocht" style="display:none;" onclick="switchTab('vochtTab', this)">POS Vocht Intake</button>
       <button class="tab-btn" id="tabBtnRitten" style="display:none;" onclick="switchTab('rittenTab', this)">Rittenapp</button>
+      <button class="tab-btn" id="tabBtnBrieven" style="display:none;" onclick="switchTab('brievenTab', this)">Brieven</button>
       <button class="tab-btn admin-tab" id="adminTabBtn" style="display:none;" onclick="switchTab('adminTab', this)">Gebruikersbeheer (Admin)</button>
     </div>
 
@@ -288,6 +299,15 @@
           <div class="summary-value" id="dashDialyseValue">-</div>
           <div class="summary-sub" id="dashDialyseSub">Geen sessie geregistreerd</div>
         </div>
+
+        <div class="summary-card">
+          <div class="summary-card-header">
+            <span>Brieven & Mappen</span>
+            <span class="badge bg-admin" id="dashBrievenBadge">0</span>
+          </div>
+          <div class="summary-value" id="dashBrievenValue">0 brieven</div>
+          <div class="summary-sub" id="dashBrievenSub">0 eigen mappen</div>
+        </div>
       </div>
 
       <h2 style="color: #1e293b; font-size: 1.2rem; margin-bottom: 5px;">Mijn Programma's</h2>
@@ -328,6 +348,15 @@
           </div>
           <h3>Rittenapp</h3>
           <p>Rittenlog, planning & stiptheid overzicht</p>
+        </div>
+
+        <!-- Tegel Brieven Scanner & Mappen -->
+        <div class="app-tile" id="tileBrieven" style="display:none;" onclick="openModule('brievenTab', 'tabBtnBrieven')">
+          <div class="app-tile-icon" style="background: linear-gradient(135deg, #7c3aed, #5b21b6);">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+          </div>
+          <h3>Brieven & Mappen</h3>
+          <p>Brieven scannen, downloaden & mappen beheren</p>
         </div>
 
         <!-- Tegel Gebruikersbeheer (Alleen Admin) -->
@@ -905,7 +934,65 @@
       </div>
     </div>
 
-    <!-- TAB 5: BEHEER (Admin) -->
+    <!-- TAB 5: BRIEVEN SCANNER & MAPPEN -->
+    <div id="brievenTab" class="tab-content">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; flex-wrap:wrap; gap:10px;">
+        <h2 style="color: var(--primary); font-size: 1.25rem;">Brieven Scannen, Downloaden & Mappen</h2>
+        <span id="brievenCountLabel" style="font-size: 0.9rem; color: #555;">0 brieven in 0 mappen</span>
+      </div>
+
+      <!-- Zelf mappen aanmaken -->
+      <div class="form-card" id="brievenFolderCard">
+        <h3 style="margin-bottom: 12px; color: #333;">Eigen Map Aanmaken</h3>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+          <input type="text" id="newFolderNameInput" placeholder="Nieuwe mapnaam (bijv. Ziekenhuis, Verzekering, Bank)..." style="flex: 1; min-width: 220px;">
+          <button type="button" class="btn btn-success" onclick="handleCreateFolder()">+ Map Toevoegen</button>
+        </div>
+      </div>
+
+      <!-- Brief scannen met camera of bestand kiezen/downloaden -->
+      <div class="form-card" id="brievenScanCard">
+        <h3 style="margin-bottom: 12px; color: #333;">Brief Scannen of Bestand Toevoegen</h3>
+        <form onsubmit="handleSaveLetter(event)">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Titel / Onderwerp van brief</label>
+              <input type="text" id="letterTitleInput" placeholder="bijv. Afsprakenbrief Nefrologie" required>
+            </div>
+            <div class="form-group">
+              <label>Map kiezen</label>
+              <select id="letterFolderSelect" required></select>
+            </div>
+            <div class="form-group">
+              <label>Scan met Camera (Mobiel / Tablet)</label>
+              <input type="file" id="letterCameraInput" accept="image/*" capture="environment" onchange="handleLetterFilePicked(this)">
+            </div>
+            <div class="form-group">
+              <label>Of kies Foto / PDF van apparaat</label>
+              <input type="file" id="letterFileInput" accept="image/*,application/pdf" onchange="handleLetterFilePicked(this)">
+            </div>
+          </div>
+          <div id="letterPreviewBox" style="display:none; margin-bottom: 15px; padding: 10px; background: #fff; border: 1px solid var(--border-color); border-radius: 8px;">
+            <div style="font-size: 0.85rem; font-weight: bold; margin-bottom: 6px;" id="letterPreviewName">Voorbeeld</div>
+            <img id="letterImgPreview" style="display:none; max-height: 180px; border-radius: 6px; border: 1px solid #ddd;">
+            <div id="letterPdfPreview" style="display:none; font-size: 0.85rem; color: #334155;">PDF-bestand gereed voor opslag.</div>
+          </div>
+          <button type="submit" class="btn btn-success">Brief Opslaan in Map</button>
+        </form>
+      </div>
+
+      <!-- Mappenfilter & Zoeken -->
+      <div class="actions-bar">
+        <div class="folder-bar" id="folderFilterBar"></div>
+        <input type="text" id="letterSearchBox" class="search-box" placeholder="Zoek brief op titel of map..." onkeyup="renderLettersGrid()">
+      </div>
+
+      <div id="lettersGrid" class="letter-grid">
+        <p style="color:#64748b;">Nog geen brieven opgeslagen.</p>
+      </div>
+    </div>
+
+    <!-- TAB 6: BEHEER (Admin) -->
     <div id="adminTab" class="tab-content">
       <h3 style="margin-bottom: 15px; color: var(--primary);">Gebruikersbeheer & Module-rechten</h3>
       <div class="table-container">
@@ -919,11 +1006,12 @@
               <th>Bloeddruk</th>
               <th>Vochtmonitor</th>
               <th>Rittenapp</th>
+              <th>Brieven</th>
               <th>Acties</th>
             </tr>
           </thead>
           <tbody id="usersTableBody">
-            <tr><td colspan="8" style="text-align:center;">Laden...</td></tr>
+            <tr><td colspan="9" style="text-align:center;">Laden...</td></tr>
           </tbody>
         </table>
       </div>
@@ -1025,6 +1113,12 @@
   let rittenList = [];
   let dropdownOptions = { Bedrijf: [], Chauffeur: [], Kenteken: [], Vanaf: [], Naar: [] };
 
+  // Brieven & Mappen state
+  let letterFolders = ['Algemeen', 'Dialyse & Ziekenhuis', 'Verzekering'];
+  let activeFolderFilter = 'ALL';
+  let lettersList = [];
+  let draftLetterData = null;
+
   auth.onAuthStateChanged(user => {
     if (user) {
       currentUser = user;
@@ -1064,7 +1158,7 @@
             email: email,
             status: 'pending',
             role: 'user',
-            permissions: { dialyse: 'none', bloeddruk: 'none', vocht: 'none', ritten: 'none' },
+            permissions: { dialyse: 'none', bloeddruk: 'none', vocht: 'none', ritten: 'none', brieven: 'none' },
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
           });
         })
@@ -1091,7 +1185,7 @@
           email: user.email,
           status: 'pending',
           role: 'user',
-          permissions: { dialyse: 'none', bloeddruk: 'none', vocht: 'none', ritten: 'none' },
+          permissions: { dialyse: 'none', bloeddruk: 'none', vocht: 'none', ritten: 'none', brieven: 'none' },
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
         }).then(() => {
           document.getElementById('pendingContainer').style.display = 'block';
@@ -1111,6 +1205,7 @@
     const bpPerm = perms.bloeddruk || 'none';
     const vochtPerm = perms.vocht || 'none';
     const rittenPerm = perms.ritten || 'none';
+    const brievenPerm = perms.brieven || (isAdmin ? 'write' : 'read');
 
     let visibleCount = 0;
 
@@ -1160,7 +1255,19 @@
       loadDropdownsAndRitten();
     }
 
-    // 5. Admin paneel
+    // 5. Brieven Scanner & Mappen
+    const hasBrieven = isAdmin || brievenPerm !== 'none';
+    document.getElementById('tabBtnBrieven').style.display = hasBrieven ? 'block' : 'none';
+    document.getElementById('tileBrieven').style.display = hasBrieven ? 'flex' : 'none';
+    if (hasBrieven) {
+      visibleCount++;
+      const canWriteBrieven = isAdmin || brievenPerm === 'write';
+      document.getElementById('brievenFolderCard').style.display = canWriteBrieven ? 'block' : 'none';
+      document.getElementById('brievenScanCard').style.display = canWriteBrieven ? 'block' : 'none';
+      loadBrievenAndFolders();
+    }
+
+    // 6. Admin paneel
     document.getElementById('adminTabBtn').style.display = isAdmin ? 'block' : 'none';
     document.getElementById('tileAdmin').style.display = isAdmin ? 'flex' : 'none';
     if (isAdmin) {
@@ -1218,6 +1325,12 @@
     if (!currentUserData) return false;
     if (currentUserData.role === 'admin') return true;
     return (currentUserData.permissions && currentUserData.permissions.vocht === 'write');
+  }
+
+  function canWriteBrieven() {
+    if (!currentUserData) return false;
+    if (currentUserData.role === 'admin') return true;
+    return (currentUserData.permissions && currentUserData.permissions.brieven === 'write');
   }
 
   // --- MODULE 0: DIALYSE BEHEER ---
@@ -1706,7 +1819,6 @@
       return candidates[0];
     }
 
-    // Fallback als er nog geen dialysesessies zijn ingevuld: meest recente 22:30
     const fallback = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 22, 30, 0, 0);
     if (fallback > now) {
       fallback.setDate(fallback.getDate() - 1);
@@ -1845,7 +1957,6 @@
   }
 
   function updateProgressBars() {
-    // Balk 1: 1000 ml vandaag
     const dayMl = todayIntake.reduce((sum, item) => sum + (parseInt(item.amount) || 0), 0);
     const dayRawPct = Math.round((dayMl / 1000) * 100);
     const dayBarPct = Math.min(dayRawPct, 100);
@@ -1857,7 +1968,6 @@
     dayBar.style.width = `${dayBarPct}%`;
     dayBar.style.background = dayStyle.color;
 
-    // Balk 2: 2000 ml (2 liter) tussen dialyses vanaf dialysedag 22:30
     const cycleMl = cycleIntake.reduce((sum, item) => sum + (parseInt(item.amount) || 0), 0);
     const cycleRawPct = Math.round((cycleMl / 2000) * 100);
     const cycleBarPct = Math.min(cycleRawPct, 100);
@@ -1874,7 +1984,6 @@
       document.getElementById('cycleBarSub').innerText = `Actief sinds dialysedag ${resetLabel} om 22:30`;
     }
 
-    // Home Dashboard kaart
     document.getElementById('dashVochtValue').innerText = `${dayRawPct}% / ${cycleRawPct}%`;
     document.getElementById('dashVochtSub').innerText = `Dag: ${dayMl}/1000ml • Dialyse: ${cycleMl}/2000ml`;
     const dashBadge = document.getElementById('dashVochtBadge');
@@ -2046,6 +2155,283 @@
     XLSX.writeFile(workbook, `Vocht_Inname_${new Date().toISOString().slice(0,10)}.xlsx`);
   }
 
+  // --- MODULE 4: BRIEVEN SCANNER & MAPPEN ---
+  function loadBrievenAndFolders() {
+    db.collection('brieven_folders').doc(currentUser.uid).get().then(doc => {
+      if (doc.exists && Array.isArray(doc.data().folders) && doc.data().folders.length > 0) {
+        letterFolders = doc.data().folders;
+      } else {
+        letterFolders = ['Algemeen', 'Dialyse & Ziekenhuis', 'Verzekering'];
+      }
+      renderFolderSelectAndFilter();
+    }).catch(() => renderFolderSelectAndFilter());
+
+    db.collection('brieven_items').where('userId', '==', currentUser.uid).get().then(snapshot => {
+      lettersList = [];
+      snapshot.forEach(doc => {
+        lettersList.push({ id: doc.id, ...doc.data() });
+      });
+      lettersList.sort((a, b) => (b.createdAtMs || 0) - (a.createdAtMs || 0));
+      renderLettersGrid();
+      updateHomeBrievenSummary();
+    }).catch(err => console.error("Fout bij laden brieven:", err));
+  }
+
+  function handleCreateFolder() {
+    if (!canWriteBrieven()) return;
+    const input = document.getElementById('newFolderNameInput');
+    const name = input.value.trim();
+    if (!name) return;
+    if (!letterFolders.includes(name)) {
+      letterFolders.push(name);
+      db.collection('brieven_folders').doc(currentUser.uid).set({ folders: letterFolders }, { merge: true }).then(() => {
+        input.value = '';
+        renderFolderSelectAndFilter();
+        updateHomeBrievenSummary();
+      });
+    }
+  }
+
+  function deleteFolder(folderName) {
+    if (!canWriteBrieven()) return;
+    if (folderName === 'Algemeen') {
+      alert("De map 'Algemeen' kan niet worden verwijderd.");
+      return;
+    }
+    if (!confirm(`Map '${folderName}' verwijderen? Brieven in deze map worden verplaatst naar 'Algemeen'.`)) return;
+
+    letterFolders = letterFolders.filter(f => f !== folderName);
+    if (activeFolderFilter === folderName) activeFolderFilter = 'ALL';
+
+    const toMove = lettersList.filter(l => l.folder === folderName);
+    const batch = db.batch();
+    toMove.forEach(item => {
+      item.folder = 'Algemeen';
+      batch.update(db.collection('brieven_items').doc(item.id), { folder: 'Algemeen' });
+    });
+    batch.set(db.collection('brieven_folders').doc(currentUser.uid), { folders: letterFolders }, { merge: true });
+
+    batch.commit().then(() => {
+      renderFolderSelectAndFilter();
+      renderLettersGrid();
+      updateHomeBrievenSummary();
+    });
+  }
+
+  function renderFolderSelectAndFilter() {
+    const sel = document.getElementById('letterFolderSelect');
+    if (sel) {
+      const prev = sel.value;
+      sel.innerHTML = '';
+      letterFolders.forEach(f => {
+        sel.innerHTML += `<option value="${f}">${f}</option>`;
+      });
+      if (prev && letterFolders.includes(prev)) sel.value = prev;
+    }
+
+    const bar = document.getElementById('folderFilterBar');
+    if (!bar) return;
+    const allowWrite = canWriteBrieven();
+    bar.innerHTML = `<button type="button" class="folder-chip ${activeFolderFilter === 'ALL' ? 'active' : ''}" onclick="setFolderFilter('ALL')">Alle mappen (${lettersList.length})</button>`;
+    letterFolders.forEach(f => {
+      const count = lettersList.filter(l => l.folder === f).length;
+      const delSpan = (allowWrite && f !== 'Algemeen')
+        ? ` <span onclick="event.stopPropagation(); deleteFolder('${f.replace(/'/g, "\\'")}')" title="Map verwijderen">&times;</span>`
+        : '';
+      bar.innerHTML += `<button type="button" class="folder-chip ${activeFolderFilter === f ? 'active' : ''}" onclick="setFolderFilter('${f.replace(/'/g, "\\'")}')">${f} (${count})${delSpan}</button>`;
+    });
+  }
+
+  function setFolderFilter(folder) {
+    activeFolderFilter = folder;
+    renderFolderSelectAndFilter();
+    renderLettersGrid();
+  }
+
+  function compressImageToDataUrl(file, maxWidth = 1100, quality = 0.72) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = ev => {
+        const img = new Image();
+        img.onload = () => {
+          const scale = Math.min(1, maxWidth / img.width);
+          const canvas = document.createElement('canvas');
+          canvas.width = Math.round(img.width * scale);
+          canvas.height = Math.round(img.height * scale);
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          resolve({
+            dataUrl: canvas.toDataURL('image/jpeg', quality),
+            mimeType: 'image/jpeg',
+            fileName: file.name.replace(/\.[^/.]+$/, '') + '.jpg'
+          });
+        };
+        img.onerror = reject;
+        img.src = ev.target.result;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function handleLetterFilePicked(inputEl) {
+    const file = inputEl.files && inputEl.files[0];
+    if (!file) return;
+
+    const previewBox = document.getElementById('letterPreviewBox');
+    const previewName = document.getElementById('letterPreviewName');
+    const imgPrev = document.getElementById('letterImgPreview');
+    const pdfPrev = document.getElementById('letterPdfPreview');
+
+    if (file.type === 'application/pdf') {
+      if (file.size > 720 * 1024) {
+        alert("Dit PDF-bestand is groter dan 720 KB en past niet direct in een Firestore-document. Kies een kleiner PDF-bestand of maak een scan/foto.");
+        inputEl.value = '';
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = ev => {
+        draftLetterData = {
+          dataUrl: ev.target.result,
+          mimeType: 'application/pdf',
+          fileName: file.name
+        };
+        previewBox.style.display = 'block';
+        previewName.innerText = `Bestand: ${file.name}`;
+        imgPrev.style.display = 'none';
+        pdfPrev.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    } else if (file.type.startsWith('image/')) {
+      compressImageToDataUrl(file).then(res => {
+        if (res.dataUrl.length > 950000) {
+          alert("Scan is te groot na compressie. Probeer iets dichterbij of met lagere resolutie te scannen.");
+          inputEl.value = '';
+          return;
+        }
+        draftLetterData = res;
+        previewBox.style.display = 'block';
+        previewName.innerText = `Scan gereed: ${res.fileName}`;
+        imgPrev.src = res.dataUrl;
+        imgPrev.style.display = 'block';
+        pdfPrev.style.display = 'none';
+      });
+    }
+  }
+
+  function handleSaveLetter(event) {
+    event.preventDefault();
+    if (!canWriteBrieven()) return;
+
+    const title = document.getElementById('letterTitleInput').value.trim();
+    const folder = document.getElementById('letterFolderSelect').value || 'Algemeen';
+
+    if (!title || !draftLetterData) {
+      alert("Vul een titel in en scan of kies eerst een brief/bestand.");
+      return;
+    }
+
+    const now = new Date();
+    const record = {
+      userId: currentUser.uid,
+      title: title,
+      folder: folder,
+      fileName: draftLetterData.fileName,
+      mimeType: draftLetterData.mimeType,
+      dataUrl: draftLetterData.dataUrl,
+      dateKey: getLocalDateKey(now),
+      time: now.toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' }),
+      createdAtMs: now.getTime()
+    };
+
+    db.collection('brieven_items').add(record).then(() => {
+      document.getElementById('letterTitleInput').value = '';
+      document.getElementById('letterCameraInput').value = '';
+      document.getElementById('letterFileInput').value = '';
+      document.getElementById('letterPreviewBox').style.display = 'none';
+      draftLetterData = null;
+      loadBrievenAndFolders();
+      alert("Brief opgeslagen in map '" + folder + "'!");
+    }).catch(err => alert("Fout bij opslaan brief: " + err.message));
+  }
+
+  function downloadLetterFile(id) {
+    const item = lettersList.find(l => l.id === id);
+    if (!item || !item.dataUrl) return;
+    const link = document.createElement('a');
+    link.href = item.dataUrl;
+    link.download = item.fileName || `${item.title || 'brief'}.jpg`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  function deleteLetterItem(id) {
+    if (!canWriteBrieven()) return;
+    if (confirm("Deze brief definitief verwijderen?")) {
+      db.collection('brieven_items').doc(id).delete().then(loadBrievenAndFolders);
+    }
+  }
+
+  function renderLettersGrid() {
+    const grid = document.getElementById('lettersGrid');
+    const countLabel = document.getElementById('brievenCountLabel');
+    if (!grid) return;
+
+    const query = (document.getElementById('letterSearchBox')?.value || '').toLowerCase();
+    const filtered = lettersList.filter(item => {
+      const folderMatch = activeFolderFilter === 'ALL' || item.folder === activeFolderFilter;
+      const textMatch = !query || String(item.title || '').toLowerCase().includes(query) || String(item.folder || '').toLowerCase().includes(query);
+      return folderMatch && textMatch;
+    });
+
+    if (countLabel) {
+      countLabel.innerText = `${lettersList.length} brieven in ${letterFolders.length} mappen`;
+    }
+
+    if (filtered.length === 0) {
+      grid.innerHTML = '<p style="color:#64748b;">Geen brieven gevonden voor deze selectie.</p>';
+      return;
+    }
+
+    const allowWrite = canWriteBrieven();
+    grid.innerHTML = '';
+
+    filtered.forEach(item => {
+      const isPdf = item.mimeType === 'application/pdf';
+      const thumbHtml = isPdf
+        ? `<div class="letter-pdf-box">PDF DOCUMENT</div>`
+        : `<img class="letter-thumb" src="${item.dataUrl}" alt="${item.title}">`;
+      const delBtn = allowWrite
+        ? `<button type="button" class="btn btn-danger" onclick="deleteLetterItem('${item.id}')">Verwijder</button>`
+        : '';
+
+      grid.innerHTML += `
+        <div class="letter-card">
+          <div>
+            ${thumbHtml}
+            <h4 style="margin-top:10px; color:#1e293b; font-size:0.95rem;">${item.title}</h4>
+            <div class="letter-meta">Map: <b>${item.folder || 'Algemeen'}</b> • ${item.dateKey || ''} ${item.time || ''}</div>
+          </div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button type="button" class="btn btn-sm" onclick="downloadLetterFile('${item.id}')">Downloaden</button>
+            ${delBtn}
+          </div>
+        </div>
+      `;
+    });
+  }
+
+  function updateHomeBrievenSummary() {
+    const badge = document.getElementById('dashBrievenBadge');
+    const valEl = document.getElementById('dashBrievenValue');
+    const subEl = document.getElementById('dashBrievenSub');
+    if (!badge || !valEl || !subEl) return;
+    badge.innerText = `${lettersList.length}`;
+    valEl.innerText = `${lettersList.length} ${lettersList.length === 1 ? 'brief' : 'brieven'}`;
+    subEl.innerText = `${letterFolders.length} ${letterFolders.length === 1 ? 'map' : 'mappen'} beschikbaar`;
+  }
+
   // --- HOME DASHBOARD OVERIGE KAARTEN ---
   function updateHomeBpSummary() {
     const badge = document.getElementById('dashBpBadge');
@@ -2102,7 +2488,7 @@
         let uid = doc.id;
         let statusBadge = u.status === 'active' ? `<span class="badge bg-admin">Actief</span>` : `<span class="badge bg-pending">Standby</span>`;
         let roleBadge = u.role === 'admin' ? `<span class="badge bg-admin">Admin</span>` : `<span class="badge bg-user">User</span>`;
-        let p = u.permissions || { dialyse: 'none', bloeddruk: 'none', vocht: 'none', ritten: 'none' };
+        let p = u.permissions || { dialyse: 'none', bloeddruk: 'none', vocht: 'none', ritten: 'none', brieven: 'none' };
 
         tbody.innerHTML += `
           <tr>
@@ -2135,6 +2521,13 @@
                 <option value="none" ${p.ritten==='none'?'selected':''}>Geen</option>
                 <option value="read" ${p.ritten==='read'?'selected':''}>Lezen</option>
                 <option value="write" ${p.ritten==='write'?'selected':''}>Schrijven</option>
+              </select>
+            </td>
+            <td>
+              <select class="perm-select" onchange="updateUserPerm('${uid}', 'brieven', this.value)">
+                <option value="none" ${p.brieven==='none'?'selected':''}>Geen</option>
+                <option value="read" ${p.brieven==='read'?'selected':''}>Lezen</option>
+                <option value="write" ${p.brieven==='write'?'selected':''}>Schrijven</option>
               </select>
             </td>
             <td>
