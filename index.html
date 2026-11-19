@@ -109,6 +109,24 @@
     .search-box { padding: 9px; width: 250px; border: 1px solid var(--border-color); border-radius: 6px; }
     .status-badge { padding: 4px 8px; border-radius: 4px; font-size: 0.85rem; font-weight: bold; display: inline-block; }
 
+    /* MEDICATIE DAGBLOKKEN */
+    .med-blocks-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 16px; margin-bottom: 22px; }
+    .med-block-card { background: #f8fafc; border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); }
+    .med-block-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; }
+    .med-block-title { font-size: 1.05rem; font-weight: bold; color: #0f172a; display: flex; align-items: center; gap: 8px; }
+    .med-block-time-hint { font-size: 0.8rem; color: #64748b; font-weight: bold; }
+    .med-dose-row { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 12px; display: flex; justify-content: space-between; align-items: center; gap: 10px; transition: all 0.15s; }
+    .med-dose-row.taken { background: #f0fdf4; border-color: #86efac; }
+    .med-dose-left { display: flex; align-items: center; gap: 10px; cursor: pointer; flex: 1; }
+    .med-dose-left input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; }
+    .med-dose-name { font-weight: bold; font-size: 0.92rem; color: #1e293b; }
+    .med-dose-row.taken .med-dose-name { text-decoration: line-through; color: #166534; }
+    .med-dose-meta { font-size: 0.78rem; color: #64748b; }
+    .med-block-selector { display: flex; gap: 10px; flex-wrap: wrap; padding: 10px; background: #fff; border: 1px solid var(--border-color); border-radius: 8px; }
+    .med-block-check { display: inline-flex; align-items: center; gap: 6px; font-weight: bold !important; margin-bottom: 0 !important; cursor: pointer; font-size: 0.9rem; }
+    .med-block-check input { width: 16px; height: 16px; cursor: pointer; }
+    .med-per-block-times { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-top: 8px; }
+
     /* GOOGLE AGENDA STIJL */
     .gcal-shell { background: #fff; border: 1px solid var(--gcal-border); border-radius: 12px; overflow: hidden; margin-bottom: 20px; box-shadow: 0 1px 4px rgba(60,64,67,0.12); }
     .gcal-toolbar { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--gcal-border); background: #fff; flex-wrap: wrap; gap: 10px; }
@@ -331,6 +349,7 @@
     <div class="nav-tabs" id="navTabsContainer">
       <button class="tab-btn active" id="tabBtnHome" onclick="switchTab('homeTab', this)">Home Dashboard</button>
       <button class="tab-btn" id="tabBtnAgenda" style="display:none;" onclick="switchTab('agendaTab', this)">Agenda</button>
+      <button class="tab-btn" id="tabBtnMedicijnen" style="display:none;" onclick="switchTab('medicijnenTab', this)">Medicijnen</button>
       <button class="tab-btn" id="tabBtnDialyse" style="display:none;" onclick="switchTab('dialyseTab', this)">Dialyse Beheer</button>
       <button class="tab-btn" id="tabBtnBp" style="display:none;" onclick="switchTab('bpTab', this)">Bloeddruk & Hartslag</button>
       <button class="tab-btn" id="tabBtnVocht" style="display:none;" onclick="switchTab('vochtTab', this)">POS Vocht Intake</button>
@@ -352,6 +371,15 @@
           </div>
           <div class="summary-value" id="dashAgendaValue">Geen afspraken</div>
           <div class="summary-sub" id="dashAgendaSub">Nog geen geplande afspraken</div>
+        </div>
+
+        <div class="summary-card">
+          <div class="summary-card-header">
+            <span>Medicijnen Vandaag</span>
+            <span id="dashMedBadge" class="badge bg-green">0/0</span>
+          </div>
+          <div class="summary-value" id="dashMedValue">0 / 0 ingenomen</div>
+          <div class="summary-sub" id="dashMedSub">Ochtend • Middag • Avond</div>
         </div>
 
         <div class="summary-card">
@@ -413,6 +441,15 @@
           <p>Google Agenda-raster, dialyse-tijden & afspraken</p>
         </div>
 
+        <!-- Tegel Medicijnen -->
+        <div class="app-tile" id="tileMedicijnen" style="display:none;" onclick="openModule('medicijnenTab', 'tabBtnMedicijnen')">
+          <div class="app-tile-icon" style="background: linear-gradient(135deg, #0891b2, #0e7490);">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.5 20.5 3.5 13.5a4.95 4.95 0 1 1 7-7l7 7a4.95 4.95 0 1 1-7 7Z"/><path d="m8.5 8.5 7 7"/></svg>
+          </div>
+          <h3>Medicijnen</h3>
+          <p>Ochtend, middag & avond met tijdstip per dag</p>
+        </div>
+
         <!-- Tegel Dialyse Beheer -->
         <div class="app-tile" id="tileDialyse" style="display:none;" onclick="openModule('dialyseTab', 'tabBtnDialyse')">
           <div class="app-tile-icon" style="background: linear-gradient(135deg, #0f766e, #115e59);">
@@ -470,6 +507,111 @@
 
       <div id="noModulesMsg" style="display:none; background:#fff3cd; color:#856404; padding:15px; border-radius:8px; margin-top:20px;">
         Je hebt momenteel nog geen toegang tot modules. Vraag de beheerder om rechten toe te wijzen.
+      </div>
+    </div>
+
+    <!-- TAB: MEDICIJNEN MODULE (3 DAGBLOKKEN + TIJDSTIP PER DAG) -->
+    <div id="medicijnenTab" class="tab-content">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; flex-wrap:wrap; gap:10px;">
+        <div>
+          <h2 style="color: var(--primary); font-size: 1.25rem;">Medicijnen & Dagblokken</h2>
+          <p style="font-size: 0.85rem; color: #64748b;" id="medDateSubtitle">Vandaag • Ochtend, Middag & Avond</p>
+        </div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button type="button" class="btn btn-secondary btn-sm" onclick="resetTodayMedChecks()">Vandaag Resetten</button>
+          <button type="button" class="btn btn-excel btn-sm" onclick="exportMedicijnenExcel()">Excel (.xlsx)</button>
+        </div>
+      </div>
+
+      <!-- 3 DAGBLOKKEN: OCHTEND, MIDDAG, AVOND -->
+      <div class="med-blocks-grid" id="medDayBlocksGrid">
+        <div class="med-block-card" id="medBlockMorning">
+          <div class="med-block-header">
+            <div class="med-block-title">Ochtend</div>
+            <span class="med-block-time-hint" id="medBlockHintMorning">06:00 – 11:59</span>
+          </div>
+          <div id="medListMorning" style="display:flex; flex-direction:column; gap:8px;"></div>
+        </div>
+
+        <div class="med-block-card" id="medBlockAfternoon">
+          <div class="med-block-header">
+            <div class="med-block-title">Middag</div>
+            <span class="med-block-time-hint" id="medBlockHintAfternoon">12:00 – 17:59</span>
+          </div>
+          <div id="medListAfternoon" style="display:flex; flex-direction:column; gap:8px;"></div>
+        </div>
+
+        <div class="med-block-card" id="medBlockEvening">
+          <div class="med-block-header">
+            <div class="med-block-title">Avond</div>
+            <span class="med-block-time-hint" id="medBlockHintEvening">18:00 – 23:59</span>
+          </div>
+          <div id="medListEvening" style="display:flex; flex-direction:column; gap:8px;"></div>
+        </div>
+      </div>
+
+      <!-- FORMULIER NIEUW / BEWERK MEDICIJN -->
+      <div class="form-card" id="medFormCard">
+        <h3 id="medFormTitle" style="margin-bottom: 12px; color: #333;">Medicijn Toevoegen / Bewerken</h3>
+        <form onsubmit="handleMedSubmit(event)">
+          <input type="hidden" id="editMedId" value="">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Naam Medicijn</label>
+              <input type="text" id="medNameInput" placeholder="bijv. Renvela, Alfacalcidol, Metoprolol" required>
+            </div>
+            <div class="form-group">
+              <label>Dosering</label>
+              <input type="text" id="medDosageInput" placeholder="bijv. 800 mg / 1 tablet" required>
+            </div>
+            <div class="form-group">
+              <label>Tijdstip per dag (standaard HH:MM)</label>
+              <input type="time" id="medDailyTimeInput" value="08:00" required>
+            </div>
+            <div class="form-group full">
+              <label>Dagblokken waarin dit medicijn moet worden ingenomen</label>
+              <div class="med-block-selector">
+                <label class="med-block-check">
+                  <input type="checkbox" id="medChkMorning" value="morning" checked onchange="renderMedPerBlockTimeInputs()"> Ochtend
+                </label>
+                <label class="med-block-check">
+                  <input type="checkbox" id="medChkAfternoon" value="afternoon" onchange="renderMedPerBlockTimeInputs()"> Middag
+                </label>
+                <label class="med-block-check">
+                  <input type="checkbox" id="medChkEvening" value="evening" onchange="renderMedPerBlockTimeInputs()"> Avond
+                </label>
+              </div>
+              <div id="medPerBlockTimesContainer" class="med-per-block-times"></div>
+            </div>
+            <div class="form-group full">
+              <label>Notities / Bijzonderheden (optioneel)</label>
+              <input type="text" id="medNotesInput" placeholder="bijv. Innemen tijdens de maaltijd of buiten dialyse">
+            </div>
+          </div>
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <button type="submit" class="btn btn-success" id="medSubmitBtn">Medicijn Opslaan</button>
+            <button type="button" class="btn btn-secondary" id="medCancelEditBtn" style="display:none;" onclick="resetMedForm()">Annuleren</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- OVERZICHTSTABEL ALLE MEDICATIE -->
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Medicijn</th>
+              <th>Dosering</th>
+              <th>Dagblokken</th>
+              <th>Tijdstip per dag</th>
+              <th>Notities</th>
+              <th>Acties</th>
+            </tr>
+          </thead>
+          <tbody id="medTableBody">
+            <tr><td colspan="6" style="text-align:center;">Nog geen medicijnen toegevoegd.</td></tr>
+          </tbody>
+        </table>
       </div>
     </div>
 
@@ -1228,6 +1370,7 @@
               <th>Status</th>
               <th>Rol</th>
               <th>Agenda</th>
+              <th>Medicijnen</th>
               <th>Dialyse</th>
               <th>Bloeddruk</th>
               <th>Vochtmonitor</th>
@@ -1237,7 +1380,7 @@
             </tr>
           </thead>
           <tbody id="usersTableBody">
-            <tr><td colspan="10" style="text-align:center;">Laden...</td></tr>
+            <tr><td colspan="11" style="text-align:center;">Laden...</td></tr>
           </tbody>
         </table>
       </div>
@@ -1375,6 +1518,15 @@
   let currentUser = null;
   let currentUserData = null;
 
+  // Medicijnen state (3 dagblokken + tijdstip per dag)
+  const medDayBlocksMeta = [
+    { key: 'morning', label: 'Ochtend', defaultTime: '08:00', range: '06:00 – 11:59' },
+    { key: 'afternoon', label: 'Middag', defaultTime: '12:30', range: '12:00 – 17:59' },
+    { key: 'evening', label: 'Avond', defaultTime: '20:00', range: '18:00 – 23:59' }
+  ];
+  let medicationsList = [];
+  let medTodayIntakeMap = {}; // { [medId_blockKey]: { takenAt: '08:05' } }
+
   // Agenda state (Google Agenda stijl)
   const defaultAgendaCategories = ['Dialyse', 'Ziekenhuis / Arts', 'INR / Bloedprikken', 'Overig'];
   let agendaEventsList = [];
@@ -1449,7 +1601,7 @@
             email: email,
             status: 'pending',
             role: 'user',
-            permissions: { agenda: 'none', dialyse: 'none', bloeddruk: 'none', vocht: 'none', ritten: 'none', brieven: 'none' },
+            permissions: { agenda: 'none', medicijnen: 'none', dialyse: 'none', bloeddruk: 'none', vocht: 'none', ritten: 'none', brieven: 'none' },
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
           });
         })
@@ -1476,7 +1628,7 @@
           email: user.email,
           status: 'pending',
           role: 'user',
-          permissions: { agenda: 'none', dialyse: 'none', bloeddruk: 'none', vocht: 'none', ritten: 'none', brieven: 'none' },
+          permissions: { agenda: 'none', medicijnen: 'none', dialyse: 'none', bloeddruk: 'none', vocht: 'none', ritten: 'none', brieven: 'none' },
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
         }).then(() => {
           document.getElementById('pendingContainer').style.display = 'block';
@@ -1488,11 +1640,14 @@
   function showApp(email) {
     document.getElementById('appContainer').style.display = 'block';
     document.getElementById('userEmailDisplay').innerText = email;
-    document.getElementById('vochtDateLabel').innerText = new Date().toLocaleDateString('nl-NL', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    const dateLong = new Date().toLocaleDateString('nl-NL', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    document.getElementById('vochtDateLabel').innerText = dateLong;
+    document.getElementById('medDateSubtitle').innerText = `${dateLong} • Ochtend, Middag & Avond`;
 
     const isAdmin = currentUserData.role === 'admin';
     const perms = currentUserData.permissions || {};
     const agendaPerm = perms.agenda || (isAdmin ? 'write' : 'read');
+    const medPerm = perms.medicijnen || (isAdmin ? 'write' : 'read');
     const dialysePerm = perms.dialyse || 'none';
     const bpPerm = perms.bloeddruk || 'none';
     const vochtPerm = perms.vocht || 'none';
@@ -1512,6 +1667,18 @@
       document.getElementById('agendaCategoryManageCard').style.display = canWriteAg ? 'block' : 'none';
       document.getElementById('gcalQuickCreateBtn').style.display = canWriteAg ? 'inline-flex' : 'none';
       loadAgendaSettingsAndEvents();
+    }
+
+    // 0.B Medicijnen
+    const hasMed = isAdmin || medPerm !== 'none';
+    document.getElementById('tabBtnMedicijnen').style.display = hasMed ? 'block' : 'none';
+    document.getElementById('tileMedicijnen').style.display = hasMed ? 'flex' : 'none';
+    if (hasMed) {
+      visibleCount++;
+      const canWriteMed = isAdmin || medPerm === 'write';
+      document.getElementById('medFormCard').style.display = canWriteMed ? 'block' : 'none';
+      renderMedPerBlockTimeInputs();
+      loadMedicijnenData();
     }
 
     // 1. Dialyse Beheer
@@ -1626,6 +1793,12 @@
     return (currentUserData.permissions && currentUserData.permissions.agenda === 'write');
   }
 
+  function canWriteMedicijnen() {
+    if (!currentUserData) return false;
+    if (currentUserData.role === 'admin') return true;
+    return (currentUserData.permissions && currentUserData.permissions.medicijnen === 'write');
+  }
+
   function canWriteDialyse() {
     if (!currentUserData) return false;
     if (currentUserData.role === 'admin') return true;
@@ -1642,6 +1815,341 @@
     if (!currentUserData) return false;
     if (currentUserData.role === 'admin') return true;
     return (currentUserData.permissions && currentUserData.permissions.brieven === 'write');
+  }
+
+  // --- MEDICIJNEN MODULE (3 DAGBLOKKEN + TIJDSTIP PER DAG) ---
+  function getSelectedMedBlocks() {
+    const blocks = [];
+    if (document.getElementById('medChkMorning')?.checked) blocks.push('morning');
+    if (document.getElementById('medChkAfternoon')?.checked) blocks.push('afternoon');
+    if (document.getElementById('medChkEvening')?.checked) blocks.push('evening');
+    return blocks;
+  }
+
+  function renderMedPerBlockTimeInputs(existingTimes = {}) {
+    const container = document.getElementById('medPerBlockTimesContainer');
+    if (!container) return;
+    const blocks = getSelectedMedBlocks();
+    const dailyDefault = document.getElementById('medDailyTimeInput')?.value || '';
+
+    const prevMap = { ...existingTimes };
+    container.querySelectorAll('input[data-block-time]').forEach(inp => {
+      const k = inp.getAttribute('data-block-time');
+      if (inp.value) prevMap[k] = inp.value;
+    });
+
+    container.innerHTML = '';
+    blocks.forEach(blockKey => {
+      const meta = medDayBlocksMeta.find(m => m.key === blockKey);
+      if (!meta) return;
+      const val = prevMap[blockKey] || dailyDefault || meta.defaultTime;
+      container.innerHTML += `
+        <div class="form-group">
+          <label style="font-size:0.78rem;">Tijdstip ${meta.label} (optioneel)</label>
+          <input type="time" data-block-time="${blockKey}" value="${val}">
+        </div>
+      `;
+    });
+  }
+
+  function loadMedicijnenData() {
+    const todayKey = getLocalDateKey();
+    Promise.all([
+      db.collection('medicines').where('userId', '==', currentUser.uid).get(),
+      db.collection('medicine_intakes').doc(`${currentUser.uid}_${todayKey}`).get()
+    ]).then(([medSnap, intakeDoc]) => {
+      medicationsList = [];
+      medSnap.forEach(doc => {
+        medicationsList.push({ id: doc.id, ...doc.data() });
+      });
+      medicationsList.sort((a, b) => (a.dailyTime || '').localeCompare(b.dailyTime || '') || (a.name || '').localeCompare(b.name || ''));
+
+      medTodayIntakeMap = {};
+      if (intakeDoc.exists && intakeDoc.data().taken) {
+        medTodayIntakeMap = intakeDoc.data().taken;
+      }
+
+      renderMedDayBlocks();
+      renderMedTable();
+      updateHomeMedSummary();
+    }).catch(err => console.error("Fout bij laden medicijnen:", err));
+  }
+
+  function getMedBlockTimeDisplay(med, blockKey) {
+    if (med.blockTimes && med.blockTimes[blockKey]) return med.blockTimes[blockKey];
+    if (med.dailyTime) return med.dailyTime;
+    const meta = medDayBlocksMeta.find(m => m.key === blockKey);
+    return meta ? meta.defaultTime : '08:00';
+  }
+
+  function getMedAllTimesLabel(med) {
+    const blocks = Array.isArray(med.blocks) && med.blocks.length ? med.blocks : ['morning'];
+    const times = blocks.map(b => getMedBlockTimeDisplay(med, b));
+    const uniqueTimes = [...new Set(times.filter(Boolean))];
+    if (uniqueTimes.length === 0) return med.dailyTime || '-';
+    if (uniqueTimes.length === 1 && med.dailyTime) return med.dailyTime;
+    return blocks.map(b => {
+      const m = medDayBlocksMeta.find(x => x.key === b);
+      return `${m ? m.label : b}: ${getMedBlockTimeDisplay(med, b)}`;
+    }).join(' • ');
+  }
+
+  function renderMedDayBlocks() {
+    const allowWrite = canWriteMedicijnen();
+    medDayBlocksMeta.forEach(meta => {
+      const listEl = document.getElementById(
+        meta.key === 'morning' ? 'medListMorning' : (meta.key === 'afternoon' ? 'medListAfternoon' : 'medListEvening')
+      );
+      if (!listEl) return;
+
+      const itemsInBlock = medicationsList.filter(m => Array.isArray(m.blocks) && m.blocks.includes(meta.key));
+      itemsInBlock.sort((a, b) => getMedBlockTimeDisplay(a, meta.key).localeCompare(getMedBlockTimeDisplay(b, meta.key)));
+
+      if (itemsInBlock.length === 0) {
+        listEl.innerHTML = `<div style="font-size:0.85rem; color:#64748b; padding:8px 0;">Geen medicijnen gepland voor de ${meta.label.toLowerCase()}.</div>`;
+        return;
+      }
+
+      listEl.innerHTML = itemsInBlock.map(med => {
+        const doseKey = `${med.id}_${meta.key}`;
+        const intakeInfo = medTodayIntakeMap[doseKey];
+        const isTaken = Boolean(intakeInfo && intakeInfo.taken);
+        const timeStr = getMedBlockTimeDisplay(med, meta.key);
+        const takenTimeBadge = isTaken && intakeInfo.takenAt
+          ? ` <span class="badge bg-green">Ingenomen ${intakeInfo.takenAt}</span>`
+          : '';
+
+        return `
+          <div class="med-dose-row ${isTaken ? 'taken' : ''}">
+            <label class="med-dose-left" style="margin-bottom:0;">
+              <input type="checkbox" ${isTaken ? 'checked' : ''} ${allowWrite ? '' : 'disabled'} onchange="toggleMedDoseTaken('${med.id}', '${meta.key}', this.checked)">
+              <div>
+                <div class="med-dose-name">${med.name} <span style="font-weight:normal; color:#475569;">(${med.dosage || '-'})</span>${takenTimeBadge}</div>
+                <div class="med-dose-meta">Tijdstip: <b>${timeStr}</b>${med.notes ? ` • ${med.notes}` : ''}</div>
+              </div>
+            </label>
+          </div>
+        `;
+      }).join('');
+    });
+  }
+
+  function toggleMedDoseTaken(medId, blockKey, isTaken) {
+    if (!canWriteMedicijnen()) return;
+    const todayKey = getLocalDateKey();
+    const doseKey = `${medId}_${blockKey}`;
+    const nowTime = new Date().toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' });
+
+    if (isTaken) {
+      medTodayIntakeMap[doseKey] = { taken: true, takenAt: nowTime };
+    } else {
+      delete medTodayIntakeMap[doseKey];
+    }
+
+    db.collection('medicine_intakes').doc(`${currentUser.uid}_${todayKey}`).set({
+      userId: currentUser.uid,
+      dateKey: todayKey,
+      taken: medTodayIntakeMap,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true }).then(() => {
+      renderMedDayBlocks();
+      updateHomeMedSummary();
+    }).catch(err => alert("Fout bij opslaan inname: " + err.message));
+  }
+
+  function resetTodayMedChecks() {
+    if (!canWriteMedicijnen()) return;
+    if (!confirm("Alle inname-vinkjes voor vandaag resetten?")) return;
+    const todayKey = getLocalDateKey();
+    medTodayIntakeMap = {};
+    db.collection('medicine_intakes').doc(`${currentUser.uid}_${todayKey}`).set({
+      userId: currentUser.uid,
+      dateKey: todayKey,
+      taken: {},
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(() => {
+      renderMedDayBlocks();
+      updateHomeMedSummary();
+    });
+  }
+
+  function handleMedSubmit(event) {
+    event.preventDefault();
+    if (!canWriteMedicijnen()) return;
+
+    const editId = document.getElementById('editMedId').value;
+    const name = document.getElementById('medNameInput').value.trim();
+    const dosage = document.getElementById('medDosageInput').value.trim();
+    const dailyTime = document.getElementById('medDailyTimeInput').value || '08:00';
+    const notes = document.getElementById('medNotesInput').value.trim();
+    const blocks = getSelectedMedBlocks();
+
+    if (!name || !dosage) return;
+    if (blocks.length === 0) {
+      alert("Selecteer tenminste één dagblok (Ochtend, Middag of Avond).");
+      return;
+    }
+
+    const blockTimes = {};
+    document.querySelectorAll('#medPerBlockTimesContainer input[data-block-time]').forEach(inp => {
+      const k = inp.getAttribute('data-block-time');
+      if (blocks.includes(k) && inp.value) {
+        blockTimes[k] = inp.value;
+      }
+    });
+
+    const payload = {
+      userId: currentUser.uid,
+      name,
+      dosage,
+      dailyTime,
+      blocks,
+      blockTimes,
+      notes,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+
+    const req = editId
+      ? db.collection('medicines').doc(editId).update(payload)
+      : db.collection('medicines').add({ ...payload, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+
+    req.then(() => {
+      resetMedForm();
+      loadMedicijnenData();
+    }).catch(err => alert("Fout bij opslaan medicijn: " + err.message));
+  }
+
+  function editMedItem(id) {
+    const med = medicationsList.find(m => m.id === id);
+    if (!med) return;
+
+    document.getElementById('editMedId').value = med.id;
+    document.getElementById('medNameInput').value = med.name || '';
+    document.getElementById('medDosageInput').value = med.dosage || '';
+    document.getElementById('medDailyTimeInput').value = med.dailyTime || '08:00';
+    document.getElementById('medNotesInput').value = med.notes || '';
+
+    const blocks = Array.isArray(med.blocks) ? med.blocks : [];
+    document.getElementById('medChkMorning').checked = blocks.includes('morning');
+    document.getElementById('medChkAfternoon').checked = blocks.includes('afternoon');
+    document.getElementById('medChkEvening').checked = blocks.includes('evening');
+
+    renderMedPerBlockTimeInputs(med.blockTimes || {});
+
+    document.getElementById('medFormTitle').innerText = 'Medicijn Bewerken';
+    document.getElementById('medSubmitBtn').innerText = 'Wijzigingen Opslaan';
+    document.getElementById('medCancelEditBtn').style.display = 'inline-block';
+    document.getElementById('medFormCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function resetMedForm() {
+    document.querySelector('#medFormCard form').reset();
+    document.getElementById('editMedId').value = '';
+    document.getElementById('medDailyTimeInput').value = '08:00';
+    document.getElementById('medChkMorning').checked = true;
+    document.getElementById('medChkAfternoon').checked = false;
+    document.getElementById('medChkEvening').checked = false;
+    renderMedPerBlockTimeInputs();
+    document.getElementById('medFormTitle').innerText = 'Medicijn Toevoegen / Bewerken';
+    document.getElementById('medSubmitBtn').innerText = 'Medicijn Opslaan';
+    document.getElementById('medCancelEditBtn').style.display = 'none';
+  }
+
+  function deleteMedItem(id) {
+    if (!canWriteMedicijnen()) return;
+    if (confirm("Dit medicijn uit het schema verwijderen?")) {
+      db.collection('medicines').doc(id).delete().then(loadMedicijnenData);
+    }
+  }
+
+  function renderMedTable() {
+    const tbody = document.getElementById('medTableBody');
+    if (!tbody) return;
+    const allowWrite = canWriteMedicijnen();
+
+    if (medicationsList.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Nog geen medicijnen toegevoegd.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = medicationsList.map(med => {
+      const blocks = Array.isArray(med.blocks) ? med.blocks : [];
+      const blockLabels = blocks.map(b => {
+        const m = medDayBlocksMeta.find(x => x.key === b);
+        return `<span class="badge bg-admin" style="margin-right:4px;">${m ? m.label : b}</span>`;
+      }).join('');
+
+      const actionsHtml = allowWrite
+        ? `<div style="display:flex; gap:6px;"><button type="button" class="btn btn-warning btn-sm" onclick="editMedItem('${med.id}')">Bewerken</button><button type="button" class="btn btn-danger" onclick="deleteMedItem('${med.id}')">Verwijder</button></div>`
+        : '-';
+
+      return `
+        <tr>
+          <td><b>${med.name}</b></td>
+          <td>${med.dosage || '-'}</td>
+          <td>${blockLabels || '-'}</td>
+          <td><b>${getMedAllTimesLabel(med)}</b></td>
+          <td>${med.notes || '-'}</td>
+          <td>${actionsHtml}</td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  function updateHomeMedSummary() {
+    const badge = document.getElementById('dashMedBadge');
+    const valEl = document.getElementById('dashMedValue');
+    const subEl = document.getElementById('dashMedSub');
+    if (!badge || !valEl || !subEl) return;
+
+    let totalDoses = 0;
+    let takenDoses = 0;
+    medicationsList.forEach(med => {
+      const blocks = Array.isArray(med.blocks) ? med.blocks : [];
+      blocks.forEach(b => {
+        totalDoses++;
+        if (medTodayIntakeMap[`${med.id}_${b}`]?.taken) {
+          takenDoses++;
+        }
+      });
+    });
+
+    badge.innerText = `${takenDoses}/${totalDoses}`;
+    badge.className = `badge ${(totalDoses > 0 && takenDoses === totalDoses) ? 'bg-green' : 'bg-admin'}`;
+    valEl.innerText = `${takenDoses} / ${totalDoses} ingenomen`;
+    subEl.innerText = medicationsList.length > 0
+      ? `${medicationsList.length} ${medicationsList.length === 1 ? 'medicijn' : 'medicijnen'} in schema`
+      : 'Nog geen medicijnen ingesteld';
+  }
+
+  function exportMedicijnenExcel() {
+    if (!medicationsList.length) {
+      alert("Geen medicijnen om te exporteren.");
+      return;
+    }
+    const todayKey = getLocalDateKey();
+    const data = medicationsList.map(med => {
+      const blocks = Array.isArray(med.blocks) ? med.blocks : [];
+      const blockNames = blocks.map(b => medDayBlocksMeta.find(x => x.key === b)?.label || b).join(', ');
+      const statusList = blocks.map(b => {
+        const label = medDayBlocksMeta.find(x => x.key === b)?.label || b;
+        const tInfo = medTodayIntakeMap[`${med.id}_${b}`];
+        return `${label}: ${tInfo?.taken ? 'Ingenomen (' + (tInfo.takenAt || '') + ')' : 'Open'}`;
+      }).join(' | ');
+
+      return {
+        "Medicijn": med.name,
+        "Dosering": med.dosage || '',
+        "Dagblokken": blockNames,
+        "Tijdstip per dag": getMedAllTimesLabel(med),
+        "Status vandaag": statusList,
+        "Notities": med.notes || ''
+      };
+    });
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Medicijnen");
+    XLSX.writeFile(wb, `Medicijnen_${todayKey}.xlsx`);
   }
 
   // --- GOOGLE AGENDA MODULE ---
@@ -3713,7 +4221,7 @@
         let uid = doc.id;
         let statusBadge = u.status === 'active' ? `<span class="badge bg-admin">Actief</span>` : `<span class="badge bg-pending">Standby</span>`;
         let roleBadge = u.role === 'admin' ? `<span class="badge bg-admin">Admin</span>` : `<span class="badge bg-user">User</span>`;
-        let p = u.permissions || { agenda: 'none', dialyse: 'none', bloeddruk: 'none', vocht: 'none', ritten: 'none', brieven: 'none' };
+        let p = u.permissions || { agenda: 'none', medicijnen: 'none', dialyse: 'none', bloeddruk: 'none', vocht: 'none', ritten: 'none', brieven: 'none' };
 
         tbody.innerHTML += `
           <tr>
@@ -3725,6 +4233,13 @@
                 <option value="none" ${p.agenda==='none'?'selected':''}>Geen</option>
                 <option value="read" ${p.agenda==='read'?'selected':''}>Lezen</option>
                 <option value="write" ${p.agenda==='write'?'selected':''}>Schrijven</option>
+              </select>
+            </td>
+            <td>
+              <select class="perm-select" onchange="updateUserPerm('${uid}', 'medicijnen', this.value)">
+                <option value="none" ${p.medicijnen==='none'?'selected':''}>Geen</option>
+                <option value="read" ${p.medicijnen==='read'?'selected':''}>Lezen</option>
+                <option value="write" ${p.medicijnen==='write'?'selected':''}>Schrijven</option>
               </select>
             </td>
             <td>
@@ -3962,212 +4477,299 @@
       if (/^[A-Z]{2}\d{3}[A-Z]{1}$/.test(clean)) return `${clean.substr(0,2)}-${clean.substr(2,3)}-${clean.substr(5,1)}`;
       if (/^[A-Z]{1}\d{3}[A-Z]{2}$/.test(clean)) return `${clean.substr(0,1)}-${clean.substr(1,3)}-${clean.substr(4,2)}`;
       if (/^[A-Z]{3}\d{2}[A-Z]{1}$/.test(clean)) return `${clean.substr(0,3)}-${clean.substr(3,2)}-${clean.substr(5,1)}`;
-      if (/^[A-Z]{2}\d{3}[A-Z]{2}$/.test(clean)) return `${clean.substr(0,2)}-${clean.substr(2,3)}-${clean.substr(5,2)}`;
+      if (/^[A-Z]{1}\d{2}[A-Z]{3}$/.test(clean)) return `${clean.substr(0,1)}-${clean.substr(1,2)}-${clean.substr(3,3)}`;
+      if (/^[A-Z]{3}\d{2}\d{1}$/.test(clean)) return `${clean.substr(0,3)}-${clean.substr(3,2)}-${clean.substr(5,1)}`;
+      if (/^\d{1}\d{2}[A-Z]{3}$/.test(clean)) return `${clean.substr(0,1)}-${clean.substr(1,2)}-${clean.substr(3,3)}`;
     }
-    return clean;
+    return plate.toUpperCase();
   }
 
-  function loadRitten() {
-    const period = document.getElementById('ritPeriodSelect').value;
-    db.collection('ritten_log').where('userId', '==', currentUser.uid).get().then(snapshot => {
-      const allUserRitten = [];
-      snapshot.forEach(doc => allUserRitten.push({ id: doc.id, ...doc.data() }));
-      allUserRitten.sort((a,b) => (a.afspraak || '').localeCompare(b.afspraak || ''));
+  function calculatePunctuality(afspraakStr, stopStr) {
+    if (!afspraakStr || !stopStr) return { label: "Gepland", class: "bg-gray", diffMin: null };
+    let afspraak = new Date(afspraakStr);
+    let stop = new Date(stopStr);
+    let diffMin = Math.round((stop - afspraak) / 60000);
 
-      const now = new Date();
-      let todayStr = getLocalDateKey(now);
-      const todayRitten = allUserRitten.filter(r => {
-        const cDate = r.afspraak ? r.afspraak.split('T')[0] : (r.start ? r.start.split('T')[0] : '');
-        return cDate === todayStr;
-      });
-      const doneToday = todayRitten.filter(r => Boolean(r.stop)).length;
-      document.getElementById('dashRittenBadge').innerText = `${todayRitten.length}`;
-      document.getElementById('dashRittenValue').innerText = `${todayRitten.length} ${todayRitten.length === 1 ? 'rit' : 'ritten'}`;
-      document.getElementById('dashRittenSub').innerText = `${doneToday} verreden vandaag`;
-
-      function isRange(d, s, e) { return d >= s && d <= e; }
-      function getWeek(d, off=0) {
-        let date = new Date(d), day = date.getDay();
-        let diff = date.getDate() - day + (day === 0 ? -6 : 1) + (off * 7);
-        let mon = new Date(date.setDate(diff)), sun = new Date(new Date(mon).setDate(mon.getDate() + 6));
-        return { start: getLocalDateKey(mon), end: getLocalDateKey(sun) };
-      }
-      let thisWeek = getWeek(now, 0), nextWeek = getWeek(now, 1), thisMonth = todayStr.substring(0,7);
-
-      rittenList = allUserRitten.filter(d => {
-        let inc = true;
-        let cDate = d.afspraak ? d.afspraak.split('T')[0] : (d.start ? d.start.split('T')[0] : '');
-        if (cDate && period !== 'all') {
-          if (period === 'today' && cDate !== todayStr) inc = false;
-          if (period === 'this_week' && !isRange(cDate, thisWeek.start, thisWeek.end)) inc = false;
-          if (period === 'next_week' && !isRange(cDate, nextWeek.start, nextWeek.end)) inc = false;
-          if (period === 'this_month' && !cDate.startsWith(thisMonth)) inc = false;
-        }
-        return inc;
-      });
-
-      renderRittenTable();
-    });
+    if (diffMin < 0) {
+      return { label: `Te Vroeg (${Math.abs(diffMin)} min)`, class: "bg-orange", diffMin };
+    } else if (diffMin <= 5) {
+      return { label: diffMin === 0 ? "Op Tijd (0 min)" : `Op Tijd (+${diffMin} min)`, class: "bg-green", diffMin };
+    } else {
+      return { label: `Te Laat (+${diffMin} min)`, class: "bg-red", diffMin };
+    }
   }
 
   function handleRitSubmit(event) {
     event.preventDefault();
     let editId = document.getElementById('editRitId').value;
-    let data = {
+    let afspraak = document.getElementById('afspraakInput').value;
+    let stop = document.getElementById('stopInput').value;
+    let calc = calculatePunctuality(afspraak, stop);
+
+    let ritData = {
       userId: currentUser.uid,
       bedrijf: document.getElementById('bedrijfSelect').value,
-      chauffeur: document.getElementById('chauffeurSelect').value || '-',
-      kenteken: document.getElementById('kentekenSelect').value || '-',
+      chauffeur: document.getElementById('chauffeurSelect').value,
+      kenteken: document.getElementById('kentekenSelect').value,
       vanaf: document.getElementById('vanafSelect').value,
       naar: document.getElementById('naarSelect').value,
-      afspraak: document.getElementById('afspraakInput').value,
-      start: document.getElementById('startInput').value || '',
-      stop: document.getElementById('stopInput').value || '',
+      afspraak: afspraak,
+      start: document.getElementById('startInput').value,
+      stop: stop,
+      prestatie: calc.label,
+      diffMin: calc.diffMin,
       opmerkingen: document.getElementById('opmerkingenInput').value,
+      dateKey: afspraak ? afspraak.slice(0, 10) : getLocalDateKey(),
       timestamp: firebase.firestore.FieldValue.serverTimestamp()
     };
 
-    let promise = editId ? db.collection('ritten_log').doc(editId).update(data) : db.collection('ritten_log').add(data);
-    promise.then(() => { resetRitForm(); loadRitten(); });
+    if (editId) {
+      db.collection('ritten').doc(editId).update(ritData).then(() => { resetRitForm(); loadRitten(); });
+    } else {
+      db.collection('ritten').add(ritData).then(() => { resetRitForm(); loadRitten(); });
+    }
   }
 
   function editRit(id) {
-    let r = rittenList.find(i => i.id === id);
-    if (!r) return;
-    document.getElementById('editRitId').value = r.id;
-    document.getElementById('bedrijfSelect').value = r.bedrijf;
-    document.getElementById('chauffeurSelect').value = r.chauffeur === '-' ? '' : r.chauffeur;
-    document.getElementById('kentekenSelect').value = r.kenteken === '-' ? '' : r.kenteken;
-    document.getElementById('vanafSelect').value = r.vanaf;
-    document.getElementById('naarSelect').value = r.naar;
-    document.getElementById('afspraakInput').value = r.afspraak || '';
-    document.getElementById('startInput').value = r.start || '';
-    document.getElementById('stopInput').value = r.stop || '';
-    document.getElementById('opmerkingenInput').value = r.opmerkingen || '';
-    document.getElementById('ritFormTitle').innerText = 'Rit Bewerken';
-    document.getElementById('submitRitBtn').innerText = 'Bijwerken Opslaan';
-    document.getElementById('cancelEditBtn').style.display = 'block';
-    window.scrollTo({top:0, behavior:'smooth'});
+    let item = rittenList.find(r => r.id === id);
+    if (!item) return;
+    document.getElementById('editRitId').value = item.id;
+    document.getElementById('bedrijfSelect').value = item.bedrijf || '';
+    document.getElementById('chauffeurSelect').value = item.chauffeur || '';
+    document.getElementById('kentekenSelect').value = item.kenteken || '';
+    document.getElementById('vanafSelect').value = item.vanaf || '';
+    document.getElementById('naarSelect').value = item.naar || '';
+    document.getElementById('afspraakInput').value = item.afspraak || '';
+    document.getElementById('startInput').value = item.start || '';
+    document.getElementById('stopInput').value = item.stop || '';
+    document.getElementById('opmerkingenInput').value = item.opmerkingen || '';
+
+    document.getElementById('ritFormTitle').innerText = "Rit Bewerken";
+    document.getElementById('submitRitBtn').innerText = "Wijzigingen Opslaan";
+    document.getElementById('cancelEditBtn').style.display = "inline-block";
+    document.getElementById('ritFormCard').scrollIntoView({ behavior: 'smooth' });
   }
 
   function resetRitForm() {
-    document.querySelector('#ritLogSub form').reset();
     document.getElementById('editRitId').value = '';
-    document.getElementById('ritFormTitle').innerText = 'Nieuwe Rit Toevoegen';
-    document.getElementById('submitRitBtn').innerText = 'Rit Opslaan';
-    document.getElementById('cancelEditBtn').style.display = 'none';
+    document.getElementById('ritFormTitle').innerText = "Nieuwe Rit Toevoegen";
+    document.getElementById('submitRitBtn').innerText = "Rit Opslaan";
+    document.getElementById('cancelEditBtn').style.display = "none";
+    document.getElementById('startInput').value = '';
+    document.getElementById('stopInput').value = '';
+    document.getElementById('opmerkingenInput').value = '';
   }
 
-  function deleteRit(id) { if (confirm("Rit verwijderen?")) db.collection('ritten_log').doc(id).delete().then(loadRitten); }
+  function deleteRit(id) {
+    if (confirm("Rit verwijderen?")) db.collection('ritten').doc(id).delete().then(loadRitten);
+  }
 
-  function getPerformance(stopTime, afspraakTime) {
-    if (!stopTime) return { label: 'Nog niet verreden', class: 'bg-gray', type: 'pending' };
-    let diff = (new Date(stopTime) - new Date(afspraakTime)) / (1000 * 60);
-    if (diff < -5) return { label: 'Te Vroeg', class: 'bg-orange', type: 'early' };
-    if (diff > 5) return { label: 'Te Laat', class: 'bg-red', type: 'late' };
-    return { label: 'Op Tijd', class: 'bg-green', type: 'ontime' };
+  function loadRitten() {
+    const period = document.getElementById('ritPeriodSelect').value;
+    db.collection('ritten').where('userId', '==', currentUser.uid).get().then(snapshot => {
+      rittenList = [];
+      let allUserRitten = [];
+      const now = new Date();
+      const todayStr = getLocalDateKey(now);
+
+      let startOfWeek = new Date(now);
+      startOfWeek.setDate(now.getDate() - now.getDay() + (now.getDay() === 0 ? -6 : 1));
+      startOfWeek.setHours(0,0,0,0);
+
+      let endOfWeek = new Date(startOfWeek);
+      endOfWeek.setDate(startOfWeek.getDate() + 6);
+      endOfWeek.setHours(23,59,59,999);
+
+      let startOfNextWeek = new Date(startOfWeek);
+      startOfNextWeek.setDate(startOfWeek.getDate() + 7);
+      let endOfNextWeek = new Date(startOfNextWeek);
+      endOfNextWeek.setDate(startOfNextWeek.getDate() + 6);
+      endOfNextWeek.setHours(23,59,59,999);
+
+      const currentMonthPrefix = todayStr.slice(0, 7);
+
+      snapshot.forEach(doc => {
+        let d = doc.data();
+        let rec = { id: doc.id, ...d };
+        allUserRitten.push(rec);
+
+        let dKey = d.dateKey || (d.afspraak ? d.afspraak.slice(0, 10) : '');
+        let itemDate = dKey ? new Date(dKey + 'T12:00:00') : null;
+        let include = true;
+
+        if (period !== 'all' && itemDate) {
+          if (period === 'today' && dKey !== todayStr) include = false;
+          else if (period === 'this_week' && (itemDate < startOfWeek || itemDate > endOfWeek)) include = false;
+          else if (period === 'next_week' && (itemDate < startOfNextWeek || itemDate > endOfNextWeek)) include = false;
+          else if (period === 'this_month' && !dKey.startsWith(currentMonthPrefix)) include = false;
+        }
+        if (include) rittenList.push(rec);
+      });
+
+      rittenList.sort((a, b) => (a.afspraak || '').localeCompare(b.afspraak || ''));
+      renderRittenTable();
+      updateRittenDashboard();
+
+      const todayCount = allUserRitten.filter(r => (r.dateKey || (r.afspraak ? r.afspraak.slice(0,10) : '')) === todayStr).length;
+      document.getElementById('dashRittenBadge').innerText = `${todayCount}`;
+      document.getElementById('dashRittenValue').innerText = `${todayCount} ${todayCount === 1 ? 'rit' : 'ritten'}`;
+      document.getElementById('dashRittenSub').innerText = `${allUserRitten.length} ritten totaal in overzicht`;
+    });
   }
 
   function renderRittenTable() {
     const tbody = document.getElementById('rittenTableBody');
     tbody.innerHTML = '';
-    
     const isAdmin = currentUserData.role === 'admin';
-    const rittenPerm = currentUserData.permissions ? currentUserData.permissions.ritten : 'none';
-    const canWrite = isAdmin || rittenPerm === 'write';
+    const ritPerm = currentUserData.permissions ? currentUserData.permissions.ritten : 'none';
+    const canWrite = isAdmin || ritPerm === 'write';
 
     if (rittenList.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;">Geen ritten gevonden.</td></tr>';
-      document.getElementById('statEarly').innerText = '0%';
-      document.getElementById('statOnTime').innerText = '0%';
-      document.getElementById('statLate').innerText = '0%';
-      document.getElementById('statTotal').innerText = '0';
+      tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;">Geen ritten gevonden voor deze periode.</td></tr>';
       return;
     }
 
-    let e=0, o=0, l=0, verreden=0;
     rittenList.forEach(item => {
-      let st = getPerformance(item.stop, item.afspraak);
-      if (st.type === 'early') { e++; verreden++; }
-      if (st.type === 'ontime') { o++; verreden++; }
-      if (st.type === 'late') { l++; verreden++; }
-
-      let actionBtns = canWrite 
-        ? `<div style="display:flex; gap:5px;"><button class="btn btn-warning" onclick="editRit('${item.id}')">Bewerken</button><button class="btn btn-danger" onclick="deleteRit('${item.id}')">Verwijderen</button></div>`
-        : '-';
-
+      let calc = calculatePunctuality(item.afspraak, item.stop);
+      let actionsHtml = '-';
+      if (canWrite) {
+        actionsHtml = `<div style="display:flex; gap:5px;"><button class="btn btn-warning" onclick="editRit('${item.id}')">Bewerk</button><button class="btn btn-danger" onclick="deleteRit('${item.id}')">Wis</button></div>`;
+      }
       tbody.innerHTML += `
         <tr>
-          <td><b>${item.bedrijf}</b></td>
-          <td>${item.chauffeur}</td>
-          <td>${item.kenteken}</td>
-          <td>${item.vanaf} &rarr; ${item.naar}</td>
+          <td><b>${item.bedrijf || '-'}</b></td>
+          <td>${item.chauffeur || '-'}</td>
+          <td><b>${item.kenteken || '-'}</b></td>
+          <td>${item.vanaf || '-'} &rarr; ${item.naar || '-'}</td>
           <td>${item.afspraak ? item.afspraak.replace('T', ' ') : '-'}</td>
           <td>${item.start ? item.start.replace('T', ' ') : '-'}</td>
           <td>${item.stop ? item.stop.replace('T', ' ') : '-'}</td>
-          <td><span class="badge ${st.class}">${st.label}</span></td>
+          <td><span class="badge ${calc.class}">${calc.label}</span></td>
           <td>${item.opmerkingen || '-'}</td>
-          <td>${actionBtns}</td>
+          <td>${actionsHtml}</td>
         </tr>`;
     });
+  }
 
-    let base = verreden > 0 ? verreden : 1;
-    document.getElementById('statEarly').innerText = `${Math.round((e/base)*100)}%`;
-    document.getElementById('statOnTime').innerText = `${Math.round((o/base)*100)}%`;
-    document.getElementById('statLate').innerText = `${Math.round((l/base)*100)}%`;
+  function updateRittenDashboard() {
+    let completed = rittenList.filter(r => r.stop && r.afspraak);
+    let total = completed.length;
+    if (total === 0) {
+      document.getElementById('statEarly').innerText = "0%";
+      document.getElementById('statOnTime').innerText = "0%";
+      document.getElementById('statLate').innerText = "0%";
+      document.getElementById('statTotal').innerText = rittenList.length;
+      return;
+    }
+
+    let earlyCount = 0, onTimeCount = 0, lateCount = 0;
+    completed.forEach(r => {
+      let c = calculatePunctuality(r.afspraak, r.stop);
+      if (c.diffMin < 0) earlyCount++;
+      else if (c.diffMin <= 5) onTimeCount++;
+      else lateCount++;
+    });
+
+    document.getElementById('statEarly').innerText = Math.round((earlyCount / total) * 100) + "%";
+    document.getElementById('statOnTime').innerText = Math.round((onTimeCount / total) * 100) + "%";
+    document.getElementById('statLate').innerText = Math.round((lateCount / total) * 100) + "%";
     document.getElementById('statTotal').innerText = rittenList.length;
   }
 
-  function toggleEindType(val) { document.getElementById('planEindDatumGroup').style.display = val === 'date' ? 'flex' : 'none'; }
+  function toggleEindType(val) {
+    document.getElementById('planEindDatumGroup').style.display = (val === 'date') ? 'flex' : 'none';
+  }
 
   function handlePlanSubmit(event) {
     event.preventDefault();
     let bedrijf = document.getElementById('planBedrijfSelect').value;
-    let chauffeur = document.getElementById('planChauffeurSelect').value || '-';
-    let kenteken = document.getElementById('planKentekenSelect').value || '-';
+    let chauffeur = document.getElementById('planChauffeurSelect').value;
+    let kenteken = document.getElementById('planKentekenSelect').value;
     let vanaf = document.getElementById('planVanafSelect').value;
     let naar = document.getElementById('planNaarSelect').value;
-    let tijd = document.getElementById('planTijdAfspraak').value;
+    let tijdAfspraak = document.getElementById('planTijdAfspraak').value;
     let freq = document.getElementById('planFrequentie').value;
     let startStr = document.getElementById('planStartDatum').value;
     let eindType = document.getElementById('planEindType').value;
+    let eindStr = document.getElementById('planEindDatum').value;
 
-    let curr = new Date(startStr);
-    let end = eindType === 'date' ? new Date(document.getElementById('planEindDatum').value) : new Date(curr.getFullYear(), curr.getMonth()+1, 0);
+    let startDate = new Date(startStr + 'T12:00:00');
+    let endDate;
 
-    let batch = db.batch();
-    let count = 0;
-    while (curr <= end) {
-      let day = curr.getDay();
-      let match = (freq === 'single' || freq === 'daily') ||
-                  (freq === 'alternate' && Math.floor((curr - new Date(startStr))/(86400000)) % 2 === 0) ||
-                  (freq === 'mwf' && [1,3,5].includes(day)) ||
-                  (freq === 'tts' && [2,4,6].includes(day));
-
-      if (match) {
-        let ref = db.collection('ritten_log').doc();
-        batch.set(ref, {
-          userId: currentUser.uid,
-          bedrijf, chauffeur, kenteken, vanaf, naar,
-          afspraak: `${getLocalDateKey(curr)}T${tijd}`,
-          start: '', stop: '', opmerkingen: 'Ingeplande rit',
-          timestamp: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        count++;
-      }
-      if (freq === 'single') break;
-      curr.setDate(curr.getDate() + 1);
+    if (freq === 'single') {
+      endDate = new Date(startDate);
+    } else if (eindType === 'month') {
+      endDate = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0, 12, 0, 0);
+    } else {
+      if (!eindStr) { alert("Vul een einddatum in."); return; }
+      endDate = new Date(eindStr + 'T12:00:00');
     }
 
-    batch.commit().then(() => {
-      alert(`${count} ritten ingepland!`);
-      loadRitten();
-      switchSubTab('ritLogSub', document.querySelector('#rittenTab .sub-tabs button'));
+    let datesToCreate = [];
+    let curr = new Date(startDate);
+    let dayCounter = 0;
+
+    while (curr <= endDate) {
+      let dayOfWeek = curr.getDay();
+      let shouldAdd = false;
+
+      if (freq === 'single') shouldAdd = true;
+      else if (freq === 'daily') shouldAdd = true;
+      else if (freq === 'alternate' && dayCounter % 2 === 0) shouldAdd = true;
+      else if (freq === 'mwf' && [1, 3, 5].includes(dayOfWeek)) shouldAdd = true;
+      else if (freq === 'tts' && [2, 4, 6].includes(dayOfWeek)) shouldAdd = true;
+
+      if (shouldAdd) {
+        let dStr = curr.toISOString().slice(0, 10);
+        datesToCreate.push(dStr);
+      }
+
+      if (freq === 'single') break;
+      curr.setDate(curr.getDate() + 1);
+      dayCounter++;
+    }
+
+    if (datesToCreate.length === 0) {
+      alert("Geen geldige dagen gevonden binnen het opgegeven datumbereik.");
+      return;
+    }
+
+    let batch = db.batch();
+    datesToCreate.forEach(dStr => {
+      let docRef = db.collection('ritten').doc();
+      batch.set(docRef, {
+        userId: currentUser.uid,
+        bedrijf, chauffeur, kenteken, vanaf, naar,
+        afspraak: `${dStr}T${tijdAfspraak}`,
+        start: "", stop: "", prestatie: "Gepland", diffMin: null,
+        opmerkingen: `Ingepland via reeks (${freq})`,
+        dateKey: dStr,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      });
     });
+
+    batch.commit().then(() => {
+      alert(`${datesToCreate.length} ritten succesvol ingepland!`);
+      switchSubTab('ritLogSub', document.querySelectorAll('#rittenTab .sub-tab-btn')[0]);
+      document.getElementById('ritPeriodSelect').value = 'all';
+      loadRitten();
+    }).catch(e => alert(e.message));
   }
 
   function exportRitExcel() {
-    let data = rittenList.map(i => ({ "Bedrijf": i.bedrijf, "Chauffeur": i.chauffeur, "Kenteken": i.kenteken, "Vanaf": i.vanaf, "Naar": i.naar, "Afspraak": i.afspraak, "Start": i.start, "Stop": i.stop, "Prestatie": getPerformance(i.stop, i.afspraak).label }));
+    if (rittenList.length === 0) { alert("Geen ritten om te exporteren."); return; }
+    let data = rittenList.map(i => ({
+      "Bedrijf": i.bedrijf,
+      "Chauffeur": i.chauffeur,
+      "Kenteken": i.kenteken,
+      "Vanaf": i.vanaf,
+      "Naar": i.naar,
+      "Afspraak": i.afspraak,
+      "Start": i.start,
+      "Stop": i.stop,
+      "Prestatie": calculatePunctuality(i.afspraak, i.stop).label,
+      "Opmerkingen": i.opmerkingen
+    }));
     let ws = XLSX.utils.json_to_sheet(data);
     let wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Ritten");
