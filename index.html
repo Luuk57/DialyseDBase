@@ -20,6 +20,10 @@
     :root {
       --primary: #0056b3;
       --primary-dark: #004090;
+      --gcal-blue: #1a73e8;
+      --gcal-blue-hover: #1557b0;
+      --gcal-border: #dadce0;
+      --gcal-bg-hover: #f1f3f4;
       --success: #28a745;
       --warning: #ffc107;
       --danger: #dc3545;
@@ -38,7 +42,7 @@
     .auth-form-group label { font-weight: bold; margin-bottom: 5px; font-size: 0.9rem; }
     .auth-form-group input { padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 1rem; }
     
-    #appContainer { width: 100%; max-width: 1200px; background: var(--card-bg); padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); display: none; }
+    #appContainer { width: 100%; max-width: 1240px; background: var(--card-bg); padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); display: none; }
     
     .app-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 15px; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
     .app-header h1 { color: var(--primary); font-size: 1.4rem; }
@@ -105,6 +109,74 @@
     .search-box { padding: 9px; width: 250px; border: 1px solid var(--border-color); border-radius: 6px; }
     .status-badge { padding: 4px 8px; border-radius: 4px; font-size: 0.85rem; font-weight: bold; display: inline-block; }
 
+    /* GOOGLE AGENDA STIJL */
+    .gcal-shell { background: #fff; border: 1px solid var(--gcal-border); border-radius: 12px; overflow: hidden; margin-bottom: 20px; box-shadow: 0 1px 4px rgba(60,64,67,0.12); }
+    .gcal-toolbar { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--gcal-border); background: #fff; flex-wrap: wrap; gap: 10px; }
+    .gcal-nav-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .gcal-create-btn { background: #fff; color: #3c4043; border: 1px solid var(--gcal-border); border-radius: 24px; padding: 8px 18px; font-weight: bold; font-size: 0.9rem; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 1px 3px rgba(60,64,67,0.2); transition: all 0.2s; }
+    .gcal-create-btn:hover { background: #f8faff; box-shadow: 0 2px 6px rgba(60,64,67,0.28); }
+    .gcal-today-btn { background: #fff; color: #3c4043; border: 1px solid var(--gcal-border); border-radius: 6px; padding: 7px 14px; font-weight: bold; font-size: 0.85rem; cursor: pointer; }
+    .gcal-today-btn:hover { background: var(--gcal-bg-hover); }
+    .gcal-arrow-btn { background: transparent; border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 1.1rem; font-weight: bold; color: #5f6368; display: inline-flex; align-items: center; justify-content: center; }
+    .gcal-arrow-btn:hover { background: var(--gcal-bg-hover); }
+    .gcal-period-title { font-size: 1.2rem; font-weight: normal; color: #3c4043; min-width: 170px; text-transform: capitalize; }
+    .gcal-view-switcher { display: inline-flex; border: 1px solid var(--gcal-border); border-radius: 6px; overflow: hidden; }
+    .gcal-view-btn { background: #fff; border: none; border-right: 1px solid var(--gcal-border); padding: 7px 13px; font-size: 0.85rem; font-weight: bold; color: #3c4043; cursor: pointer; }
+    .gcal-view-btn:last-child { border-right: none; }
+    .gcal-view-btn.active { background: #e8f0fe; color: var(--gcal-blue); }
+
+    /* Maandraster */
+    .gcal-month-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); border-bottom: 1px solid var(--gcal-border); background: #fff; }
+    .gcal-weekday-head { text-align: center; font-size: 0.72rem; font-weight: bold; color: #70757a; padding: 8px 4px; text-transform: uppercase; border-right: 1px solid var(--gcal-border); }
+    .gcal-weekday-head:last-child { border-right: none; }
+    .gcal-month-grid { display: grid; grid-template-columns: repeat(7, 1fr); }
+    .gcal-day-cell { min-height: 112px; border-right: 1px solid var(--gcal-border); border-bottom: 1px solid var(--gcal-border); padding: 4px 5px; display: flex; flex-direction: column; gap: 3px; cursor: pointer; background: #fff; transition: background 0.15s; overflow: hidden; }
+    .gcal-day-cell:nth-child(7n) { border-right: none; }
+    .gcal-day-cell:hover { background: #f8f9fa; }
+    .gcal-day-cell.other-month { background: #f8f9fa; color: #9aa0a6; }
+    .gcal-day-num { width: 26px; height: 26px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: bold; margin: 0 auto 2px auto; color: #3c4043; }
+    .gcal-day-cell.other-month .gcal-day-num { color: #9aa0a6; font-weight: normal; }
+    .gcal-day-cell.is-today .gcal-day-num { background: var(--gcal-blue); color: #fff; }
+    .gcal-event-pill { font-size: 0.74rem; padding: 2px 6px; border-radius: 4px; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: bold; cursor: pointer; display: block; text-align: left; }
+    .gcal-event-pill:hover { filter: brightness(0.92); }
+    .gcal-more-link { font-size: 0.72rem; color: #5f6368; font-weight: bold; padding-left: 4px; }
+
+    /* Week- & Dagraster */
+    .gcal-timegrid-wrap { overflow-x: auto; max-height: 620px; overflow-y: auto; }
+    .gcal-timegrid-header { display: grid; border-bottom: 1px solid var(--gcal-border); position: sticky; top: 0; background: #fff; z-index: 5; }
+    .gcal-time-axis-head { border-right: 1px solid var(--gcal-border); padding: 8px 4px; font-size: 0.7rem; color: #70757a; text-align: center; }
+    .gcal-col-head { border-right: 1px solid var(--gcal-border); padding: 8px 4px; text-align: center; }
+    .gcal-col-head:last-child { border-right: none; }
+    .gcal-col-head-day { font-size: 0.72rem; color: #70757a; text-transform: uppercase; font-weight: bold; }
+    .gcal-col-head-num { width: 32px; height: 32px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 1.05rem; font-weight: bold; color: #3c4043; margin-top: 2px; }
+    .gcal-col-head.is-today .gcal-col-head-day { color: var(--gcal-blue); }
+    .gcal-col-head.is-today .gcal-col-head-num { background: var(--gcal-blue); color: #fff; }
+    .gcal-hour-row { display: grid; min-height: 48px; border-bottom: 1px solid #f1f3f4; }
+    .gcal-hour-label { border-right: 1px solid var(--gcal-border); font-size: 0.72rem; color: #70757a; text-align: right; padding: 3px 6px 0 0; background: #fff; }
+    .gcal-hour-slot { border-right: 1px solid var(--gcal-border); padding: 2px 3px; cursor: pointer; display: flex; flex-direction: column; gap: 2px; }
+    .gcal-hour-slot:last-child { border-right: none; }
+    .gcal-hour-slot:hover { background: #f1f8ff; }
+
+    /* Kleuren per categorie (Google Agenda stijl) */
+    .ev-color-dialyse { background-color: #0b8043; }
+    .ev-color-ziekenhuis { background-color: #d50000; }
+    .ev-color-inr { background-color: #f4511e; }
+    .ev-color-overig { background-color: #1a73e8; }
+    .ev-color-custom-1 { background-color: #8e24aa; }
+    .ev-color-custom-2 { background-color: #039be5; }
+    .ev-color-custom-3 { background-color: #33b679; }
+
+    /* AGENDA LIJST KAARTEN */
+    .agenda-list { display: flex; flex-direction: column; gap: 12px; margin-top: 15px; }
+    .agenda-item { background: #f8fafc; border: 1px solid var(--border-color); border-left: 5px solid var(--gcal-blue); border-radius: 10px; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .agenda-item.cat-dialyse { border-left-color: #0b8043; }
+    .agenda-item.cat-ziekenhuis { border-left-color: #d50000; }
+    .agenda-item.cat-inr { border-left-color: #f4511e; }
+    .agenda-item.past { opacity: 0.72; }
+    .agenda-main { display: flex; flex-direction: column; gap: 4px; }
+    .agenda-title { font-size: 1rem; font-weight: bold; color: #0f172a; }
+    .agenda-details { font-size: 0.85rem; color: #475569; }
+
     /* VOORTGANGSBALKEN */
     .bars-wrapper { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin-bottom: 20px; }
     .progress-box { background: #e9ecef; border-radius: 8px; padding: 15px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1); }
@@ -131,20 +203,9 @@
     .letter-pdf-box { width: 100%; height: 140px; border-radius: 8px; border: 1px dashed #94a3b8; background: #fff; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #475569; font-size: 0.9rem; }
     .letter-meta { font-size: 0.8rem; color: #64748b; }
 
-    /* AGENDA KAARTEN */
-    .agenda-list { display: flex; flex-direction: column; gap: 12px; margin-top: 15px; }
-    .agenda-item { background: #f8fafc; border: 1px solid var(--border-color); border-left: 5px solid var(--primary); border-radius: 10px; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
-    .agenda-item.cat-dialyse { border-left-color: #0f766e; }
-    .agenda-item.cat-ziekenhuis { border-left-color: #dc2626; }
-    .agenda-item.cat-inr { border-left-color: #d97706; }
-    .agenda-item.past { opacity: 0.72; }
-    .agenda-main { display: flex; flex-direction: column; gap: 4px; }
-    .agenda-title { font-size: 1rem; font-weight: bold; color: #0f172a; }
-    .agenda-details { font-size: 0.85rem; color: #475569; }
-
     /* MODAL / POP-UP */
     .modal-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 15px; }
-    .modal { background: white; padding: 25px; border-radius: 12px; width: 100%; max-width: 400px; box-shadow: 0 5px 20px rgba(0,0,0,0.2); text-align: center; }
+    .modal { background: white; padding: 25px; border-radius: 12px; width: 100%; max-width: 420px; box-shadow: 0 5px 20px rgba(0,0,0,0.2); text-align: center; }
     .modal.modal-wide { max-width: 780px; text-align: left; }
     .modal h3 { margin-bottom: 15px; color: var(--primary); }
     .amount-buttons { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 15px; }
@@ -209,6 +270,12 @@
     .bg-gray { background-color: #64748b; }
 
     select.perm-select { padding: 5px; border-radius: 4px; border: 1px solid var(--border-color); font-size: 0.8rem; }
+
+    @media (max-width: 720px) {
+      .gcal-day-cell { min-height: 78px; padding: 2px; }
+      .gcal-event-pill { font-size: 0.68rem; padding: 1px 4px; }
+      .gcal-period-title { font-size: 1rem; min-width: auto; }
+    }
 
     @media print {
       body { background: white; padding: 0; }
@@ -343,7 +410,7 @@
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
           </div>
           <h3>Agenda</h3>
-          <p>Afspraken, dialyse-tijden & ziekenhuisbezoeken</p>
+          <p>Google Agenda-raster, dialyse-tijden & afspraken</p>
         </div>
 
         <!-- Tegel Dialyse Beheer -->
@@ -406,22 +473,45 @@
       </div>
     </div>
 
-    <!-- TAB: AGENDA MODULE -->
+    <!-- TAB: GOOGLE AGENDA MODULE -->
     <div id="agendaTab" class="tab-content">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; flex-wrap:wrap; gap:10px;">
-        <h2 style="color: var(--primary); font-size: 1.25rem;">Mijn Agenda</h2>
-        <span id="agendaCountLabel" style="font-size: 0.9rem; color: #555;">0 afspraken</span>
-      </div>
+      <!-- GOOGLE AGENDA RASTER & TOOLBAR -->
+      <div class="gcal-shell">
+        <div class="gcal-toolbar">
+          <div class="gcal-nav-left">
+            <button type="button" class="gcal-create-btn" id="gcalQuickCreateBtn" onclick="openAgendaCreateAtDate()">
+              <span style="font-size:1.25rem; color:#1a73e8; line-height:1;">+</span> Maken
+            </button>
+            <button type="button" class="gcal-today-btn" onclick="gcalGoToday()">Vandaag</button>
+            <button type="button" class="gcal-arrow-btn" onclick="gcalNavigate(-1)" title="Vorige">&lsaquo;</button>
+            <button type="button" class="gcal-arrow-btn" onclick="gcalNavigate(1)" title="Volgende">&rsaquo;</button>
+            <h2 class="gcal-period-title" id="gcalPeriodTitle">November 2026</h2>
+          </div>
 
-      <div class="form-card" id="agendaCategoryManageCard">
-        <h3 style="margin-bottom: 10px; color: #333;">Categorieën Beheren</h3>
-        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:10px;">
-          <input type="text" id="newAgendaCategoryInput" placeholder="Nieuwe categorie (bijv. Controle, Fysiotherapie)..." style="flex:1; min-width:220px;">
-          <button type="button" class="btn btn-success" onclick="handleAddAgendaCategory()">+ Categorie Toevoegen</button>
+          <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+            <input type="text" id="agendaSearchBox" class="search-box" style="width:200px; padding:7px 10px;" placeholder="Zoek afspraak..." onkeyup="renderAgendaViews()">
+            <div class="gcal-view-switcher">
+              <button type="button" class="gcal-view-btn active" id="gcalViewMonthBtn" onclick="setGcalView('month', this)">Maand</button>
+              <button type="button" class="gcal-view-btn" id="gcalViewWeekBtn" onclick="setGcalView('week', this)">Week</button>
+              <button type="button" class="gcal-view-btn" id="gcalViewDayBtn" onclick="setGcalView('day', this)">Dag</button>
+              <button type="button" class="gcal-view-btn" id="gcalViewListBtn" onclick="setGcalView('list', this)">Lijst</button>
+            </div>
+            <button type="button" class="btn btn-excel btn-sm" onclick="exportAgendaExcel()">Excel</button>
+            <button type="button" class="btn btn-pdf btn-sm" onclick="exportAgendaPdf()">PDF</button>
+          </div>
         </div>
-        <div id="agendaCategoryChips" class="folder-bar" style="margin-bottom:0;"></div>
+
+        <!-- Categorie legenda strip -->
+        <div style="padding:8px 16px; background:#f8f9fa; border-bottom:1px solid var(--gcal-border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+          <div id="gcalCategoryLegend" style="display:flex; gap:12px; flex-wrap:wrap; align-items:center; font-size:0.8rem;"></div>
+          <span id="agendaCountLabel" style="font-size:0.82rem; color:#5f6368;">0 afspraken</span>
+        </div>
+
+        <!-- Maand / Week / Dag / Lijst Container -->
+        <div id="gcalMainBody"></div>
       </div>
 
+      <!-- FORMULIER NIEUWE AFSPRAAK / HERHALING -->
       <div class="form-card" id="agendaFormCard">
         <h3 id="agendaFormTitle" style="margin-bottom: 12px; color: #333;">Nieuwe Afspraak Toevoegen / Plannen</h3>
         <form onsubmit="handleAgendaSubmit(event)">
@@ -488,25 +578,14 @@
         </form>
       </div>
 
-      <div class="actions-bar">
-        <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-          <label style="margin-bottom:0;">Weergave:</label>
-          <select id="agendaPeriodSelect" onchange="renderAgendaList()" style="padding: 8px; border-radius: 6px; border: 1px solid var(--border-color);">
-            <option value="upcoming">Komende afspraken</option>
-            <option value="today">Vandaag</option>
-            <option value="7days">Komende 7 dagen</option>
-            <option value="all">Alle afspraken</option>
-          </select>
+      <!-- CATEGORIEËN BEHEREN -->
+      <div class="form-card" id="agendaCategoryManageCard">
+        <h3 style="margin-bottom: 10px; color: #333;">Agenda Categorieën Beheren</h3>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:10px;">
+          <input type="text" id="newAgendaCategoryInput" placeholder="Nieuwe categorie (bijv. Controle, Fysiotherapie)..." style="flex:1; min-width:220px;">
+          <button type="button" class="btn btn-success" onclick="handleAddAgendaCategory()">+ Categorie Toevoegen</button>
         </div>
-        <div style="display:flex; gap:10px; flex-wrap:wrap;">
-          <input type="text" id="agendaSearchBox" class="search-box" placeholder="Zoek op titel, arts of locatie..." onkeyup="renderAgendaList()">
-          <button type="button" class="btn btn-excel" onclick="exportAgendaExcel()">Excel (.xlsx)</button>
-          <button type="button" class="btn btn-pdf" onclick="exportAgendaPdf()">PDF / Print</button>
-        </div>
-      </div>
-
-      <div id="agendaListContainer" class="agenda-list">
-        <p style="color:#64748b;">Nog geen afspraken opgeslagen in de agenda.</p>
+        <div id="agendaCategoryChips" class="folder-bar" style="margin-bottom:0;"></div>
       </div>
     </div>
 
@@ -1165,6 +1244,21 @@
     </div>
   </div>
 
+  <!-- AGENDA AFSPRAAK DETAIL MODAL (GOOGLE AGENDA STIJL) -->
+  <div id="agendaDetailModal" class="modal-overlay">
+    <div class="modal" style="text-align:left; max-width:440px;">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:10px;">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span id="agendaDetailColorDot" style="width:14px; height:14px; border-radius:4px; display:inline-block; flex-shrink:0;"></span>
+          <h3 id="agendaDetailTitle" style="margin-bottom:0; color:#202124;">Afspraak</h3>
+        </div>
+        <button type="button" class="gcal-arrow-btn" onclick="closeAgendaDetailModal()" title="Sluiten">&times;</button>
+      </div>
+      <div id="agendaDetailBody" style="font-size:0.9rem; color:#3c4043; line-height:1.55; margin-bottom:18px;"></div>
+      <div style="display:flex; gap:8px; justify-content:flex-end; flex-wrap:wrap;" id="agendaDetailActions"></div>
+    </div>
+  </div>
+
   <!-- HOEVEELHEID KIEZEN MODAL VOOR POS VOCHT INTAKE -->
   <div id="amountModal" class="modal-overlay">
     <div class="modal">
@@ -1281,7 +1375,7 @@
   let currentUser = null;
   let currentUserData = null;
 
-  // Agenda state
+  // Agenda state (Google Agenda stijl)
   const defaultAgendaCategories = ['Dialyse', 'Ziekenhuis / Arts', 'INR / Bloedprikken', 'Overig'];
   let agendaEventsList = [];
   let agendaSettings = {
@@ -1289,6 +1383,8 @@
     doctors: [],
     locations: ['DKE Boermarkeweg 60 Emmen']
   };
+  let gcalViewMode = 'month';
+  let gcalCursorDate = new Date();
 
   // Module lijsten
   let allDialyseRecords = [];
@@ -1414,6 +1510,7 @@
       const canWriteAg = isAdmin || agendaPerm === 'write';
       document.getElementById('agendaFormCard').style.display = canWriteAg ? 'block' : 'none';
       document.getElementById('agendaCategoryManageCard').style.display = canWriteAg ? 'block' : 'none';
+      document.getElementById('gcalQuickCreateBtn').style.display = canWriteAg ? 'inline-flex' : 'none';
       loadAgendaSettingsAndEvents();
     }
 
@@ -1547,7 +1644,7 @@
     return (currentUserData.permissions && currentUserData.permissions.brieven === 'write');
   }
 
-  // --- AGENDA MODULE ---
+  // --- GOOGLE AGENDA MODULE ---
   function loadAgendaSettingsAndEvents() {
     db.collection('agenda_settings').doc(currentUser.uid).get().then(doc => {
       if (doc.exists) {
@@ -1573,6 +1670,17 @@
     return db.collection('agenda_settings').doc(currentUser.uid).set(agendaSettings, { merge: true });
   }
 
+  function getGcalEventColorClass(cat) {
+    const low = String(cat || '').toLowerCase();
+    if (low.includes('dialyse')) return 'ev-color-dialyse';
+    if (low.includes('ziekenhuis') || low.includes('arts')) return 'ev-color-ziekenhuis';
+    if (low.includes('inr') || low.includes('bloed')) return 'ev-color-inr';
+    if (low === 'overig') return 'ev-color-overig';
+    const idx = agendaSettings.categories.indexOf(cat);
+    const customPool = ['ev-color-custom-1', 'ev-color-custom-2', 'ev-color-custom-3'];
+    return customPool[Math.abs(idx) % customPool.length];
+  }
+
   function renderAgendaDropdownsAndCategories() {
     const catSelect = document.getElementById('agendaCategorySelect');
     if (catSelect) {
@@ -1582,6 +1690,19 @@
         catSelect.innerHTML += `<option value="${cat}">${cat}</option>`;
       });
       if (prevCat && agendaSettings.categories.includes(prevCat)) catSelect.value = prevCat;
+    }
+
+    const legendBox = document.getElementById('gcalCategoryLegend');
+    if (legendBox) {
+      legendBox.innerHTML = '';
+      agendaSettings.categories.forEach(cat => {
+        const colorCls = getGcalEventColorClass(cat);
+        legendBox.innerHTML += `
+          <span style="display:inline-flex; align-items:center; gap:5px; color:#3c4043;">
+            <span class="${colorCls}" style="width:10px; height:10px; border-radius:3px; display:inline-block;"></span>
+            ${cat}
+          </span>`;
+      });
     }
 
     const chipBox = document.getElementById('agendaCategoryChips');
@@ -1643,6 +1764,7 @@
         input.value = '';
         renderAgendaDropdownsAndCategories();
         document.getElementById('agendaCategorySelect').value = name;
+        renderAgendaViews();
       });
     }
   }
@@ -1666,8 +1788,84 @@
 
     batch.commit().then(() => {
       renderAgendaDropdownsAndCategories();
-      renderAgendaList();
+      renderAgendaViews();
     });
+  }
+
+  function setGcalView(mode, btn) {
+    gcalViewMode = mode;
+    document.querySelectorAll('.gcal-view-btn').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    renderAgendaViews();
+  }
+
+  function gcalGoToday() {
+    gcalCursorDate = new Date();
+    renderAgendaViews();
+  }
+
+  function gcalNavigate(step) {
+    if (gcalViewMode === 'month') {
+      gcalCursorDate = new Date(gcalCursorDate.getFullYear(), gcalCursorDate.getMonth() + step, 1);
+    } else if (gcalViewMode === 'week') {
+      gcalCursorDate = new Date(gcalCursorDate.getFullYear(), gcalCursorDate.getMonth(), gcalCursorDate.getDate() + (step * 7));
+    } else if (gcalViewMode === 'day') {
+      gcalCursorDate = new Date(gcalCursorDate.getFullYear(), gcalCursorDate.getMonth(), gcalCursorDate.getDate() + step);
+    } else {
+      gcalCursorDate = new Date(gcalCursorDate.getFullYear(), gcalCursorDate.getMonth() + step, 1);
+    }
+    renderAgendaViews();
+  }
+
+  function openAgendaCreateAtDate(dateStr = null, timeStr = '09:00') {
+    if (!canWriteAgenda()) return;
+    resetAgendaForm();
+    const dStr = dateStr || getLocalDateKey(gcalCursorDate);
+    document.getElementById('agendaStartInput').value = `${dStr}T${timeStr}`;
+    const [hh, mm] = timeStr.split(':').map(Number);
+    const endH = String(Math.min(23, (hh || 9) + 1)).padStart(2, '0');
+    document.getElementById('agendaEndInput').value = `${dStr}T${endH}:${String(mm || 0).padStart(2, '0')}`;
+    const card = document.getElementById('agendaFormCard');
+    card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    setTimeout(() => document.getElementById('agendaTitleInput').focus(), 250);
+  }
+
+  function openAgendaDetailModal(id) {
+    const item = agendaEventsList.find(e => e.id === id);
+    if (!item) return;
+
+    const colorCls = getGcalEventColorClass(item.category);
+    const dot = document.getElementById('agendaDetailColorDot');
+    dot.className = colorCls;
+    document.getElementById('agendaDetailTitle').innerText = item.title || 'Afspraak';
+
+    const startFmt = item.start ? item.start.replace('T', ' ') : '-';
+    const endFmt = item.end ? item.end.replace('T', ' ') : '-';
+    document.getElementById('agendaDetailBody').innerHTML = `
+      <div style="margin-bottom:6px;"><b>Categorie:</b> ${item.category || 'Overig'}</div>
+      <div style="margin-bottom:6px;"><b>Start:</b> ${startFmt}</div>
+      ${item.end ? `<div style="margin-bottom:6px;"><b>Eind:</b> ${endFmt}</div>` : ''}
+      ${item.doctor ? `<div style="margin-bottom:6px;"><b>Arts:</b> ${item.doctor}</div>` : ''}
+      ${item.location ? `<div style="margin-bottom:6px;"><b>Locatie:</b> ${item.location}</div>` : ''}
+      ${item.notes ? `<div style="margin-top:8px; padding:8px; background:#f8f9fa; border-radius:6px;"><b>Notities:</b><br>${item.notes}</div>` : ''}
+    `;
+
+    const actions = document.getElementById('agendaDetailActions');
+    if (canWriteAgenda()) {
+      actions.innerHTML = `
+        <button type="button" class="btn btn-warning btn-sm" onclick="closeAgendaDetailModal(); editAgendaEvent('${item.id}')">Bewerken</button>
+        <button type="button" class="btn btn-danger" onclick="closeAgendaDetailModal(); deleteAgendaEvent('${item.id}')">Verwijderen</button>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="closeAgendaDetailModal()">Sluiten</button>
+      `;
+    } else {
+      actions.innerHTML = `<button type="button" class="btn btn-secondary btn-sm" onclick="closeAgendaDetailModal()">Sluiten</button>`;
+    }
+
+    document.getElementById('agendaDetailModal').style.display = 'flex';
+  }
+
+  function closeAgendaDetailModal() {
+    document.getElementById('agendaDetailModal').style.display = 'none';
   }
 
   function onAgendaRepeatChanged() {
@@ -1693,7 +1891,7 @@
         agendaEventsList.push({ id: doc.id, ...doc.data() });
       });
       agendaEventsList.sort((a, b) => (a.start || '').localeCompare(b.start || ''));
-      renderAgendaList();
+      renderAgendaViews();
       updateHomeAgendaSummary();
     }).catch(err => console.error("Fout bij laden agenda:", err));
   }
@@ -1863,7 +2061,7 @@
     document.getElementById('agendaFormTitle').innerText = 'Afspraak Bewerken';
     document.getElementById('agendaSubmitBtn').innerText = 'Wijzigingen Opslaan';
     document.getElementById('agendaCancelEditBtn').style.display = 'inline-block';
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    document.getElementById('agendaFormCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   function resetAgendaForm() {
@@ -1891,68 +2089,155 @@
     return 'cat-overig';
   }
 
-  function getFilteredAgendaEvents() {
-    const period = document.getElementById('agendaPeriodSelect')?.value || 'upcoming';
+  function getSearchFilteredAgendaEvents() {
     const query = (document.getElementById('agendaSearchBox')?.value || '').toLowerCase();
-    const now = new Date();
-    const todayKey = getLocalDateKey(now);
-    const in7Days = new Date(now);
-    in7Days.setDate(in7Days.getDate() + 7);
-    const max7Key = getLocalDateKey(in7Days);
-
     return agendaEventsList.filter(item => {
-      const startStr = item.start || '';
-      const datePart = startStr.slice(0, 10);
-      const startDt = startStr ? new Date(startStr) : null;
-
-      let periodOk = true;
-      if (period === 'today') {
-        periodOk = datePart === todayKey;
-      } else if (period === 'upcoming') {
-        periodOk = !startDt || startDt >= new Date(now.getTime() - 60 * 60 * 1000);
-      } else if (period === '7days') {
-        periodOk = datePart >= todayKey && datePart <= max7Key;
-      }
-
-      const textOk = !query ||
+      return !query ||
         String(item.title || '').toLowerCase().includes(query) ||
         String(item.category || '').toLowerCase().includes(query) ||
         String(item.doctor || '').toLowerCase().includes(query) ||
         String(item.location || '').toLowerCase().includes(query) ||
         String(item.notes || '').toLowerCase().includes(query);
-
-      return periodOk && textOk;
     });
   }
 
-  function renderAgendaList() {
-    const container = document.getElementById('agendaListContainer');
-    const countLabel = document.getElementById('agendaCountLabel');
-    if (!container) return;
+  function getWeekMonday(dateObj) {
+    const d = new Date(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate());
+    const day = d.getDay();
+    const diff = day === 0 ? -6 : 1 - day;
+    d.setDate(d.getDate() + diff);
+    return d;
+  }
 
-    const now = new Date();
-    const todayKey = getLocalDateKey(now);
-    const filtered = getFilteredAgendaEvents();
+  function renderAgendaViews() {
+    const container = document.getElementById('gcalMainBody');
+    const titleEl = document.getElementById('gcalPeriodTitle');
+    const countLabel = document.getElementById('agendaCountLabel');
+    if (!container || !titleEl) return;
+
+    const events = getSearchFilteredAgendaEvents();
+    const todayKey = getLocalDateKey(new Date());
 
     if (countLabel) {
       countLabel.innerText = `${agendaEventsList.length} ${agendaEventsList.length === 1 ? 'afspraak' : 'afspraken'}`;
     }
 
-    if (filtered.length === 0) {
-      container.innerHTML = '<p style="color:#64748b;">Geen afspraken gevonden voor deze selectie.</p>';
+    if (gcalViewMode === 'month') {
+      titleEl.innerText = gcalCursorDate.toLocaleDateString('nl-NL', { month: 'long', year: 'numeric' });
+      const year = gcalCursorDate.getFullYear();
+      const month = gcalCursorDate.getMonth();
+      const firstOfMonth = new Date(year, month, 1);
+      const startGrid = getWeekMonday(firstOfMonth);
+
+      const weekdays = ['Ma', 'Di', 'Wo', 'Do', 'Vr', 'Za', 'Zo'];
+      let html = `<div class="gcal-month-weekdays">${weekdays.map(w => `<div class="gcal-weekday-head">${w}</div>`).join('')}</div>`;
+      html += `<div class="gcal-month-grid">`;
+
+      for (let i = 0; i < 42; i++) {
+        const cellDate = new Date(startGrid.getFullYear(), startGrid.getMonth(), startGrid.getDate() + i);
+        const cellKey = getLocalDateKey(cellDate);
+        const isOtherMonth = cellDate.getMonth() !== month;
+        const isToday = cellKey === todayKey;
+        const dayEvents = events.filter(e => (e.start || '').startsWith(cellKey));
+
+        const pillsHtml = dayEvents.slice(0, 3).map(ev => {
+          const t = (ev.start || '').slice(11, 16);
+          const colorCls = getGcalEventColorClass(ev.category);
+          return `<div class="gcal-event-pill ${colorCls}" onclick="event.stopPropagation(); openAgendaDetailModal('${ev.id}')" title="${t} ${ev.title}">${t ? t + ' ' : ''}${ev.title}</div>`;
+        }).join('');
+
+        const moreHtml = dayEvents.length > 3
+          ? `<div class="gcal-more-link">+${dayEvents.length - 3} meer</div>`
+          : '';
+
+        html += `
+          <div class="gcal-day-cell ${isOtherMonth ? 'other-month' : ''} ${isToday ? 'is-today' : ''}" onclick="openAgendaCreateAtDate('${cellKey}', '09:00')">
+            <div class="gcal-day-num">${cellDate.getDate()}</div>
+            ${pillsHtml}
+            ${moreHtml}
+          </div>
+        `;
+      }
+      html += `</div>`;
+      container.innerHTML = html;
       return;
     }
 
-    const allowWrite = canWriteAgenda();
-    container.innerHTML = '';
+    if (gcalViewMode === 'week' || gcalViewMode === 'day') {
+      const cols = [];
+      if (gcalViewMode === 'week') {
+        const mon = getWeekMonday(gcalCursorDate);
+        const sun = new Date(mon.getFullYear(), mon.getMonth(), mon.getDate() + 6);
+        titleEl.innerText = `${mon.toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' })} – ${sun.toLocaleDateString('nl-NL', { day: 'numeric', month: 'short', year: 'numeric' })}`;
+        for (let i = 0; i < 7; i++) {
+          cols.push(new Date(mon.getFullYear(), mon.getMonth(), mon.getDate() + i));
+        }
+      } else {
+        titleEl.innerText = gcalCursorDate.toLocaleDateString('nl-NL', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+        cols.push(new Date(gcalCursorDate.getFullYear(), gcalCursorDate.getMonth(), gcalCursorDate.getDate()));
+      }
 
-    filtered.forEach(item => {
+      const colTemplate = `58px repeat(${cols.length}, minmax(110px, 1fr))`;
+      let html = `<div class="gcal-timegrid-wrap">`;
+      html += `<div class="gcal-timegrid-header" style="grid-template-columns: ${colTemplate};">`;
+      html += `<div class="gcal-time-axis-head">GMT+1</div>`;
+      cols.forEach(c => {
+        const cKey = getLocalDateKey(c);
+        const isToday = cKey === todayKey;
+        const wName = c.toLocaleDateString('nl-NL', { weekday: 'short' });
+        html += `
+          <div class="gcal-col-head ${isToday ? 'is-today' : ''}">
+            <div class="gcal-col-head-day">${wName}</div>
+            <div class="gcal-col-head-num">${c.getDate()}</div>
+          </div>
+        `;
+      });
+      html += `</div>`;
+
+      for (let hour = 0; hour < 24; hour++) {
+        const hourStr = String(hour).padStart(2, '0');
+        html += `<div class="gcal-hour-row" style="grid-template-columns: ${colTemplate};">`;
+        html += `<div class="gcal-hour-label">${hourStr}:00</div>`;
+        cols.forEach(c => {
+          const cKey = getLocalDateKey(c);
+          const slotEvents = events.filter(ev => {
+            if (!(ev.start || '').startsWith(cKey)) return false;
+            const evHour = parseInt((ev.start || '').slice(11, 13), 10);
+            return evHour === hour;
+          });
+          const pillsHtml = slotEvents.map(ev => {
+            const t = (ev.start || '').slice(11, 16);
+            const colorCls = getGcalEventColorClass(ev.category);
+            return `<div class="gcal-event-pill ${colorCls}" onclick="event.stopPropagation(); openAgendaDetailModal('${ev.id}')">${t} ${ev.title}</div>`;
+          }).join('');
+          html += `<div class="gcal-hour-slot" onclick="openAgendaCreateAtDate('${cKey}', '${hourStr}:00')">${pillsHtml}</div>`;
+        });
+        html += `</div>`;
+      }
+
+      html += `</div>`;
+      container.innerHTML = html;
+      return;
+    }
+
+    // Lijstweergave (Planning)
+    titleEl.innerText = 'Planning / Lijstoverzicht';
+    const now = new Date();
+    const allowWrite = canWriteAgenda();
+    if (events.length === 0) {
+      container.innerHTML = '<div style="padding:20px; color:#64748b;">Geen afspraken gevonden.</div>';
+      return;
+    }
+
+    let listHtml = `<div class="agenda-list" style="padding:16px; margin-top:0;">`;
+    events.forEach(item => {
       const startDt = item.start ? new Date(item.start) : null;
       const isPast = startDt && startDt < now;
       const datePart = (item.start || '').slice(0, 10);
       const isToday = datePart === todayKey;
       const formattedStart = item.start ? item.start.replace('T', ' ') : '-';
       const formattedEnd = item.end ? ` – ${item.end.slice(11, 16)}` : '';
+      const colorCls = getGcalEventColorClass(item.category);
 
       const statusBadge = isToday
         ? '<span class="badge bg-green">Vandaag</span>'
@@ -1965,12 +2250,12 @@
            </div>`
         : '';
 
-      container.innerHTML += `
-        <div class="agenda-item ${getAgendaCategoryStyleClass(item.category)} ${isPast ? 'past' : ''}">
+      listHtml += `
+        <div class="agenda-item ${getAgendaCategoryStyleClass(item.category)} ${isPast ? 'past' : ''}" onclick="openAgendaDetailModal('${item.id}')" style="cursor:pointer;">
           <div class="agenda-main">
             <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
               ${statusBadge}
-              <span class="badge bg-user">${item.category || 'Overig'}</span>
+              <span class="badge ${colorCls}">${item.category || 'Overig'}</span>
               <span class="agenda-title">${item.title}</span>
             </div>
             <div class="agenda-details">
@@ -1980,10 +2265,12 @@
             </div>
             ${item.notes ? `<div class="agenda-details">${item.notes}</div>` : ''}
           </div>
-          ${btns}
+          <div onclick="event.stopPropagation();">${btns}</div>
         </div>
       `;
     });
+    listHtml += `</div>`;
+    container.innerHTML = listHtml;
   }
 
   function updateHomeAgendaSummary() {
@@ -2008,7 +2295,7 @@
   }
 
   function exportAgendaExcel() {
-    const list = getFilteredAgendaEvents();
+    const list = getSearchFilteredAgendaEvents();
     if (!list.length) {
       alert("Geen agenda-afspraken om te exporteren.");
       return;
@@ -2029,7 +2316,7 @@
   }
 
   function exportAgendaPdf() {
-    const list = getFilteredAgendaEvents();
+    const list = getSearchFilteredAgendaEvents();
     if (!list.length) {
       alert("Geen agenda-afspraken om naar PDF te exporteren.");
       return;
