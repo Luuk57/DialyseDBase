@@ -130,9 +130,10 @@
     .letter-pdf-box { width: 100%; height: 140px; border-radius: 8px; border: 1px dashed #94a3b8; background: #fff; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #475569; font-size: 0.9rem; }
     .letter-meta { font-size: 0.8rem; color: #64748b; }
 
-    /* MODAL / POP-UP VOOR HOEVEELHEID KIEZEN */
+    /* MODAL / POP-UP VOOR HOEVEELHEID KIEZEN & BRIEF LEZEN/VERPLAATSEN */
     .modal-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 15px; }
     .modal { background: white; padding: 25px; border-radius: 12px; width: 100%; max-width: 400px; box-shadow: 0 5px 20px rgba(0,0,0,0.2); text-align: center; }
+    .modal.modal-wide { max-width: 780px; text-align: left; }
     .modal h3 { margin-bottom: 15px; color: var(--primary); }
     .amount-buttons { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 15px; }
     .amount-btn { background: #f1f5f9; border: 1px solid var(--border-color); padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 1rem; transition: background 0.2s; }
@@ -1035,6 +1036,38 @@
     </div>
   </div>
 
+  <!-- BRIEF LEZEN MODAL -->
+  <div id="readLetterModal" class="modal-overlay">
+    <div class="modal modal-wide">
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:12px;">
+        <h3 id="readLetterTitle" style="margin-bottom:0;">Brief Lezen</h3>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="closeReadLetterModal()">Sluiten</button>
+      </div>
+      <div id="readLetterMeta" class="letter-meta" style="margin-bottom:14px;"></div>
+      <div id="readLetterViewer" style="background:#f8fafc; border:1px solid var(--border-color); border-radius:8px; padding:12px; max-height:70vh; overflow:auto; text-align:center;"></div>
+      <div class="btn-group">
+        <button type="button" class="btn btn-sm" id="readLetterDownloadBtn">Downloaden</button>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="closeReadLetterModal()">Sluiten</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BRIEF VERPLAATSEN MODAL -->
+  <div id="moveLetterModal" class="modal-overlay">
+    <div class="modal">
+      <h3>Brief Verplaatsen</h3>
+      <p id="moveLetterTitle" style="margin-bottom:14px; color:#475569; font-size:0.9rem;"></p>
+      <div class="form-group" style="text-align:left; margin-bottom:18px;">
+        <label>Kies doelmap</label>
+        <select id="moveLetterFolderSelect"></select>
+      </div>
+      <div style="display:flex; gap:10px; justify-content:center;">
+        <button type="button" class="btn btn-success btn-sm" onclick="confirmMoveLetter()">Verplaatsen</button>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="closeMoveLetterModal()">Annuleren</button>
+      </div>
+    </div>
+  </div>
+
 <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
@@ -1118,6 +1151,7 @@
   let activeFolderFilter = 'ALL';
   let lettersList = [];
   let draftLetterData = null;
+  let movingLetterId = null;
 
   auth.onAuthStateChanged(user => {
     if (user) {
@@ -2164,6 +2198,7 @@
         letterFolders = ['Algemeen', 'Dialyse & Ziekenhuis', 'Verzekering'];
       }
       renderFolderSelectAndFilter();
+      updateHomeBrievenSummary();
     }).catch(() => renderFolderSelectAndFilter());
 
     db.collection('brieven_items').where('userId', '==', currentUser.uid).get().then(snapshot => {
@@ -2172,6 +2207,7 @@
         lettersList.push({ id: doc.id, ...doc.data() });
       });
       lettersList.sort((a, b) => (b.createdAtMs || 0) - (a.createdAtMs || 0));
+      renderFolderSelectAndFilter();
       renderLettersGrid();
       updateHomeBrievenSummary();
     }).catch(err => console.error("Fout bij laden brieven:", err));
@@ -2355,6 +2391,65 @@
     }).catch(err => alert("Fout bij opslaan brief: " + err.message));
   }
 
+  function openReadLetterModal(id) {
+    const item = lettersList.find(l => l.id === id);
+    if (!item || !item.dataUrl) return;
+
+    document.getElementById('readLetterTitle').innerText = item.title || 'Brief';
+    document.getElementById('readLetterMeta').innerText = `Map: ${item.folder || 'Algemeen'} • ${item.dateKey || ''} ${item.time || ''} • ${item.fileName || ''}`;
+
+    const viewer = document.getElementById('readLetterViewer');
+    if (item.mimeType === 'application/pdf') {
+      viewer.innerHTML = `<iframe src="${item.dataUrl}" style="width:100%; height:62vh; border:none; border-radius:6px;"></iframe>`;
+    } else {
+      viewer.innerHTML = `<img src="${item.dataUrl}" alt="${item.title}" style="max-width:100%; height:auto; border-radius:6px;">`;
+    }
+
+    const dlBtn = document.getElementById('readLetterDownloadBtn');
+    dlBtn.onclick = () => downloadLetterFile(id);
+
+    document.getElementById('readLetterModal').style.display = 'flex';
+  }
+
+  function closeReadLetterModal() {
+    document.getElementById('readLetterModal').style.display = 'none';
+    document.getElementById('readLetterViewer').innerHTML = '';
+  }
+
+  function openMoveLetterModal(id) {
+    if (!canWriteBrieven()) return;
+    const item = lettersList.find(l => l.id === id);
+    if (!item) return;
+
+    movingLetterId = id;
+    document.getElementById('moveLetterTitle').innerText = `Brief: "${item.title}" (nu in ${item.folder || 'Algemeen'})`;
+
+    const sel = document.getElementById('moveLetterFolderSelect');
+    sel.innerHTML = '';
+    letterFolders.forEach(f => {
+      const selected = f === item.folder ? 'selected' : '';
+      sel.innerHTML += `<option value="${f}" ${selected}>${f}</option>`;
+    });
+
+    document.getElementById('moveLetterModal').style.display = 'flex';
+  }
+
+  function closeMoveLetterModal() {
+    document.getElementById('moveLetterModal').style.display = 'none';
+    movingLetterId = null;
+  }
+
+  function confirmMoveLetter() {
+    if (!canWriteBrieven() || !movingLetterId) return;
+    const targetFolder = document.getElementById('moveLetterFolderSelect').value;
+    if (!targetFolder) return;
+
+    db.collection('brieven_items').doc(movingLetterId).update({ folder: targetFolder }).then(() => {
+      closeMoveLetterModal();
+      loadBrievenAndFolders();
+    }).catch(err => alert("Fout bij verplaatsen: " + err.message));
+  }
+
   function downloadLetterFile(id) {
     const item = lettersList.find(l => l.id === id);
     if (!item || !item.dataUrl) return;
@@ -2402,6 +2497,9 @@
       const thumbHtml = isPdf
         ? `<div class="letter-pdf-box">PDF DOCUMENT</div>`
         : `<img class="letter-thumb" src="${item.dataUrl}" alt="${item.title}">`;
+      const moveBtn = allowWrite
+        ? `<button type="button" class="btn btn-warning btn-sm" onclick="openMoveLetterModal('${item.id}')">Verplaatsen</button>`
+        : '';
       const delBtn = allowWrite
         ? `<button type="button" class="btn btn-danger" onclick="deleteLetterItem('${item.id}')">Verwijder</button>`
         : '';
@@ -2413,7 +2511,9 @@
             <h4 style="margin-top:10px; color:#1e293b; font-size:0.95rem;">${item.title}</h4>
             <div class="letter-meta">Map: <b>${item.folder || 'Algemeen'}</b> • ${item.dateKey || ''} ${item.time || ''}</div>
           </div>
-          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <div style="display:flex; gap:6px; flex-wrap:wrap;">
+            <button type="button" class="btn btn-success btn-sm" onclick="openReadLetterModal('${item.id}')">Lezen</button>
+            ${moveBtn}
             <button type="button" class="btn btn-sm" onclick="downloadLetterFile('${item.id}')">Downloaden</button>
             ${delBtn}
           </div>
