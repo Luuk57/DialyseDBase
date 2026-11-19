@@ -127,6 +127,7 @@
     .letter-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 15px; margin-top: 15px; }
     .letter-card { background: #f8fafc; border: 1px solid var(--border-color); border-radius: 10px; padding: 14px; display: flex; flex-direction: column; justify-content: space-between; gap: 10px; }
     .letter-thumb { width: 100%; height: 140px; object-fit: cover; border-radius: 8px; border: 1px solid #e2e8f0; background: #fff; }
+    .doctor-thumb { width: 100%; height: 140px; object-fit: cover; object-position: top center; border-radius: 8px; border: 1px solid #cbd5e1; background: #fff; }
     .letter-pdf-box { width: 100%; height: 140px; border-radius: 8px; border: 1px dashed #94a3b8; background: #fff; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #475569; font-size: 0.9rem; }
     .letter-meta { font-size: 0.8rem; color: #64748b; }
 
@@ -972,11 +973,26 @@
               <label>Of kies Foto / PDF van apparaat</label>
               <input type="file" id="letterFileInput" accept="image/*,application/pdf" onchange="handleLetterFilePicked(this)">
             </div>
+            <div class="form-group">
+              <label>Foto van de Dokter (Optioneel - vervangt PDF-label)</label>
+              <input type="file" id="doctorPhotoFileInput" accept="image/*" onchange="handleDoctorPhotoFilePicked(this)">
+            </div>
+            <div class="form-group">
+              <label>Of Foto URL van de Dokter (Optioneel)</label>
+              <input type="text" id="doctorPhotoUrlInput" placeholder="https://... of kies foto hiernaast" oninput="handleDoctorPhotoUrlTyped(this.value)">
+            </div>
           </div>
           <div id="letterPreviewBox" style="display:none; margin-bottom: 15px; padding: 10px; background: #fff; border: 1px solid var(--border-color); border-radius: 8px;">
             <div style="font-size: 0.85rem; font-weight: bold; margin-bottom: 6px;" id="letterPreviewName">Voorbeeld</div>
             <img id="letterImgPreview" style="display:none; max-height: 180px; border-radius: 6px; border: 1px solid #ddd;">
             <div id="letterPdfPreview" style="display:none; font-size: 0.85rem; color: #334155;">PDF-bestand gereed voor opslag.</div>
+          </div>
+          <div id="doctorPhotoPreviewBox" style="display:none; margin-bottom: 15px; padding: 10px; background: #fff; border: 1px solid var(--border-color); border-radius: 8px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:6px;">
+              <span style="font-size: 0.85rem; font-weight: bold;">Gekoppelde Doktersfoto op kaart:</span>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="clearDraftDoctorPhoto()">Doktersfoto wissen</button>
+            </div>
+            <img id="doctorPhotoImgPreview" style="width: 90px; height: 90px; object-fit: cover; object-position: top center; border-radius: 8px; border: 1px solid #ddd;">
           </div>
           <button type="submit" class="btn btn-success">Brief Opslaan in Map</button>
         </form>
@@ -1068,6 +1084,27 @@
     </div>
   </div>
 
+  <!-- DOKTERSFOTO KOPPELEN / WIJZIGEN MODAL -->
+  <div id="doctorPhotoModal" class="modal-overlay">
+    <div class="modal">
+      <h3>Doktersfoto Koppelen</h3>
+      <p id="doctorPhotoModalTitle" style="margin-bottom:14px; color:#475569; font-size:0.9rem;"></p>
+      <div class="form-group" style="text-align:left; margin-bottom:12px;">
+        <label>Foto kiezen of camera</label>
+        <input type="file" id="modalDoctorPhotoFile" accept="image/*" onchange="handleModalDoctorPhotoPicked(this)">
+      </div>
+      <div class="form-group" style="text-align:left; margin-bottom:16px;">
+        <label>Of foto-URL</label>
+        <input type="text" id="modalDoctorPhotoUrl" placeholder="https://...">
+      </div>
+      <div style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
+        <button type="button" class="btn btn-success btn-sm" onclick="confirmDoctorPhoto()">Opslaan</button>
+        <button type="button" class="btn btn-danger btn-sm" onclick="removeDoctorPhotoFromLetter()">Verwijderen</button>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="closeDoctorPhotoModal()">Annuleren</button>
+      </div>
+    </div>
+  </div>
+
 <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
@@ -1151,7 +1188,10 @@
   let activeFolderFilter = 'ALL';
   let lettersList = [];
   let draftLetterData = null;
+  let draftDoctorPhotoUrl = '';
   let movingLetterId = null;
+  let editingDoctorPhotoLetterId = null;
+  let modalDraftDoctorPhotoUrl = '';
 
   auth.onAuthStateChanged(user => {
     if (user) {
@@ -2310,6 +2350,52 @@
     });
   }
 
+  function updateDoctorPhotoPreview(url) {
+    const box = document.getElementById('doctorPhotoPreviewBox');
+    const img = document.getElementById('doctorPhotoImgPreview');
+    if (!box || !img) return;
+    if (url && url.trim()) {
+      img.src = url.trim();
+      box.style.display = 'block';
+    } else {
+      img.src = '';
+      box.style.display = 'none';
+    }
+  }
+
+  function handleDoctorPhotoFilePicked(inputEl) {
+    const file = inputEl.files && inputEl.files[0];
+    if (!file || !file.type.startsWith('image/')) return;
+    compressImageToDataUrl(file, 420, 0.75).then(res => {
+      if (res.dataUrl.length > 260000) {
+        alert("Doktersfoto is iets te groot. Kies een kleinere foto of gebruik een URL.");
+        inputEl.value = '';
+        return;
+      }
+      draftDoctorPhotoUrl = res.dataUrl;
+      document.getElementById('doctorPhotoUrlInput').value = '';
+      updateDoctorPhotoPreview(draftDoctorPhotoUrl);
+    });
+  }
+
+  function handleDoctorPhotoUrlTyped(val) {
+    const clean = (val || '').trim();
+    if (clean) {
+      document.getElementById('doctorPhotoFileInput').value = '';
+      draftDoctorPhotoUrl = clean;
+    } else if (!document.getElementById('doctorPhotoFileInput').files?.length) {
+      draftDoctorPhotoUrl = '';
+    }
+    updateDoctorPhotoPreview(draftDoctorPhotoUrl);
+  }
+
+  function clearDraftDoctorPhoto() {
+    draftDoctorPhotoUrl = '';
+    document.getElementById('doctorPhotoFileInput').value = '';
+    document.getElementById('doctorPhotoUrlInput').value = '';
+    updateDoctorPhotoPreview('');
+  }
+
   function handleLetterFilePicked(inputEl) {
     const file = inputEl.files && inputEl.files[0];
     if (!file) return;
@@ -2361,6 +2447,8 @@
 
     const title = document.getElementById('letterTitleInput').value.trim();
     const folder = document.getElementById('letterFolderSelect').value || 'Algemeen';
+    const typedDoctorUrl = document.getElementById('doctorPhotoUrlInput').value.trim();
+    const doctorPhotoUrl = typedDoctorUrl || draftDoctorPhotoUrl || '';
 
     if (!title || !draftLetterData) {
       alert("Vul een titel in en scan of kies eerst een brief/bestand.");
@@ -2375,6 +2463,7 @@
       fileName: draftLetterData.fileName,
       mimeType: draftLetterData.mimeType,
       dataUrl: draftLetterData.dataUrl,
+      doctorPhotoUrl: doctorPhotoUrl,
       dateKey: getLocalDateKey(now),
       time: now.toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' }),
       createdAtMs: now.getTime()
@@ -2386,6 +2475,7 @@
       document.getElementById('letterFileInput').value = '';
       document.getElementById('letterPreviewBox').style.display = 'none';
       draftLetterData = null;
+      clearDraftDoctorPhoto();
       loadBrievenAndFolders();
       alert("Brief opgeslagen in map '" + folder + "'!");
     }).catch(err => alert("Fout bij opslaan brief: " + err.message));
@@ -2450,6 +2540,58 @@
     }).catch(err => alert("Fout bij verplaatsen: " + err.message));
   }
 
+  function openDoctorPhotoModal(id) {
+    if (!canWriteBrieven()) return;
+    const item = lettersList.find(l => l.id === id);
+    if (!item) return;
+
+    editingDoctorPhotoLetterId = id;
+    modalDraftDoctorPhotoUrl = item.doctorPhotoUrl || '';
+    document.getElementById('doctorPhotoModalTitle').innerText = `Doktersfoto voor "${item.title}"`;
+    document.getElementById('modalDoctorPhotoFile').value = '';
+    document.getElementById('modalDoctorPhotoUrl').value = (item.doctorPhotoUrl && !item.doctorPhotoUrl.startsWith('data:')) ? item.doctorPhotoUrl : '';
+    document.getElementById('doctorPhotoModal').style.display = 'flex';
+  }
+
+  function closeDoctorPhotoModal() {
+    document.getElementById('doctorPhotoModal').style.display = 'none';
+    editingDoctorPhotoLetterId = null;
+    modalDraftDoctorPhotoUrl = '';
+  }
+
+  function handleModalDoctorPhotoPicked(inputEl) {
+    const file = inputEl.files && inputEl.files[0];
+    if (!file || !file.type.startsWith('image/')) return;
+    compressImageToDataUrl(file, 420, 0.75).then(res => {
+      if (res.dataUrl.length > 260000) {
+        alert("Doktersfoto is iets te groot. Kies een kleinere foto of gebruik een URL.");
+        inputEl.value = '';
+        return;
+      }
+      modalDraftDoctorPhotoUrl = res.dataUrl;
+      document.getElementById('modalDoctorPhotoUrl').value = '';
+    });
+  }
+
+  function confirmDoctorPhoto() {
+    if (!canWriteBrieven() || !editingDoctorPhotoLetterId) return;
+    const urlVal = document.getElementById('modalDoctorPhotoUrl').value.trim();
+    const finalUrl = urlVal || modalDraftDoctorPhotoUrl || '';
+
+    db.collection('brieven_items').doc(editingDoctorPhotoLetterId).update({ doctorPhotoUrl: finalUrl }).then(() => {
+      closeDoctorPhotoModal();
+      loadBrievenAndFolders();
+    }).catch(err => alert("Fout bij opslaan doktersfoto: " + err.message));
+  }
+
+  function removeDoctorPhotoFromLetter() {
+    if (!canWriteBrieven() || !editingDoctorPhotoLetterId) return;
+    db.collection('brieven_items').doc(editingDoctorPhotoLetterId).update({ doctorPhotoUrl: '' }).then(() => {
+      closeDoctorPhotoModal();
+      loadBrievenAndFolders();
+    }).catch(err => alert("Fout bij verwijderen doktersfoto: " + err.message));
+  }
+
   function downloadLetterFile(id) {
     const item = lettersList.find(l => l.id === id);
     if (!item || !item.dataUrl) return;
@@ -2494,9 +2636,15 @@
 
     filtered.forEach(item => {
       const isPdf = item.mimeType === 'application/pdf';
-      const thumbHtml = isPdf
-        ? `<div class="letter-pdf-box">PDF DOCUMENT</div>`
-        : `<img class="letter-thumb" src="${item.dataUrl}" alt="${item.title}">`;
+      const hasDoctorPhoto = Boolean(item.doctorPhotoUrl && String(item.doctorPhotoUrl).trim());
+      const thumbHtml = hasDoctorPhoto
+        ? `<img class="doctor-thumb" src="${item.doctorPhotoUrl}" alt="Dokter bij ${item.title}">`
+        : (isPdf
+          ? `<div class="letter-pdf-box">PDF DOCUMENT</div>`
+          : `<img class="letter-thumb" src="${item.dataUrl}" alt="${item.title}">`);
+      const doctorBtn = allowWrite
+        ? `<button type="button" class="btn btn-secondary btn-sm" onclick="openDoctorPhotoModal('${item.id}')">${hasDoctorPhoto ? 'Doktersfoto' : '+ Doktersfoto'}</button>`
+        : '';
       const moveBtn = allowWrite
         ? `<button type="button" class="btn btn-warning btn-sm" onclick="openMoveLetterModal('${item.id}')">Verplaatsen</button>`
         : '';
@@ -2513,6 +2661,7 @@
           </div>
           <div style="display:flex; gap:6px; flex-wrap:wrap;">
             <button type="button" class="btn btn-success btn-sm" onclick="openReadLetterModal('${item.id}')">Lezen</button>
+            ${doctorBtn}
             ${moveBtn}
             <button type="button" class="btn btn-sm" onclick="downloadLetterFile('${item.id}')">Downloaden</button>
             ${delBtn}
