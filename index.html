@@ -64,6 +64,16 @@
     .summary-value { font-size: 1.45rem; font-weight: bold; color: #0f172a; }
     .summary-sub { font-size: 0.85rem; color: #475569; }
 
+    /* HOME DASHBOARD NA DIALYSE FILTER PANEEL */
+    .home-filter-bar { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 15px; }
+    .home-post-dialysis-panel { background: #eff6ff; border: 1px solid #93c5fd; border-radius: 12px; padding: 16px; margin-bottom: 24px; display: none; }
+    .home-post-dialysis-panel.active { display: block; }
+
+    /* HERINNERINGSMELDING BANNER */
+    .med-reminder-banner { background: #fffbeb; border: 1px solid #f59e0b; border-left: 5px solid #d97706; border-radius: 10px; padding: 14px 16px; margin-bottom: 18px; display: none; flex-direction: column; gap: 10px; }
+    .med-reminder-banner.active { display: flex; }
+    .med-reminder-item { background: #ffffff; border: 1px solid #fde68a; border-radius: 8px; padding: 10px 12px; display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+
     /* HOME DASHBOARD TEGELS */
     .launcher-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; margin-top: 15px; }
     .app-tile { background: #f8fafc; border: 2px solid var(--border-color); border-radius: 14px; padding: 25px 20px; text-align: center; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; box-shadow: 0 3px 8px rgba(0,0,0,0.04); }
@@ -118,6 +128,7 @@
     .med-block-time-hint { font-size: 0.8rem; color: #64748b; font-weight: bold; }
     .med-dose-row { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 12px; display: flex; justify-content: space-between; align-items: center; gap: 10px; transition: all 0.15s; }
     .med-dose-row.taken { background: #f0fdf4; border-color: #86efac; }
+    .med-dose-row.due-now { background: #fef2f2; border-color: #fca5a5; }
     .med-dose-left { display: flex; align-items: center; gap: 10px; cursor: pointer; flex: 1; }
     .med-dose-left input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; }
     .med-dose-name { font-weight: bold; font-size: 0.92rem; color: #1e293b; }
@@ -361,157 +372,179 @@
 
     <!-- TAB 0: HOME DASHBOARD (LIVE OVERZICHT & PROGRAMMA STARTPAGINA) -->
     <div id="homeTab" class="tab-content active">
-      <h2 style="color: #1e293b; font-size: 1.2rem; margin-bottom: 5px;">Actueel Overzicht</h2>
-      <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 15px;">Jouw laatste metingen en status van vandaag:</p>
-
-      <div class="summary-grid">
-        <div class="summary-card">
-          <div class="summary-card-header">
-            <span>Agenda & Afspraken</span>
-            <span id="dashAgendaBadge" class="badge bg-admin">0</span>
-          </div>
-          <div class="summary-value" id="dashAgendaValue">Geen afspraken</div>
-          <div class="summary-sub" id="dashAgendaSub">Nog geen geplande afspraken</div>
+      <div class="home-filter-bar">
+        <div>
+          <h2 style="color: #1e293b; font-size: 1.2rem; margin-bottom: 3px;">Actueel Overzicht</h2>
+          <p style="color: #64748b; font-size: 0.9rem;">Jouw laatste metingen en status van vandaag:</p>
         </div>
-
-        <div class="summary-card">
-          <div class="summary-card-header">
-            <span>Medicijnen Vandaag</span>
-            <span id="dashMedBadge" class="badge bg-green">0/0</span>
-          </div>
-          <div class="summary-value" id="dashMedValue">0 / 0 ingenomen</div>
-          <div class="summary-sub" id="dashMedSub">Ochtend • Middag • Avond • Na dialyse</div>
-        </div>
-
-        <div class="summary-card">
-          <div class="summary-card-header">
-            <span>Laatste Bloeddruk</span>
-            <span id="dashBpBadge" class="badge bg-gray">-</span>
-          </div>
-          <div class="summary-value" id="dashBpValue">- / -</div>
-          <div class="summary-sub" id="dashBpSub">Geen meting gevonden</div>
-        </div>
-
-        <div class="summary-card">
-          <div class="summary-card-header">
-            <span>Vocht Intake (Dag / Tussen Dialyse)</span>
-            <span id="dashVochtBadge" class="badge bg-green">0%</span>
-          </div>
-          <div class="summary-value" id="dashVochtValue">0% / 0%</div>
-          <div class="summary-sub" id="dashVochtSub">0 ml (1000ml) • 0 ml (2000ml)</div>
-        </div>
-
-        <div class="summary-card">
-          <div class="summary-card-header">
-            <span>Ritten Vandaag</span>
-            <span class="badge bg-admin" id="dashRittenBadge">0</span>
-          </div>
-          <div class="summary-value" id="dashRittenValue">0 ritten</div>
-          <div class="summary-sub" id="dashRittenSub">Gepland / verreden vandaag</div>
-        </div>
-
-        <div class="summary-card">
-          <div class="summary-card-header">
-            <span>Laatste Dialyse / Vandaag</span>
-            <span id="dashDialyseBadge" class="badge bg-gray">-</span>
-          </div>
-          <div class="summary-value" id="dashDialyseValue">-</div>
-          <div class="summary-sub" id="dashDialyseSub">Geen sessie geregistreerd</div>
-        </div>
-
-        <div class="summary-card">
-          <div class="summary-card-header">
-            <span>Brieven & Mappen</span>
-            <span class="badge bg-admin" id="dashBrievenBadge">0</span>
-          </div>
-          <div class="summary-value" id="dashBrievenValue">0 brieven</div>
-          <div class="summary-sub" id="dashBrievenSub">0 eigen mappen</div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button type="button" class="btn btn-sm" id="homeFilterPostDialysisBtn" onclick="toggleHomePostDialysisFilter()">Filter: Alleen Na dialyse</button>
+          <button type="button" class="btn btn-secondary btn-sm" id="homeResetFilterBtn" style="display:none;" onclick="resetHomeFilter()">Toon volledig Home Dashboard</button>
         </div>
       </div>
 
-      <h2 style="color: #1e293b; font-size: 1.2rem; margin-bottom: 5px;">Mijn Programma's</h2>
-      <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 15px;">Kies een module om te starten:</p>
-      
-      <div class="launcher-grid" id="launcherGrid">
-        <!-- Tegel Agenda -->
-        <div class="app-tile" id="tileAgenda" style="display:none;" onclick="openModule('agendaTab', 'tabBtnAgenda')">
-          <div class="app-tile-icon" style="background: linear-gradient(135deg, #2563eb, #1d4ed8);">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <!-- FILTERWEERGAVE: UITSLUITEND NA DIALYSE -->
+      <div id="homePostDialysisPanel" class="home-post-dialysis-panel">
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:10px;">
+          <div>
+            <h3 style="color:#1e3a8a; font-size:1.05rem;">Medicijnen Speciaal Na Dialyse</h3>
+            <p style="font-size:0.82rem; color:#334155;">Gefilterd overzicht van medicatie die na dialyse ingenomen moet worden.</p>
           </div>
-          <h3>Agenda</h3>
-          <p>Google Agenda-raster, dialyse-tijden & afspraken</p>
+          <button type="button" class="btn btn-secondary btn-sm" onclick="resetHomeFilter()">Filter sluiten</button>
         </div>
-
-        <!-- Tegel Medicijnen -->
-        <div class="app-tile" id="tileMedicijnen" style="display:none;" onclick="openModule('medicijnenTab', 'tabBtnMedicijnen')">
-          <div class="app-tile-icon" style="background: linear-gradient(135deg, #0891b2, #0e7490);">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.5 20.5 3.5 13.5a4.95 4.95 0 1 1 7-7l7 7a4.95 4.95 0 1 1-7 7Z"/><path d="m8.5 8.5 7 7"/></svg>
-          </div>
-          <h3>Medicijnen</h3>
-          <p>Ochtend, middag, avond & na dialyse</p>
-        </div>
-
-        <!-- Tegel Dialyse Beheer -->
-        <div class="app-tile" id="tileDialyse" style="display:none;" onclick="openModule('dialyseTab', 'tabBtnDialyse')">
-          <div class="app-tile-icon" style="background: linear-gradient(135deg, #0f766e, #115e59);">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-          </div>
-          <h3>Dialyse Beheer</h3>
-          <p>Nacht/Dag sessies, UF-advies & verslag</p>
-        </div>
-
-        <!-- Tegel Bloeddruk & Hartslag -->
-        <div class="app-tile" id="tileBp" style="display:none;" onclick="openModule('bpTab', 'tabBtnBp')">
-          <div class="app-tile-icon" style="background: linear-gradient(135deg, #dc2626, #991b1b);">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-          </div>
-          <h3>Bloeddruk & Hartslag</h3>
-          <p>Metingen registreren met dialyse-kleurcodering</p>
-        </div>
-
-        <!-- Tegel POS Vocht Intake -->
-        <div class="app-tile" id="tileVocht" style="display:none;" onclick="openModule('vochtTab', 'tabBtnVocht')">
-          <div class="app-tile-icon" style="background: linear-gradient(135deg, #0284c7, #0369a1);">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
-          </div>
-          <h3>POS Vocht Intake</h3>
-          <p>Dranktegels, 1000ml dag & 2L dialyse-balk</p>
-        </div>
-
-        <!-- Tegel Rittenapp -->
-        <div class="app-tile" id="tileRitten" style="display:none;" onclick="openModule('rittenTab', 'tabBtnRitten')">
-          <div class="app-tile-icon" style="background: linear-gradient(135deg, #059669, #047857);">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
-          </div>
-          <h3>Rittenapp</h3>
-          <p>Rittenlog, planning & stiptheid overzicht</p>
-        </div>
-
-        <!-- Tegel Brieven Scanner & Mappen -->
-        <div class="app-tile" id="tileBrieven" style="display:none;" onclick="openModule('brievenTab', 'tabBtnBrieven')">
-          <div class="app-tile-icon" style="background: linear-gradient(135deg, #7c3aed, #5b21b6);">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
-          </div>
-          <h3>Brieven & Mappen</h3>
-          <p>Brieven scannen, downloaden & mappen beheren</p>
-        </div>
-
-        <!-- Tegel Gebruikersbeheer (Alleen Admin) -->
-        <div class="app-tile" id="tileAdmin" style="display:none;" onclick="openModule('adminTab', 'adminTabBtn')">
-          <div class="app-tile-icon" style="background: linear-gradient(135deg, #4338ca, #312e81);">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-          </div>
-          <h3>Gebruikersbeheer</h3>
-          <p>Accounts goedkeuren & module-rechten</p>
-        </div>
+        <div id="homePostDialysisList" style="display:flex; flex-direction:column; gap:8px;"></div>
       </div>
 
-      <div id="noModulesMsg" style="display:none; background:#fff3cd; color:#856404; padding:15px; border-radius:8px; margin-top:20px;">
-        Je hebt momenteel nog geen toegang tot modules. Vraag de beheerder om rechten toe te wijzen.
+      <div id="homeStandardContent">
+        <div class="summary-grid">
+          <div class="summary-card">
+            <div class="summary-card-header">
+              <span>Agenda & Afspraken</span>
+              <span id="dashAgendaBadge" class="badge bg-admin">0</span>
+            </div>
+            <div class="summary-value" id="dashAgendaValue">Geen afspraken</div>
+            <div class="summary-sub" id="dashAgendaSub">Nog geen geplande afspraken</div>
+          </div>
+
+          <div class="summary-card">
+            <div class="summary-card-header">
+              <span>Medicijnen Vandaag</span>
+              <span id="dashMedBadge" class="badge bg-green">0/0</span>
+            </div>
+            <div class="summary-value" id="dashMedValue">0 / 0 ingenomen</div>
+            <div class="summary-sub" id="dashMedSub">Ochtend • Middag • Avond • Na dialyse</div>
+          </div>
+
+          <div class="summary-card">
+            <div class="summary-card-header">
+              <span>Laatste Bloeddruk</span>
+              <span id="dashBpBadge" class="badge bg-gray">-</span>
+            </div>
+            <div class="summary-value" id="dashBpValue">- / -</div>
+            <div class="summary-sub" id="dashBpSub">Geen meting gevonden</div>
+          </div>
+
+          <div class="summary-card">
+            <div class="summary-card-header">
+              <span>Vocht Intake (Dag / Tussen Dialyse)</span>
+              <span id="dashVochtBadge" class="badge bg-green">0%</span>
+            </div>
+            <div class="summary-value" id="dashVochtValue">0% / 0%</div>
+            <div class="summary-sub" id="dashVochtSub">0 ml (1000ml) • 0 ml (2000ml)</div>
+          </div>
+
+          <div class="summary-card">
+            <div class="summary-card-header">
+              <span>Ritten Vandaag</span>
+              <span class="badge bg-admin" id="dashRittenBadge">0</span>
+            </div>
+            <div class="summary-value" id="dashRittenValue">0 ritten</div>
+            <div class="summary-sub" id="dashRittenSub">Gepland / verreden vandaag</div>
+          </div>
+
+          <div class="summary-card">
+            <div class="summary-card-header">
+              <span>Laatste Dialyse / Vandaag</span>
+              <span id="dashDialyseBadge" class="badge bg-gray">-</span>
+            </div>
+            <div class="summary-value" id="dashDialyseValue">-</div>
+            <div class="summary-sub" id="dashDialyseSub">Geen sessie geregistreerd</div>
+          </div>
+
+          <div class="summary-card">
+            <div class="summary-card-header">
+              <span>Brieven & Mappen</span>
+              <span class="badge bg-admin" id="dashBrievenBadge">0</span>
+            </div>
+            <div class="summary-value" id="dashBrievenValue">0 brieven</div>
+            <div class="summary-sub" id="dashBrievenSub">0 eigen mappen</div>
+          </div>
+        </div>
+
+        <h2 style="color: #1e293b; font-size: 1.2rem; margin-bottom: 5px;">Mijn Programma's</h2>
+        <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 15px;">Kies een module om te starten:</p>
+        
+        <div class="launcher-grid" id="launcherGrid">
+          <!-- Tegel Agenda -->
+          <div class="app-tile" id="tileAgenda" style="display:none;" onclick="openModule('agendaTab', 'tabBtnAgenda')">
+            <div class="app-tile-icon" style="background: linear-gradient(135deg, #2563eb, #1d4ed8);">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            </div>
+            <h3>Agenda</h3>
+            <p>Google Agenda-raster, dialyse-tijden & afspraken</p>
+          </div>
+
+          <!-- Tegel Medicijnen -->
+          <div class="app-tile" id="tileMedicijnen" style="display:none;" onclick="openModule('medicijnenTab', 'tabBtnMedicijnen')">
+            <div class="app-tile-icon" style="background: linear-gradient(135deg, #0891b2, #0e7490);">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.5 20.5 3.5 13.5a4.95 4.95 0 1 1 7-7l7 7a4.95 4.95 0 1 1-7 7Z"/><path d="m8.5 8.5 7 7"/></svg>
+            </div>
+            <h3>Medicijnen</h3>
+            <p>Ochtend, middag, avond & na dialyse</p>
+          </div>
+
+          <!-- Tegel Dialyse Beheer -->
+          <div class="app-tile" id="tileDialyse" style="display:none;" onclick="openModule('dialyseTab', 'tabBtnDialyse')">
+            <div class="app-tile-icon" style="background: linear-gradient(135deg, #0f766e, #115e59);">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+            </div>
+            <h3>Dialyse Beheer</h3>
+            <p>Nacht/Dag sessies, UF-advies & verslag</p>
+          </div>
+
+          <!-- Tegel Bloeddruk & Hartslag -->
+          <div class="app-tile" id="tileBp" style="display:none;" onclick="openModule('bpTab', 'tabBtnBp')">
+            <div class="app-tile-icon" style="background: linear-gradient(135deg, #dc2626, #991b1b);">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            </div>
+            <h3>Bloeddruk & Hartslag</h3>
+            <p>Metingen registreren met dialyse-kleurcodering</p>
+          </div>
+
+          <!-- Tegel POS Vocht Intake -->
+          <div class="app-tile" id="tileVocht" style="display:none;" onclick="openModule('vochtTab', 'tabBtnVocht')">
+            <div class="app-tile-icon" style="background: linear-gradient(135deg, #0284c7, #0369a1);">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
+            </div>
+            <h3>POS Vocht Intake</h3>
+            <p>Dranktegels, 1000ml dag & 2L dialyse-balk</p>
+          </div>
+
+          <!-- Tegel Rittenapp -->
+          <div class="app-tile" id="tileRitten" style="display:none;" onclick="openModule('rittenTab', 'tabBtnRitten')">
+            <div class="app-tile-icon" style="background: linear-gradient(135deg, #059669, #047857);">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+            </div>
+            <h3>Rittenapp</h3>
+            <p>Rittenlog, planning & stiptheid overzicht</p>
+          </div>
+
+          <!-- Tegel Brieven Scanner & Mappen -->
+          <div class="app-tile" id="tileBrieven" style="display:none;" onclick="openModule('brievenTab', 'tabBtnBrieven')">
+            <div class="app-tile-icon" style="background: linear-gradient(135deg, #7c3aed, #5b21b6);">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+            </div>
+            <h3>Brieven & Mappen</h3>
+            <p>Brieven scannen, downloaden & mappen beheren</p>
+          </div>
+
+          <!-- Tegel Gebruikersbeheer (Alleen Admin) -->
+          <div class="app-tile" id="tileAdmin" style="display:none;" onclick="openModule('adminTab', 'adminTabBtn')">
+            <div class="app-tile-icon" style="background: linear-gradient(135deg, #4338ca, #312e81);">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </div>
+            <h3>Gebruikersbeheer</h3>
+            <p>Accounts goedkeuren & module-rechten</p>
+          </div>
+        </div>
+
+        <div id="noModulesMsg" style="display:none; background:#fff3cd; color:#856404; padding:15px; border-radius:8px; margin-top:20px;">
+          Je hebt momenteel nog geen toegang tot modules. Vraag de beheerder om rechten toe te wijzen.
+        </div>
       </div>
     </div>
 
-    <!-- TAB: MEDICIJNEN MODULE (3 DAGBLOKKEN + NA DIALYSE + TIJDSTIP PER DAG + PDF + VERWIJDEREN) -->
+    <!-- TAB: MEDICIJNEN MODULE (3 DAGBLOKKEN + NA DIALYSE + TIJDSTIP PER DAG + HERINNERING + PDF + VERWIJDEREN) -->
     <div id="medicijnenTab" class="tab-content">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; flex-wrap:wrap; gap:10px;">
         <div>
@@ -519,10 +552,20 @@
           <p style="font-size: 0.85rem; color: #64748b;" id="medDateSubtitle">Vandaag • Ochtend, Middag, Avond & Na dialyse</p>
         </div>
         <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button type="button" class="btn btn-sm" id="medNotifyBtn" onclick="requestMedNotificationPermission()">Meldingen Aan</button>
           <button type="button" class="btn btn-secondary btn-sm" onclick="resetTodayMedChecks()">Vandaag Resetten</button>
           <button type="button" class="btn btn-excel btn-sm" onclick="exportMedicijnenExcel()">Excel (.xlsx)</button>
           <button type="button" class="btn btn-pdf btn-sm" onclick="exportMedicijnenPdf()">PDF (.pdf)</button>
         </div>
+      </div>
+
+      <!-- AUTOMATISCHE HERINNERINGSMELDING -->
+      <div id="medReminderBanner" class="med-reminder-banner">
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
+          <strong style="color:#92400e; font-size:0.95rem;">Herinnering: Geplande medicatie nog niet ingenomen</strong>
+          <button type="button" class="btn btn-secondary btn-sm" onclick="snoozeMedRemindersForNow()">Even sluimeren</button>
+        </div>
+        <div id="medReminderItemsList" style="display:flex; flex-direction:column; gap:6px;"></div>
       </div>
 
       <!-- 3 DAGBLOKKEN + SPECIAAL NA DIALYSE -->
@@ -1532,7 +1575,7 @@
   let currentUser = null;
   let currentUserData = null;
 
-  // Medicijnen state (3 dagblokken + speciaal na dialyse + tijdstip per dag)
+  // Medicijnen state (3 dagblokken + speciaal na dialyse + tijdstip per dag + herinnering + home filter)
   const medDayBlocksMeta = [
     { key: 'morning', label: 'Ochtend', defaultTime: '08:00', range: '06:00 – 11:59' },
     { key: 'afternoon', label: 'Middag', defaultTime: '12:30', range: '12:00 – 17:59' },
@@ -1540,7 +1583,11 @@
     { key: 'post_dialysis', label: 'Na dialyse', defaultTime: '07:30', range: 'Na afkoppelen' }
   ];
   let medicationsList = [];
-  let medTodayIntakeMap = {}; // { [medId_blockKey]: { taken: true, takenAt: '08:05' } }
+  let medTodayIntakeMap = {};
+  let medSnoozedUntilByKey = {}; // { [doseKey]: timestampMs }
+  let medNotifiedKeysToday = new Set();
+  let medReminderTimerId = null;
+  let homePostDialysisFilterActive = false;
 
   // Agenda state (Google Agenda stijl)
   const defaultAgendaCategories = ['Dialyse', 'Ziekenhuis / Arts', 'INR / Bloedprikken', 'Overig'];
@@ -1658,6 +1705,7 @@
     const dateLong = new Date().toLocaleDateString('nl-NL', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
     document.getElementById('vochtDateLabel').innerText = dateLong;
     document.getElementById('medDateSubtitle').innerText = `${dateLong} • Ochtend, Middag, Avond & Na dialyse`;
+    updateMedNotifyButtonLabel();
 
     const isAdmin = currentUserData.role === 'admin';
     const perms = currentUserData.permissions || {};
@@ -1694,6 +1742,7 @@
       document.getElementById('medFormCard').style.display = canWriteMed ? 'block' : 'none';
       renderMedPerBlockTimeInputs();
       loadMedicijnenData();
+      startMedReminderLoop();
     }
 
     // 1. Dialyse Beheer
@@ -1775,6 +1824,9 @@
     document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
     document.getElementById(tabId).classList.add('active');
     if (btn) btn.classList.add('active');
+    if (tabId === 'medicijnenTab') {
+      evaluateMedReminders(false);
+    }
   }
 
   function switchDialyseSubTab(subId, btn) {
@@ -1832,7 +1884,75 @@
     return (currentUserData.permissions && currentUserData.permissions.brieven === 'write');
   }
 
-  // --- MEDICIJNEN MODULE (3 DAGBLOKKEN + NA DIALYSE + TIJDSTIP PER DAG + PDF + VERWIJDEREN) ---
+  // --- HOME DASHBOARD FILTER VOOR UITSLUITEND NA DIALYSE ---
+  function toggleHomePostDialysisFilter() {
+    homePostDialysisFilterActive = !homePostDialysisFilterActive;
+    applyHomePostDialysisFilterUI();
+  }
+
+  function resetHomeFilter() {
+    homePostDialysisFilterActive = false;
+    applyHomePostDialysisFilterUI();
+  }
+
+  function applyHomePostDialysisFilterUI() {
+    const panel = document.getElementById('homePostDialysisPanel');
+    const stdContent = document.getElementById('homeStandardContent');
+    const filterBtn = document.getElementById('homeFilterPostDialysisBtn');
+    const resetBtn = document.getElementById('homeResetFilterBtn');
+    if (!panel || !stdContent) return;
+
+    if (homePostDialysisFilterActive) {
+      panel.classList.add('active');
+      stdContent.style.display = 'none';
+      if (filterBtn) filterBtn.classList.add('btn-success');
+      if (resetBtn) resetBtn.style.display = 'inline-block';
+      renderHomePostDialysisList();
+    } else {
+      panel.classList.remove('active');
+      stdContent.style.display = 'block';
+      if (filterBtn) filterBtn.classList.remove('btn-success');
+      if (resetBtn) resetBtn.style.display = 'none';
+    }
+  }
+
+  function renderHomePostDialysisList() {
+    const container = document.getElementById('homePostDialysisList');
+    if (!container) return;
+
+    const allowWrite = canWriteMedicijnen();
+    const postItems = medicationsList.filter(m => Array.isArray(m.blocks) && m.blocks.includes('post_dialysis'));
+    postItems.sort((a, b) => getMedBlockTimeDisplay(a, 'post_dialysis').localeCompare(getMedBlockTimeDisplay(b, 'post_dialysis')));
+
+    if (postItems.length === 0) {
+      container.innerHTML = '<div style="font-size:0.9rem; color:#475569; padding:8px 0;">Er zijn geen medicijnen ingesteld voor speciaal na dialyse.</div>';
+      return;
+    }
+
+    container.innerHTML = postItems.map(med => {
+      const doseKey = `${med.id}_post_dialysis`;
+      const intakeInfo = medTodayIntakeMap[doseKey];
+      const isTaken = Boolean(intakeInfo && intakeInfo.taken);
+      const timeStr = getMedBlockTimeDisplay(med, 'post_dialysis');
+      const badge = isTaken
+        ? `<span class="badge bg-green">Ingenomen ${intakeInfo.takenAt || ''}</span>`
+        : `<span class="badge bg-orange">Open</span>`;
+
+      return `
+        <div class="med-dose-row ${isTaken ? 'taken' : ''}">
+          <label class="med-dose-left" style="margin-bottom:0;">
+            <input type="checkbox" ${isTaken ? 'checked' : ''} ${allowWrite ? '' : 'disabled'} onchange="toggleMedDoseTaken('${med.id}', 'post_dialysis', this.checked)">
+            <div>
+              <div class="med-dose-name">${med.name} <span style="font-weight:normal; color:#475569;">(${med.dosage || '-'})</span> ${badge}</div>
+              <div class="med-dose-meta">Na dialyse tijdstip: <b>${timeStr}</b>${med.notes ? ` • ${med.notes}` : ''}</div>
+            </div>
+          </label>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // --- MEDICIJNEN MODULE (3 DAGBLOKKEN + NA DIALYSE + TIJDSTIP PER DAG + HERINNERING + PDF + VERWIJDEREN) ---
   function getSelectedMedBlocks() {
     const blocks = [];
     if (document.getElementById('medChkMorning')?.checked) blocks.push('morning');
@@ -1888,6 +2008,8 @@
       renderMedDayBlocks();
       renderMedTable();
       updateHomeMedSummary();
+      if (homePostDialysisFilterActive) renderHomePostDialysisList();
+      evaluateMedReminders(true);
     }).catch(err => console.error("Fout bij laden medicijnen:", err));
   }
 
@@ -1908,6 +2030,146 @@
       const m = medDayBlocksMeta.find(x => x.key === b);
       return `${m ? m.label : b}: ${getMedBlockTimeDisplay(med, b)}`;
     }).join(' • ');
+  }
+
+  function isDoseDueNow(med, blockKey) {
+    const doseKey = `${med.id}_${blockKey}`;
+    if (medTodayIntakeMap[doseKey]?.taken) return false;
+    const timeStr = getMedBlockTimeDisplay(med, blockKey);
+    const parts = String(timeStr || '').split(':');
+    if (parts.length < 2) return false;
+    const targetMins = (parseInt(parts[0], 10) || 0) * 60 + (parseInt(parts[1], 10) || 0);
+    const now = new Date();
+    const nowMins = now.getHours() * 60 + now.getMinutes();
+    if (nowMins < targetMins) return false;
+    const snoozeUntil = medSnoozedUntilByKey[doseKey] || 0;
+    return Date.now() >= snoozeUntil;
+  }
+
+  function getDueMedDoses() {
+    const dueList = [];
+    medicationsList.forEach(med => {
+      const blocks = Array.isArray(med.blocks) ? med.blocks : [];
+      blocks.forEach(blockKey => {
+        if (isDoseDueNow(med, blockKey)) {
+          const meta = medDayBlocksMeta.find(m => m.key === blockKey);
+          dueList.push({
+            med,
+            blockKey,
+            blockLabel: meta ? meta.label : blockKey,
+            timeStr: getMedBlockTimeDisplay(med, blockKey),
+            doseKey: `${med.id}_${blockKey}`
+          });
+        }
+      });
+    });
+    dueList.sort((a, b) => (a.timeStr || '').localeCompare(b.timeStr || ''));
+    return dueList;
+  }
+
+  function startMedReminderLoop() {
+    if (medReminderTimerId) clearInterval(medReminderTimerId);
+    medReminderTimerId = setInterval(() => {
+      if (!currentUser) return;
+      evaluateMedReminders(true);
+    }, 60000);
+  }
+
+  function requestMedNotificationPermission() {
+    if (!('Notification' in window)) {
+      alert("Je browser ondersteunt geen systeemmeldingen; de herinneringsbalk in de app blijft actief.");
+      return;
+    }
+    if (Notification.permission === 'granted') {
+      playMedReminderSound();
+      alert("Medicijnmeldingen staan al aan!");
+      updateMedNotifyButtonLabel();
+      return;
+    }
+    Notification.requestPermission().then(() => {
+      updateMedNotifyButtonLabel();
+      evaluateMedReminders(true);
+    });
+  }
+
+  function updateMedNotifyButtonLabel() {
+    const btn = document.getElementById('medNotifyBtn');
+    if (!btn) return;
+    if ('Notification' in window && Notification.permission === 'granted') {
+      btn.innerText = 'Meldingen Aan';
+      btn.classList.add('btn-success');
+    } else {
+      btn.innerText = 'Meldingen Inschakelen';
+      btn.classList.remove('btn-success');
+    }
+  }
+
+  function playMedReminderSound() {
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(660, ctx.currentTime);
+      gain.gain.setValueAtTime(0.08, ctx.currentTime);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.28);
+    } catch (e) {}
+  }
+
+  function evaluateMedReminders(allowSystemNotify) {
+    const banner = document.getElementById('medReminderBanner');
+    const listEl = document.getElementById('medReminderItemsList');
+    if (!banner || !listEl) return;
+
+    const dueDoses = getDueMedDoses();
+    renderMedDayBlocks();
+
+    if (dueDoses.length === 0) {
+      banner.classList.remove('active');
+      listEl.innerHTML = '';
+      return;
+    }
+
+    banner.classList.add('active');
+    const allowWrite = canWriteMedicijnen();
+    listEl.innerHTML = dueDoses.map(d => {
+      const btnHtml = allowWrite
+        ? `<button type="button" class="btn btn-success btn-sm" onclick="toggleMedDoseTaken('${d.med.id}', '${d.blockKey}', true)">Ingenomen</button>`
+        : '';
+      return `
+        <div class="med-reminder-item">
+          <div>
+            <b>${d.med.name}</b> (${d.med.dosage || '-'}) • <span class="badge bg-orange">${d.blockLabel}</span> • Tijdstip: <b>${d.timeStr}</b>
+          </div>
+          ${btnHtml}
+        </div>
+      `;
+    }).join('');
+
+    const todayKey = getLocalDateKey();
+    const newAlerts = dueDoses.filter(d => !medNotifiedKeysToday.has(`${todayKey}_${d.doseKey}`));
+    if (newAlerts.length > 0) {
+      newAlerts.forEach(d => medNotifiedKeysToday.add(`${todayKey}_${d.doseKey}`));
+      playMedReminderSound();
+      if (allowSystemNotify && 'Notification' in window && Notification.permission === 'granted') {
+        const names = newAlerts.map(a => `${a.med.name} (${a.timeStr})`).join(', ');
+        new Notification('Medicijn Herinnering', { body: `Tijd voor: ${names}` });
+      }
+    }
+  }
+
+  function snoozeMedRemindersForNow() {
+    const dueDoses = getDueMedDoses();
+    const snoozeUntil = Date.now() + 15 * 60 * 1000;
+    dueDoses.forEach(d => {
+      medSnoozedUntilByKey[d.doseKey] = snoozeUntil;
+    });
+    evaluateMedReminders(false);
   }
 
   function renderMedDayBlocks() {
@@ -1938,13 +2200,14 @@
         const doseKey = `${med.id}_${meta.key}`;
         const intakeInfo = medTodayIntakeMap[doseKey];
         const isTaken = Boolean(intakeInfo && intakeInfo.taken);
+        const isDue = !isTaken && isDoseDueNow(med, meta.key);
         const timeStr = getMedBlockTimeDisplay(med, meta.key);
         const takenTimeBadge = isTaken && intakeInfo.takenAt
           ? ` <span class="badge bg-green">Ingenomen ${intakeInfo.takenAt}</span>`
-          : '';
+          : (isDue ? ` <span class="badge bg-red">Herinnering</span>` : '');
 
         return `
-          <div class="med-dose-row ${isTaken ? 'taken' : ''}">
+          <div class="med-dose-row ${isTaken ? 'taken' : ''} ${isDue ? 'due-now' : ''}">
             <label class="med-dose-left" style="margin-bottom:0;">
               <input type="checkbox" ${isTaken ? 'checked' : ''} ${allowWrite ? '' : 'disabled'} onchange="toggleMedDoseTaken('${med.id}', '${meta.key}', this.checked)">
               <div>
@@ -1966,6 +2229,7 @@
 
     if (isTaken) {
       medTodayIntakeMap[doseKey] = { taken: true, takenAt: nowTime };
+      delete medSnoozedUntilByKey[doseKey];
     } else {
       delete medTodayIntakeMap[doseKey];
     }
@@ -1978,6 +2242,8 @@
     }, { merge: true }).then(() => {
       renderMedDayBlocks();
       updateHomeMedSummary();
+      evaluateMedReminders(false);
+      if (homePostDialysisFilterActive) renderHomePostDialysisList();
     }).catch(err => alert("Fout bij opslaan inname: " + err.message));
   }
 
@@ -1986,6 +2252,7 @@
     if (!confirm("Alle inname-vinkjes voor vandaag resetten?")) return;
     const todayKey = getLocalDateKey();
     medTodayIntakeMap = {};
+    medNotifiedKeysToday.clear();
     db.collection('medicine_intakes').doc(`${currentUser.uid}_${todayKey}`).set({
       userId: currentUser.uid,
       dateKey: todayKey,
@@ -1994,6 +2261,8 @@
     }).then(() => {
       renderMedDayBlocks();
       updateHomeMedSummary();
+      evaluateMedReminders(false);
+      if (homePostDialysisFilterActive) renderHomePostDialysisList();
     });
   }
 
@@ -4258,10 +4527,10 @@
           ? `<div class="letter-pdf-box">PDF DOCUMENT</div>`
           : `<img class="letter-thumb" src="${item.dataUrl}" alt="${item.title}">`);
       const doctorBtn = allowWrite
-        ? `<button type="button" class="btn btn-secondary btn-sm" onclick="openDoctorPhotoModal('${item.id}')">${hasDoctorPhoto ? 'Doktersfoto' : '+ Doktersfoto'}</button>`
+        ? `<button type="button" class="btn btn-secondary btn-sm" onclick="openDoctorPhotoModal('${item.id}')">${hasDoctorPhoto ? 'Doktersfoto' : '+ Dokter'}</button>`
         : '';
       const moveBtn = allowWrite
-        ? `<button type="button" class="btn btn-warning btn-sm" onclick="openMoveLetterModal('${item.id}')">Verplaatsen</button>`
+        ? `<button type="button" class="btn btn-warning btn-sm" onclick="openMoveLetterModal('${item.id}')">Verplaats</button>`
         : '';
       const delBtn = allowWrite
         ? `<button type="button" class="btn btn-danger" onclick="deleteLetterItem('${item.id}')">Verwijder</button>`
@@ -4271,14 +4540,15 @@
         <div class="letter-card">
           <div>
             ${thumbHtml}
-            <h4 style="margin-top:10px; color:#1e293b; font-size:0.95rem;">${item.title}</h4>
-            <div class="letter-meta">Map: <b>${item.folder || 'Algemeen'}</b> • ${item.dateKey || ''} ${item.time || ''}</div>
+            <div style="font-weight:bold; margin-top:10px; color:#0f172a;">${item.title}</div>
+            <div class="letter-meta">Map: <b>${item.folder || 'Algemeen'}</b></div>
+            <div class="letter-meta">${item.dateKey || ''} ${item.time || ''}</div>
           </div>
-          <div style="display:flex; gap:6px; flex-wrap:wrap;">
+          <div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:6px;">
             <button type="button" class="btn btn-success btn-sm" onclick="openReadLetterModal('${item.id}')">Lezen</button>
+            <button type="button" class="btn btn-sm" onclick="downloadLetterFile('${item.id}')">Download</button>
             ${doctorBtn}
             ${moveBtn}
-            <button type="button" class="btn btn-sm" onclick="downloadLetterFile('${item.id}')">Downloaden</button>
             ${delBtn}
           </div>
         </div>
@@ -4286,215 +4556,151 @@
     });
   }
 
-  function updateHomeBrievenSummary() {
-    const badge = document.getElementById('dashBrievenBadge');
-    const valEl = document.getElementById('dashBrievenValue');
-    const subEl = document.getElementById('dashBrievenSub');
-    if (!badge || !valEl || !subEl) return;
-    badge.innerText = `${lettersList.length}`;
-    valEl.innerText = `${lettersList.length} ${lettersList.length === 1 ? 'brief' : 'brieven'}`;
-    subEl.innerText = `${letterFolders.length} ${letterFolders.length === 1 ? 'map' : 'mappen'} beschikbaar`;
-  }
-
-  // --- HOME DASHBOARD OVERIGE KAARTEN ---
-  function updateHomeBpSummary() {
-    const badge = document.getElementById('dashBpBadge');
-    const valEl = document.getElementById('dashBpValue');
-    const subEl = document.getElementById('dashBpSub');
-    if (!bpList.length) {
-      valEl.innerText = '- / -';
-      subEl.innerText = 'Geen meting gevonden';
-      badge.innerText = '-';
-      badge.className = 'badge bg-gray';
-      return;
-    }
-    const latest = bpList[0];
-    const st = getBpStatus(latest.sys, latest.dia, latest.hr);
-    valEl.innerText = `${latest.sys} / ${latest.dia}`;
-    subEl.innerText = `Hartslag: ${latest.hr} bpm (${latest.dateKey || ''} ${latest.time || ''})`;
-    badge.innerText = st.label;
-    badge.className = `badge ${st.class}`;
-  }
-
+  // --- HOME DASHBOARD LIVE SAMENVATTINGEN ---
   function updateHomeDialyseSummary() {
     const badge = document.getElementById('dashDialyseBadge');
     const valEl = document.getElementById('dashDialyseValue');
     const subEl = document.getElementById('dashDialyseSub');
-    if (!allDialyseRecords.length) {
-      valEl.innerText = '-';
-      subEl.innerText = 'Geen sessie geregistreerd';
+    if (!badge || !valEl || !subEl) return;
+
+    if (!allDialyseRecords || allDialyseRecords.length === 0) {
       badge.innerText = '-';
       badge.className = 'badge bg-gray';
+      valEl.innerText = 'Geen sessie';
+      subEl.innerText = 'Nog geen dialysesessie opgeslagen';
       return;
     }
+
     const latest = allDialyseRecords[0];
-    const numUf = parseFloat(latest.ufAdvies) || 0;
-    let badgeClass = 'bg-green';
-    let label = 'UF < 4.0: Groen';
-    if (numUf >= 4.5) { badgeClass = 'bg-red'; label = 'UF >= 4.5: Rood'; }
-    else if (numUf >= 4.0) { badgeClass = 'bg-orange'; label = 'UF >= 4.0: Oranje'; }
+    const ufStr = latest.ufAdvies || '-';
+    const numUf = parseFloat(ufStr);
+    let bCls = 'bg-green';
+    if (!isNaN(numUf)) {
+      if (numUf >= 4.5) bCls = 'bg-red';
+      else if (numUf >= 4.0) bCls = 'bg-orange';
+    }
 
+    badge.innerText = latest.soortDialyse || 'Sessie';
+    badge.className = `badge ${bCls}`;
+    valEl.innerText = `UF Advies: ${ufStr}`;
+    subEl.innerText = `${latest.afspraakTijd || '-'} • Pre: ${latest.preGewicht || '-'} kg`;
+  }
+
+  function updateHomeBpSummary() {
+    const badge = document.getElementById('dashBpBadge');
+    const valEl = document.getElementById('dashBpValue');
+    const subEl = document.getElementById('dashBpSub');
+    if (!badge || !valEl || !subEl) return;
+
+    if (!bpList || bpList.length === 0) {
+      badge.innerText = '-';
+      badge.className = 'badge bg-gray';
+      valEl.innerText = '- / -';
+      subEl.innerText = 'Nog geen meting geregistreerd';
+      return;
+    }
+
+    const latest = bpList[0];
+    const evalRes = evaluateDialysisBp(latest.sys, latest.dia, latest.hr);
+    badge.innerText = evalRes.label;
+    badge.className = `badge ${evalRes.badgeClass}`;
+    valEl.innerText = `${latest.sys}/${latest.dia} (${latest.hr} bpm)`;
+    subEl.innerText = `${latest.date || ''} om ${latest.time || ''}`;
+  }
+
+  function updateHomeRittenSummary() {
     const todayStr = getLocalDateKey();
-    const isToday = (latest.afspraakTijd || '').startsWith(todayStr);
-    valEl.innerText = latest.ufAdvies || (latest.soortDialyse || 'Sessie');
-    subEl.innerText = `${isToday ? 'Vandaag' : 'Laatste'} (${latest.soortDialyse || '-'} | ${latest.afspraakTijd ? latest.afspraakTijd.replace('T', ' ') : '-'})`;
-    badge.innerText = label;
-    badge.className = `badge ${badgeClass}`;
+    const todayRitten = rittenList.filter(r => r.afspraak && r.afspraak.startsWith(todayStr));
+    document.getElementById('dashRittenBadge').innerText = `${todayRitten.length}`;
+    document.getElementById('dashRittenValue').innerText = `${todayRitten.length} ${todayRitten.length === 1 ? 'rit' : 'ritten'}`;
+    if (todayRitten.length > 0) {
+      const first = todayRitten[0];
+      document.getElementById('dashRittenSub').innerText = `${first.vanaf || ''} → ${first.naar || ''} (${first.afspraak.slice(11,16)})`;
+    } else {
+      document.getElementById('dashRittenSub').innerText = 'Geen ritten gepland voor vandaag';
+    }
   }
 
-  // --- ADMIN BEHEER ---
-  function loadAllUsersForAdmin() {
-    db.collection('users').get().then(snapshot => {
-      const tbody = document.getElementById('usersTableBody');
-      tbody.innerHTML = '';
-      snapshot.forEach(doc => {
-        let u = doc.data();
-        let uid = doc.id;
-        let statusBadge = u.status === 'active' ? `<span class="badge bg-admin">Actief</span>` : `<span class="badge bg-pending">Standby</span>`;
-        let roleBadge = u.role === 'admin' ? `<span class="badge bg-admin">Admin</span>` : `<span class="badge bg-user">User</span>`;
-        let p = u.permissions || { agenda: 'none', medicijnen: 'none', dialyse: 'none', bloeddruk: 'none', vocht: 'none', ritten: 'none', brieven: 'none' };
-
-        tbody.innerHTML += `
-          <tr>
-            <td>${u.email}</td>
-            <td>${statusBadge}</td>
-            <td>${roleBadge}</td>
-            <td>
-              <select class="perm-select" onchange="updateUserPerm('${uid}', 'agenda', this.value)">
-                <option value="none" ${p.agenda==='none'?'selected':''}>Geen</option>
-                <option value="read" ${p.agenda==='read'?'selected':''}>Lezen</option>
-                <option value="write" ${p.agenda==='write'?'selected':''}>Schrijven</option>
-              </select>
-            </td>
-            <td>
-              <select class="perm-select" onchange="updateUserPerm('${uid}', 'medicijnen', this.value)">
-                <option value="none" ${p.medicijnen==='none'?'selected':''}>Geen</option>
-                <option value="read" ${p.medicijnen==='read'?'selected':''}>Lezen</option>
-                <option value="write" ${p.medicijnen==='write'?'selected':''}>Schrijven</option>
-              </select>
-            </td>
-            <td>
-              <select class="perm-select" onchange="updateUserPerm('${uid}', 'dialyse', this.value)">
-                <option value="none" ${p.dialyse==='none'?'selected':''}>Geen</option>
-                <option value="read" ${p.dialyse==='read'?'selected':''}>Lezen</option>
-                <option value="write" ${p.dialyse==='write'?'selected':''}>Schrijven</option>
-              </select>
-            </td>
-            <td>
-              <select class="perm-select" onchange="updateUserPerm('${uid}', 'bloeddruk', this.value)">
-                <option value="none" ${p.bloeddruk==='none'?'selected':''}>Geen</option>
-                <option value="read" ${p.bloeddruk==='read'?'selected':''}>Lezen</option>
-                <option value="write" ${p.bloeddruk==='write'?'selected':''}>Schrijven</option>
-              </select>
-            </td>
-            <td>
-              <select class="perm-select" onchange="updateUserPerm('${uid}', 'vocht', this.value)">
-                <option value="none" ${p.vocht==='none'?'selected':''}>Geen</option>
-                <option value="read" ${p.vocht==='read'?'selected':''}>Lezen</option>
-                <option value="write" ${p.vocht==='write'?'selected':''}>Schrijven</option>
-              </select>
-            </td>
-            <td>
-              <select class="perm-select" onchange="updateUserPerm('${uid}', 'ritten', this.value)">
-                <option value="none" ${p.ritten==='none'?'selected':''}>Geen</option>
-                <option value="read" ${p.ritten==='read'?'selected':''}>Lezen</option>
-                <option value="write" ${p.ritten==='write'?'selected':''}>Schrijven</option>
-              </select>
-            </td>
-            <td>
-              <select class="perm-select" onchange="updateUserPerm('${uid}', 'brieven', this.value)">
-                <option value="none" ${p.brieven==='none'?'selected':''}>Geen</option>
-                <option value="read" ${p.brieven==='read'?'selected':''}>Lezen</option>
-                <option value="write" ${p.brieven==='write'?'selected':''}>Schrijven</option>
-              </select>
-            </td>
-            <td>
-              ${u.status === 'pending' ? `<button class="btn btn-warning" onclick="setUserStatus('${uid}', 'active')">Goedkeuren</button>` : `<button class="btn btn-danger" onclick="setUserStatus('${uid}', 'pending')">Blokkeren</button>`}
-            </td>
-          </tr>`;
-      });
-    });
-  }
-
-  function setUserStatus(uid, status) {
-    db.collection('users').doc(uid).update({ status: status }).then(loadAllUsersForAdmin);
-  }
-
-  function updateUserPerm(uid, moduleName, val) {
-    db.collection('users').doc(uid).get().then(doc => {
-      let p = doc.data().permissions || {};
-      p[moduleName] = val;
-      db.collection('users').doc(uid).update({ permissions: p });
-    });
+  function updateHomeBrievenSummary() {
+    document.getElementById('dashBrievenBadge').innerText = `${lettersList.length}`;
+    document.getElementById('dashBrievenValue').innerText = `${lettersList.length} ${lettersList.length === 1 ? 'brief' : 'brieven'}`;
+    document.getElementById('dashBrievenSub').innerText = `${letterFolders.length} ${letterFolders.length === 1 ? 'map' : 'mappen'}`;
   }
 
   // --- MODULE 1: BLOEDDRUK & HARTSLAG ---
+  function evaluateDialysisBp(sys, dia, hr) {
+    sys = parseInt(sys);
+    dia = parseInt(dia);
+    hr = parseInt(hr);
+    if (sys < 90 || dia < 50 || hr < 50) return { label: 'Hypotensie / Laag', badgeClass: 'bg-red' };
+    if (sys >= 180 || dia >= 110 || hr > 110) return { label: 'Kritisch Hoog', badgeClass: 'bg-red' };
+    if (sys >= 140 || dia >= 90 || hr > 100) return { label: 'Verhoogd', badgeClass: 'bg-orange' };
+    return { label: 'Stabiel (Dialyse)', badgeClass: 'bg-green' };
+  }
+
   function handleBpSubmit(event) {
     event.preventDefault();
+    const sys = document.getElementById('sysInput').value;
+    const dia = document.getElementById('diaInput').value;
+    const hr = document.getElementById('hrInput').value;
+    const note = document.getElementById('bpNoteInput').value.trim();
+    const now = new Date();
+    const dateStr = now.toISOString().split('T')[0];
+    const timeStr = now.toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' });
+
     const record = {
       userId: currentUser.uid,
-      sys: parseInt(document.getElementById('sysInput').value),
-      dia: parseInt(document.getElementById('diaInput').value),
-      hr: parseInt(document.getElementById('hrInput').value),
-      note: document.getElementById('bpNoteInput').value.trim(),
-      dateKey: getLocalDateKey(),
-      time: new Date().toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' }),
+      sys: parseInt(sys),
+      dia: parseInt(dia),
+      hr: parseInt(hr),
+      note: note,
+      date: dateStr,
+      time: timeStr,
       timestamp: firebase.firestore.FieldValue.serverTimestamp()
     };
 
-    db.collection('blood_pressure_measurements').add(record).then(() => {
+    db.collection('bp_measurements').add(record).then(() => {
       document.getElementById('sysInput').value = '';
       document.getElementById('diaInput').value = '';
       document.getElementById('hrInput').value = '';
       document.getElementById('bpNoteInput').value = '';
       loadBpMeasurements();
-    }).catch(e => alert(e.message));
+    }).catch(err => alert("Fout bij opslaan meting: " + err.message));
   }
 
   function loadBpMeasurements() {
     const period = document.getElementById('bpPeriodSelect').value;
-    db.collection('blood_pressure_measurements').where('userId', '==', currentUser.uid).get().then(snapshot => {
+    const now = new Date();
+    const todayStr = now.toISOString().split('T')[0];
+    let minDateStr = null;
+
+    if (period === 'today') { minDateStr = todayStr; }
+    else if (period === '7days') {
+      const d = new Date(now); d.setDate(d.getDate() - 7); minDateStr = d.toISOString().split('T')[0];
+    } else if (period === '30days') {
+      const d = new Date(now); d.setDate(d.getDate() - 30); minDateStr = d.toISOString().split('T')[0];
+    }
+
+    db.collection('bp_measurements').where('userId', '==', currentUser.uid).get().then(snapshot => {
       bpList = [];
-      const todayStr = getLocalDateKey();
-      
       snapshot.forEach(doc => {
-        let d = doc.data();
-        let include = true;
-        if (d.dateKey && period !== 'all') {
-          if (period === 'today' && d.dateKey !== todayStr) include = false;
-          else if (period === '7days' || period === '30days') {
-            let days = period === '7days' ? 7 : 30;
-            let past = new Date();
-            past.setDate(past.getDate() - days);
-            let pastStr = getLocalDateKey(past);
-            if (d.dateKey < pastStr || d.dateKey > todayStr) include = false;
-          }
-        }
-        if (include) bpList.push({ id: doc.id, ...d });
+        const data = doc.data();
+        let match = true;
+        if (period === 'today' && data.date !== todayStr) match = false;
+        else if (minDateStr && data.date < minDateStr) match = false;
+        if (match) bpList.push({ id: doc.id, ...data });
       });
 
-      bpList.sort((a, b) => ((b.dateKey || '') + (b.time || '')).localeCompare((a.dateKey || '') + (a.time || '')));
+      bpList.sort((a, b) => (b.date + b.time).localeCompare(a.date + a.time));
       renderBpTable();
       updateHomeBpSummary();
-    });
-  }
-
-  function getBpStatus(sys, dia, hr) {
-    if (sys >= 160 || dia >= 100 || sys < 90 || dia < 55 || hr > 110 || hr < 50) {
-      return { label: 'Afwijkend / Actie', class: 'bg-red' };
-    }
-    if ((sys >= 140 && sys < 160) || (dia >= 90 && dia < 100) || (sys >= 90 && sys < 100) || (dia >= 55 && dia < 60) || (hr >= 95 && hr <= 110) || (hr >= 50 && hr < 55)) {
-      return { label: 'Let op / Randgeval', class: 'bg-orange' };
-    }
-    return { label: 'Stabiel / Optimaal', class: 'bg-green' };
+    }).catch(err => console.log("Fout bij laden metingen:", err));
   }
 
   function renderBpTable() {
     const tbody = document.getElementById('bpTableBody');
     tbody.innerHTML = '';
-    const isAdmin = currentUserData.role === 'admin';
-    const bpPerm = currentUserData.permissions ? currentUserData.permissions.bloeddruk : 'none';
-    const canWrite = isAdmin || bpPerm === 'write';
+    const allowEdit = currentUserData.role === 'admin' || (currentUserData.permissions && currentUserData.permissions.bloeddruk === 'write');
 
     if (bpList.length === 0) {
       tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">Geen metingen gevonden voor deze periode.</td></tr>';
@@ -4502,52 +4708,50 @@
     }
 
     bpList.forEach(item => {
-      let st = getBpStatus(item.sys, item.dia, item.hr);
-      let delBtn = canWrite ? `<button class="btn btn-danger" onclick="deleteBp('${item.id}')">Verwijder</button>` : '-';
+      const evalRes = evaluateDialysisBp(item.sys, item.dia, item.hr);
+      const delBtn = allowEdit ? `<button class="btn btn-danger" onclick="deleteBp('${item.id}')">Verwijder</button>` : '-';
       tbody.innerHTML += `
         <tr>
-          <td>${item.dateKey || '-'}</td>
-          <td>${item.time || '-'}</td>
-          <td><b>${item.sys} / ${item.dia}</b> mmHg</td>
+          <td>${item.date}</td>
+          <td>${item.time}</td>
+          <td><b>${item.sys}/${item.dia}</b> mmHg</td>
           <td><b>${item.hr}</b> bpm</td>
-          <td><span class="badge ${st.class}">${st.label}</span></td>
+          <td><span class="badge ${evalRes.badgeClass}">${evalRes.label}</span></td>
           <td>${item.note || '-'}</td>
           <td>${delBtn}</td>
-        </tr>`;
+        </tr>
+      `;
     });
   }
 
   function deleteBp(id) {
     if (confirm("Deze bloeddrukmeting verwijderen?")) {
-      db.collection('blood_pressure_measurements').doc(id).delete().then(loadBpMeasurements);
+      db.collection('bp_measurements').doc(id).delete().then(loadBpMeasurements);
     }
   }
 
   function exportBpExcel() {
     if (!bpList.length) { alert("Geen metingen om te exporteren."); return; }
-    const data = bpList.map(i => {
-      let st = getBpStatus(i.sys, i.dia, i.hr);
-      return {
-        "Datum": i.dateKey,
-        "Tijdstip": i.time,
-        "Systolisch (mmHg)": i.sys,
-        "Diastolisch (mmHg)": i.dia,
-        "Hartslag (bpm)": i.hr,
-        "Dialyse Status": st.label,
-        "Opmerking": i.note || ''
-      };
-    });
+    const data = bpList.map(i => ({
+      "Datum": i.date, "Tijdstip": i.time, "Bovendruk": i.sys, "Onderdruk": i.dia, "Hartslag": i.hr,
+      "Dialyse Status": evaluateDialysisBp(i.sys, i.dia, i.hr).label, "Opmerking": i.note || ''
+    }));
     const ws = XLSX.utils.json_to_sheet(data);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Bloeddruk");
     XLSX.writeFile(wb, `Bloeddruk_${new Date().toISOString().slice(0,10)}.xlsx`);
   }
 
-  // --- MODULE 2: RITTENAPP ---
+  // --- MODULE 3: RITTENAPP ---
   function loadDropdownsAndRitten() {
-    db.collection('ritten_dropdowns').doc(currentUser.uid).get().then(doc => {
+    db.collection('ritten_settings').doc(currentUser.uid).get().then(doc => {
       if (doc.exists) {
-        dropdownOptions = { ...dropdownOptions, ...doc.data() };
+        const d = doc.data();
+        dropdownOptions.Bedrijf = d.Bedrijf || [];
+        dropdownOptions.Chauffeur = d.Chauffeur || [];
+        dropdownOptions.Kenteken = d.Kenteken || [];
+        dropdownOptions.Vanaf = d.Vanaf || [];
+        dropdownOptions.Naar = d.Naar || [];
       }
       populateAllDropdowns();
     }).catch(() => populateAllDropdowns());
@@ -4556,43 +4760,32 @@
   }
 
   function populateAllDropdowns() {
-    const pairs = [
-      ['bedrijfSelect', 'planBedrijfSelect', 'Bedrijf'],
-      ['chauffeurSelect', 'planChauffeurSelect', 'Chauffeur'],
-      ['kentekenSelect', 'planKentekenSelect', 'Kenteken'],
-      ['vanafSelect', 'planVanafSelect', 'Vanaf'],
-      ['naarSelect', 'planNaarSelect', 'Naar']
-    ];
+    ['Bedrijf', 'Chauffeur', 'Kenteken', 'Vanaf', 'Naar'].forEach(type => {
+      const sel1 = document.getElementById(type.toLowerCase() + 'Select');
+      const sel2 = document.getElementById('plan' + type + 'Select');
+      const opt = dropdownOptions[type] || [];
 
-    pairs.forEach(([id1, id2, key]) => {
-      let list = dropdownOptions[key] || [];
-      [id1, id2].forEach(selId => {
-        const sel = document.getElementById(selId);
+      [sel1, sel2].forEach(sel => {
         if (!sel) return;
-        const currentVal = sel.value;
-        const isOptional = selId.startsWith('planChauffeur') || selId.startsWith('planKenteken');
-        sel.innerHTML = isOptional ? '<option value="">-- Geen --</option>' : `<option value="">-- Kies ${key.toLowerCase()} --</option>`;
-        list.forEach(item => {
-          sel.innerHTML += `<option value="${item}">${item}</option>`;
-        });
-        sel.innerHTML += `<option value="__ADD_NEW__">+ Nieuwe ${key.toLowerCase()} toevoegen...</option>`;
-        if (currentVal && currentVal !== '__ADD_NEW__' && list.includes(currentVal)) sel.value = currentVal;
+        const isPlanOptional = (sel.id === 'planChauffeurSelect' || sel.id === 'planKentekenSelect');
+        sel.innerHTML = isPlanOptional ? '<option value="">-- Geen --</option>' : `<option value="">-- Kies ${type.toLowerCase()} --</option>`;
+        opt.slice().sort().forEach(val => sel.innerHTML += `<option value="${val}">${val}</option>`);
+        sel.innerHTML += `<option value="__ADD_NEW__">+ Nieuwe ${type.toLowerCase()} toevoegen...</option>`;
       });
     });
   }
 
-  function checkNewOption(selectEl, key) {
+  function checkNewOption(selectEl, type) {
     if (selectEl.value === '__ADD_NEW__') {
-      const entered = prompt(`Voer nieuwe ${key.toLowerCase()} in:`);
-      if (entered && entered.trim()) {
-        const val = entered.trim();
-        if (!dropdownOptions[key]) dropdownOptions[key] = [];
-        if (!dropdownOptions[key].includes(val)) {
-          dropdownOptions[key].push(val);
-          db.collection('ritten_dropdowns').doc(currentUser.uid).set(dropdownOptions, { merge: true });
+      const newVal = prompt(`Nieuwe ${type} invoeren:`);
+      if (newVal && newVal.trim()) {
+        const clean = newVal.trim();
+        if (!dropdownOptions[type].includes(clean)) {
+          dropdownOptions[type].push(clean);
+          db.collection('ritten_settings').doc(currentUser.uid).set(dropdownOptions, { merge: true });
         }
         populateAllDropdowns();
-        selectEl.value = val;
+        selectEl.value = clean;
       } else {
         selectEl.value = '';
       }
@@ -4601,17 +4794,15 @@
 
   function setQuickTime(inputId) {
     const now = new Date();
-    const yr = now.getFullYear();
-    const mth = String(now.getMonth() + 1).padStart(2, '0');
-    const day = String(now.getDate()).padStart(2, '0');
-    const hrs = String(now.getHours()).padStart(2, '0');
-    const mins = String(now.getMinutes()).padStart(2, '0');
-    document.getElementById(inputId).value = `${yr}-${mth}-${day}T${hrs}:${mins}`;
+    const offset = now.getTimezoneOffset() * 60000;
+    const localISOTime = (new Date(now - offset)).toISOString().slice(0, 16);
+    document.getElementById(inputId).value = localISOTime;
   }
 
   function handleRitSubmit(event) {
     event.preventDefault();
     const editId = document.getElementById('editRitId').value;
+
     const record = {
       userId: currentUser.uid,
       bedrijf: document.getElementById('bedrijfSelect').value,
@@ -4626,31 +4817,30 @@
       timestamp: firebase.firestore.FieldValue.serverTimestamp()
     };
 
-    const req = editId ? db.collection('ritten_log').doc(editId).update(record) : db.collection('ritten_log').add(record);
+    const req = editId ? db.collection('ritten').doc(editId).update(record) : db.collection('ritten').add(record);
     req.then(() => {
       resetRitForm();
       loadRitten();
-    }).catch(e => alert(e.message));
+    }).catch(err => alert("Fout bij opslaan rit: " + err.message));
   }
 
   function editRit(id) {
-    const item = rittenList.find(r => r.id === id);
-    if (!item) return;
-    document.getElementById('editRitId').value = item.id;
-    document.getElementById('bedrijfSelect').value = item.bedrijf || '';
-    document.getElementById('chauffeurSelect').value = item.chauffeur || '';
-    document.getElementById('kentekenSelect').value = item.kenteken || '';
-    document.getElementById('vanafSelect').value = item.vanaf || '';
-    document.getElementById('naarSelect').value = item.naar || '';
-    document.getElementById('afspraakInput').value = item.afspraak || '';
-    document.getElementById('startInput').value = item.start || '';
-    document.getElementById('stopInput').value = item.stop || '';
-    document.getElementById('opmerkingenInput').value = item.opmerkingen || '';
+    const r = rittenList.find(x => x.id === id);
+    if (!r) return;
+    document.getElementById('editRitId').value = r.id;
+    document.getElementById('bedrijfSelect').value = r.bedrijf || '';
+    document.getElementById('chauffeurSelect').value = r.chauffeur || '';
+    document.getElementById('kentekenSelect').value = r.kenteken || '';
+    document.getElementById('vanafSelect').value = r.vanaf || '';
+    document.getElementById('naarSelect').value = r.naar || '';
+    document.getElementById('afspraakInput').value = r.afspraak || '';
+    document.getElementById('startInput').value = r.start || '';
+    document.getElementById('stopInput').value = r.stop || '';
+    document.getElementById('opmerkingenInput').value = r.opmerkingen || '';
 
     document.getElementById('ritFormTitle').innerText = 'Rit Bewerken';
     document.getElementById('submitRitBtn').innerText = 'Wijzigingen Opslaan';
     document.getElementById('cancelEditBtn').style.display = 'inline-block';
-    document.getElementById('ritFormCard').scrollIntoView({ behavior: 'smooth' });
   }
 
   function resetRitForm() {
@@ -4663,138 +4853,12 @@
 
   function deleteRit(id) {
     if (confirm("Deze rit definitief verwijderen?")) {
-      db.collection('ritten_log').doc(id).delete().then(loadRitten);
+      db.collection('ritten').doc(id).delete().then(loadRitten);
     }
   }
 
-  function loadRitten() {
-    const period = document.getElementById('ritPeriodSelect').value;
-    db.collection('ritten_log').where('userId', '==', currentUser.uid).get().then(snapshot => {
-      rittenList = [];
-      const now = new Date();
-      const todayStr = getLocalDateKey(now);
-
-      const startOfWeek = new Date(now);
-      startOfWeek.setDate(now.getDate() - now.getDay() + (now.getDay() === 0 ? -6 : 1));
-      const startOfWeekStr = getLocalDateKey(startOfWeek);
-
-      const endOfWeek = new Date(startOfWeek);
-      endOfWeek.setDate(startOfWeek.getDate() + 6);
-      const endOfWeekStr = getLocalDateKey(endOfWeek);
-
-      const startOfNextWeek = new Date(startOfWeek);
-      startOfNextWeek.setDate(startOfWeek.getDate() + 7);
-      const startOfNextWeekStr = getLocalDateKey(startOfNextWeek);
-
-      const endOfNextWeek = new Date(startOfNextWeek);
-      endOfNextWeek.setDate(startOfNextWeek.getDate() + 6);
-      const endOfNextWeekStr = getLocalDateKey(endOfNextWeek);
-
-      const currentMonthStr = todayStr.substring(0, 7);
-
-      let todayCount = 0;
-
-      snapshot.forEach(doc => {
-        let d = doc.data();
-        let dateStr = (d.afspraak || '').substring(0, 10);
-        if (dateStr === todayStr) todayCount++;
-
-        let include = true;
-        if (dateStr && period !== 'all') {
-          if (period === 'today' && dateStr !== todayStr) include = false;
-          else if (period === 'this_week' && (dateStr < startOfWeekStr || dateStr > endOfWeekStr)) include = false;
-          else if (period === 'next_week' && (dateStr < startOfNextWeekStr || dateStr > endOfNextWeekStr)) include = false;
-          else if (period === 'this_month' && !dateStr.startsWith(currentMonthStr)) include = false;
-        }
-
-        if (include) rittenList.push({ id: doc.id, ...d });
-      });
-
-      document.getElementById('dashRittenBadge').innerText = `${todayCount}`;
-      document.getElementById('dashRittenValue').innerText = `${todayCount} ${todayCount === 1 ? 'rit' : 'ritten'}`;
-      document.getElementById('dashRittenSub').innerText = `Gepland / verreden vandaag (${period})`;
-
-      rittenList.sort((a, b) => (b.afspraak || '').localeCompare(a.afspraak || ''));
-      renderRittenDashboardAndTable();
-    });
-  }
-
-  function getPerformanceBadge(item) {
-    if (!item.stop || !item.afspraak) return { label: 'Openstaand', class: 'bg-gray', diffText: '' };
-    const tStop = new Date(item.stop);
-    const tAfspraak = new Date(item.afspraak);
-    if (isNaN(tStop) || isNaN(tAfspraak)) return { label: '-', class: 'bg-gray', diffText: '' };
-
-    const diffMins = Math.round((tStop - tAfspraak) / 60000);
-    if (diffMins < -5) {
-      return { label: 'Te Vroeg', class: 'bg-orange', diffText: `(${Math.abs(diffMins)}m)` };
-    } else if (diffMins > 5) {
-      return { label: 'Te Laat', class: 'bg-red', diffText: `(+${diffMins}m)` };
-    } else {
-      return { label: 'Op Tijd', class: 'bg-green', diffText: `(${diffMins >= 0 ? '+' : ''}${diffMins}m)` };
-    }
-  }
-
-  function renderRittenDashboardAndTable() {
-    let early = 0, onTime = 0, late = 0, totalCompleted = 0;
-    rittenList.forEach(item => {
-      if (item.stop && item.afspraak) {
-        totalCompleted++;
-        const diffMins = Math.round((new Date(item.stop) - new Date(item.afspraak)) / 60000);
-        if (diffMins < -5) early++;
-        else if (diffMins > 5) late++;
-        else onTime++;
-      }
-    });
-
-    const pctEarly = totalCompleted > 0 ? Math.round((early / totalCompleted) * 100) : 0;
-    const pctOnTime = totalCompleted > 0 ? Math.round((onTime / totalCompleted) * 100) : 0;
-    const pctLate = totalCompleted > 0 ? Math.round((late / totalCompleted) * 100) : 0;
-
-    document.getElementById('statEarly').innerText = `${pctEarly}%`;
-    document.getElementById('statOnTime').innerText = `${pctOnTime}%`;
-    document.getElementById('statLate').innerText = `${pctLate}%`;
-    document.getElementById('statTotal').innerText = `${rittenList.length}`;
-
-    const tbody = document.getElementById('rittenTableBody');
-    tbody.innerHTML = '';
-    const isAdmin = currentUserData.role === 'admin';
-    const rittenPerm = currentUserData.permissions ? currentUserData.permissions.ritten : 'none';
-    const canWrite = isAdmin || rittenPerm === 'write';
-
-    if (rittenList.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;">Geen ritten gevonden in deze periode.</td></tr>';
-      return;
-    }
-
-    rittenList.forEach(item => {
-      let perf = getPerformanceBadge(item);
-      let actions = '-';
-      if (canWrite) {
-        actions = `
-          <button class="btn btn-warning" onclick="editRit('${item.id}')">Bewerk</button>
-          <button class="btn btn-danger" onclick="deleteRit('${item.id}')">Verwijder</button>
-        `;
-      }
-
-      tbody.innerHTML += `
-        <tr>
-          <td><b>${item.bedrijf || '-'}</b></td>
-          <td>${item.chauffeur || '-'}</td>
-          <td>${item.kenteken || '-'}</td>
-          <td>${item.vanaf || '-'} &rarr; ${item.naar || '-'}</td>
-          <td>${item.afspraak ? item.afspraak.replace('T', ' ') : '-'}</td>
-          <td>${item.start ? item.start.replace('T', ' ') : '-'}</td>
-          <td>${item.stop ? item.stop.replace('T', ' ') : '-'}</td>
-          <td><span class="badge ${perf.class}">${perf.label} ${perf.diffText}</span></td>
-          <td>${item.opmerkingen || '-'}</td>
-          <td>${actions}</td>
-        </tr>`;
-    });
-  }
-
-  function toggleEindType(type) {
-    document.getElementById('planEindDatumGroup').style.display = (type === 'date') ? 'flex' : 'none';
+  function toggleEindType(val) {
+    document.getElementById('planEindDatumGroup').style.display = (val === 'date') ? 'flex' : 'none';
   }
 
   function handlePlanSubmit(event) {
@@ -4804,89 +4868,247 @@
     const kenteken = document.getElementById('planKentekenSelect').value;
     const vanaf = document.getElementById('planVanafSelect').value;
     const naar = document.getElementById('planNaarSelect').value;
-    const tijd = document.getElementById('planTijdAfspraak').value;
+    const tijdAfspraak = document.getElementById('planTijdAfspraak').value;
     const freq = document.getElementById('planFrequentie').value;
+    const startDatumStr = document.getElementById('planStartDatum').value;
     const eindType = document.getElementById('planEindType').value;
 
-    const startDate = new Date(document.getElementById('planStartDatum').value + 'T00:00:00');
-    let endDate = new Date(startDate);
-
-    if (freq === 'single') {
-      endDate = new Date(startDate);
-    } else if (eindType === 'month') {
-      endDate = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0);
+    let eindDatum = new Date();
+    if (eindType === 'month') {
+      const sd = new Date(startDatumStr);
+      eindDatum = new Date(sd.getFullYear(), sd.getMonth() + 1, 0);
     } else {
-      const edVal = document.getElementById('planEindDatum').value;
-      if (!edVal) { alert("Kies een einddatum."); return; }
-      endDate = new Date(edVal + 'T00:00:00');
+      eindDatum = new Date(document.getElementById('planEindDatum').value);
     }
 
-    if (endDate < startDate) { alert("Einddatum mag niet voor startdatum liggen."); return; }
+    const startDatum = new Date(startDatumStr);
+    const datesToCreate = [];
+    let current = new Date(startDatum);
 
-    let batch = db.batch();
-    let count = 0;
-    let current = new Date(startDate);
-    let dayIndex = 0;
+    while (current <= eindDatum) {
+      const dayOfWeek = current.getDay();
+      const diffDays = Math.floor((current - startDatum) / (1000 * 60 * 60 * 24));
+      let match = false;
 
-    while (current <= endDate) {
-      let dayOfWeek = current.getDay();
-      let add = false;
+      if (freq === 'single') match = (current.getTime() === startDatum.getTime());
+      else if (freq === 'daily') match = true;
+      else if (freq === 'alternate') match = (diffDays % 2 === 0);
+      else if (freq === 'mwf') match = [1, 3, 5].includes(dayOfWeek);
+      else if (freq === 'tts') match = [2, 4, 6].includes(dayOfWeek);
 
-      if (freq === 'single') add = (dayIndex === 0);
-      else if (freq === 'daily') add = true;
-      else if (freq === 'alternate') add = (dayIndex % 2 === 0);
-      else if (freq === 'mwf') add = [1, 3, 5].includes(dayOfWeek);
-      else if (freq === 'tts') add = [2, 4, 6].includes(dayOfWeek);
-
-      if (add) {
-        let dStr = getLocalDateKey(current);
-        let newRef = db.collection('ritten_log').doc();
-        batch.set(newRef, {
-          userId: currentUser.uid,
-          bedrijf, chauffeur, kenteken, vanaf, naar,
-          afspraak: `${dStr}T${tijd}`,
-          start: '', stop: '', opmerkingen: 'Ingepland via reeks',
-          timestamp: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        count++;
-      }
-
+      if (match) datesToCreate.push(new Date(current));
       if (freq === 'single') break;
       current.setDate(current.getDate() + 1);
-      dayIndex++;
     }
 
-    if (count === 0) { alert("Geen ritten binnen het geselecteerde bereik."); return; }
+    if (datesToCreate.length === 0) { alert("Geen ritten gevonden in gekozen periode."); return; }
+
+    const batch = db.batch();
+    datesToCreate.forEach(d => {
+      const y = d.getFullYear(), m = String(d.getMonth() + 1).padStart(2, '0'), day = String(d.getDate()).padStart(2, '0');
+      const afspraakStr = `${y}-${m}-${day}T${tijdAfspraak}`;
+      const docRef = db.collection('ritten').doc();
+      batch.set(docRef, {
+        userId: currentUser.uid, bedrijf, chauffeur, kenteken, vanaf, naar,
+        afspraak: afspraakStr, start: '', stop: '', opmerkingen: 'Ingepland',
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    });
 
     batch.commit().then(() => {
-      alert(`${count} ritten succesvol ingepland!`);
+      alert(`${datesToCreate.length} ritten succesvol ingepland!`);
+      document.querySelector('#ritPlanSub form').reset();
       switchSubTab('ritLogSub', document.querySelectorAll('#rittenTab .sub-tab-btn')[0]);
       loadRitten();
-    }).catch(e => alert(e.message));
+    });
+  }
+
+  function evaluatePunctuality(afspraakStr, stopStr) {
+    if (!stopStr || !afspraakStr) return { text: 'Nog niet gestopt', badge: 'bg-gray', type: 'none' };
+    const tAfspraak = new Date(afspraakStr);
+    const tStop = new Date(stopStr);
+    const diffMinutes = (tStop - tAfspraak) / 60000;
+
+    if (diffMinutes < -2) return { text: `Te vroeg (${Math.round(Math.abs(diffMinutes))}m)`, badge: 'bg-orange', type: 'early' };
+    if (diffMinutes <= 5) return { text: 'Op tijd', badge: 'bg-green', type: 'ontime' };
+    return { text: `Te laat (${Math.round(diffMinutes)}m)`, badge: 'bg-red', type: 'late' };
+  }
+
+  function loadRitten() {
+    const period = document.getElementById('ritPeriodSelect').value;
+    const now = new Date();
+    const todayStr = getLocalDateKey(now);
+
+    let startRange = null, endRange = null;
+    if (period === 'this_week') {
+      const first = now.getDate() - now.getDay() + (now.getDay() === 0 ? -6 : 1);
+      startRange = getLocalDateKey(new Date(now.setDate(first)));
+      const last = new Date(first + 6); last.setDate(first + 6);
+      endRange = getLocalDateKey(last);
+    } else if (period === 'next_week') {
+      const first = now.getDate() - now.getDay() + (now.getDay() === 0 ? -6 : 1) + 7;
+      startRange = getLocalDateKey(new Date(now.setDate(first)));
+      const last = new Date(first + 6); last.setDate(first + 6);
+      endRange = getLocalDateKey(last);
+    } else if (period === 'this_month') {
+      startRange = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
+      endRange = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-31`;
+    }
+
+    db.collection('ritten').where('userId', '==', currentUser.uid).get().then(snapshot => {
+      rittenList = [];
+      snapshot.forEach(doc => {
+        const d = doc.data();
+        let match = true;
+        const rDate = d.afspraak ? d.afspraak.slice(0, 10) : '';
+        if (period === 'today' && rDate !== todayStr) match = false;
+        else if (startRange && endRange && (rDate < startRange || rDate > endRange)) match = false;
+        if (match) rittenList.push({ id: doc.id, ...d });
+      });
+
+      rittenList.sort((a, b) => (a.afspraak || '').localeCompare(b.afspraak || ''));
+      renderRittenTable();
+      updateHomeRittenSummary();
+    }).catch(err => console.log("Fout bij ophalen ritten:", err));
+  }
+
+  function renderRittenTable() {
+    const tbody = document.getElementById('rittenTableBody');
+    tbody.innerHTML = '';
+    const allowEdit = currentUserData.role === 'admin' || (currentUserData.permissions && currentUserData.permissions.ritten === 'write');
+
+    let early = 0, ontime = 0, late = 0, evaluatedCount = 0;
+
+    rittenList.forEach(r => {
+      const p = evaluatePunctuality(r.afspraak, r.stop);
+      if (p.type === 'early') { early++; evaluatedCount++; }
+      else if (p.type === 'ontime') { ontime++; evaluatedCount++; }
+      else if (p.type === 'late') { late++; evaluatedCount++; }
+
+      const editBtns = allowEdit ?
+        `<button class="btn btn-warning btn-sm" onclick="editRit('${r.id}')">Bewerk</button>
+         <button class="btn btn-danger" onclick="deleteRit('${r.id}')">Verwijder</button>` : '-';
+
+      tbody.innerHTML += `
+        <tr>
+          <td>${r.bedrijf || '-'}</td>
+          <td>${r.chauffeur || '-'}</td>
+          <td>${r.kenteken || '-'}</td>
+          <td><b>${r.vanaf}</b> &rarr; <b>${r.naar}</b></td>
+          <td>${r.afspraak ? r.afspraak.replace('T', ' ') : '-'}</td>
+          <td>${r.start ? r.start.replace('T', ' ') : '-'}</td>
+          <td>${r.stop ? r.stop.replace('T', ' ') : '-'}</td>
+          <td><span class="badge ${p.badge}">${p.text}</span></td>
+          <td>${r.opmerkingen || '-'}</td>
+          <td style="display:flex; gap:5px;">${editBtns}</td>
+        </tr>
+      `;
+    });
+
+    if (rittenList.length === 0) tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;">Geen ritten gevonden voor deze periode.</td></tr>';
+
+    if (evaluatedCount > 0) {
+      document.getElementById('statEarly').innerText = `${Math.round((early / evaluatedCount) * 100)}%`;
+      document.getElementById('statOnTime').innerText = `${Math.round((ontime / evaluatedCount) * 100)}%`;
+      document.getElementById('statLate').innerText = `${Math.round((late / evaluatedCount) * 100)}%`;
+    } else {
+      document.getElementById('statEarly').innerText = '0%';
+      document.getElementById('statOnTime').innerText = '0%';
+      document.getElementById('statLate').innerText = '0%';
+    }
+    document.getElementById('statTotal').innerText = rittenList.length;
   }
 
   function exportRitExcel() {
     if (!rittenList.length) { alert("Geen ritten om te exporteren."); return; }
-    const data = rittenList.map(i => {
-      let perf = getPerformanceBadge(i);
-      return {
-        "Bedrijf": i.bedrijf,
-        "Chauffeur": i.chauffeur,
-        "Kenteken": i.kenteken,
-        "Vanaf": i.vanaf,
-        "Naar": i.naar,
-        "Afspraak": i.afspraak ? i.afspraak.replace('T', ' ') : '',
-        "Start": i.start ? i.start.replace('T', ' ') : '',
-        "Stop": i.stop ? i.stop.replace('T', ' ') : '',
-        "Prestatie": `${perf.label} ${perf.diffText}`.trim(),
-        "Opmerkingen": i.opmerkingen || ''
-      };
-    });
+    const data = rittenList.map(r => ({
+      "Bedrijf": r.bedrijf, "Chauffeur": r.chauffeur, "Kenteken": r.kenteken, "Vanaf": r.vanaf,
+      "Naar": r.naar, "Afspraak": r.afspraak, "Start": r.start, "Stop": r.stop,
+      "Prestatie": evaluatePunctuality(r.afspraak, r.stop).text, "Opmerkingen": r.opmerkingen
+    }));
     const ws = XLSX.utils.json_to_sheet(data);
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Rittenlog");
-    XLSX.writeFile(wb, `Ritten_Rapport_${new Date().toISOString().slice(0,10)}.xlsx`);
+    XLSX.utils.book_append_sheet(wb, ws, "Ritten");
+    XLSX.writeFile(wb, `Ritten_${new Date().toISOString().slice(0,10)}.xlsx`);
+  }
+
+  // --- ADMIN MODULE ---
+  function loadAllUsersForAdmin() {
+    db.collection('users').get().then(snapshot => {
+      const tbody = document.getElementById('usersTableBody');
+      tbody.innerHTML = '';
+
+      snapshot.forEach(doc => {
+        const u = doc.data();
+        const perms = u.permissions || {};
+        const isCurrentUser = (doc.id === currentUser.uid);
+
+        const statusBadge = u.status === 'active'
+          ? '<span class="badge bg-green">Actief</span>'
+          : '<span class="badge bg-pending">Standby</span>';
+
+        const roleBadge = u.role === 'admin'
+          ? '<span class="badge bg-admin">Admin</span>'
+          : '<span class="badge bg-user">Gebruiker</span>';
+
+        const makeSelect = (permKey, currentVal, fallbackVal = 'none') => {
+          const val = currentVal || fallbackVal;
+          return `
+            <select class="perm-select" onchange="updateUserPermission('${doc.id}', '${permKey}', this.value)">
+              <option value="none" ${val === 'none' ? 'selected' : ''}>Geen</option>
+              <option value="read" ${val === 'read' ? 'selected' : ''}>Alleen Lezen</option>
+              <option value="write" ${val === 'write' ? 'selected' : ''}>Schrijven</option>
+            </select>
+          `;
+        };
+
+        const approveBtn = u.status !== 'active'
+          ? `<button class="btn btn-success" style="padding:5px 10px; font-size:0.8rem;" onclick="approveUser('${doc.id}')">Goedkeuren</button>`
+          : `<button class="btn btn-danger" style="padding:5px 10px; font-size:0.8rem;" onclick="setStandby('${doc.id}')" ${isCurrentUser ? 'disabled' : ''}>Standby</button>`;
+
+        const deleteBtn = !isCurrentUser
+          ? `<button class="btn btn-danger" style="padding:5px 10px; font-size:0.8rem; margin-left:4px;" onclick="deleteUser('${doc.id}', '${u.email}')">Verwijder</button>`
+          : '';
+
+        tbody.innerHTML += `
+          <tr>
+            <td>${u.email}</td>
+            <td>${statusBadge}</td>
+            <td>${roleBadge}</td>
+            <td>${makeSelect('agenda', perms.agenda, 'read')}</td>
+            <td>${makeSelect('medicijnen', perms.medicijnen, 'read')}</td>
+            <td>${makeSelect('dialyse', perms.dialyse, 'none')}</td>
+            <td>${makeSelect('bloeddruk', perms.bloeddruk, 'none')}</td>
+            <td>${makeSelect('vocht', perms.vocht, 'none')}</td>
+            <td>${makeSelect('ritten', perms.ritten, 'none')}</td>
+            <td>${makeSelect('brieven', perms.brieven, 'read')}</td>
+            <td style="white-space:nowrap;">${approveBtn}${deleteBtn}</td>
+          </tr>
+        `;
+      });
+    });
+  }
+
+  function approveUser(uid) {
+    db.collection('users').doc(uid).update({ status: 'active' }).then(loadAllUsersForAdmin);
+  }
+
+  function setStandby(uid) {
+    db.collection('users').doc(uid).update({ status: 'pending' }).then(loadAllUsersForAdmin);
+  }
+
+  function deleteUser(uid, email) {
+    if (confirm(`Weet je zeker dat je de gebruiker '${email}' uit de app wilt verwijderen?`)) {
+      db.collection('users').doc(uid).delete().then(loadAllUsersForAdmin);
+    }
+  }
+
+  function updateUserPermission(uid, moduleKey, value) {
+    db.collection('users').doc(uid).update({
+      [`permissions.${moduleKey}`]: value
+    }).catch(err => alert("Fout bij wijzigen recht: " + err.message));
   }
 </script>
+
 </body>
 </html>
