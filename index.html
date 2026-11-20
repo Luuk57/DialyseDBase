@@ -674,7 +674,6 @@
 
     <!-- TAB: GOOGLE AGENDA MODULE -->
     <div id="agendaTab" class="tab-content">
-      <!-- GOOGLE AGENDA RASTER & TOOLBAR -->
       <div class="gcal-shell">
         <div class="gcal-toolbar">
           <div class="gcal-nav-left">
@@ -700,17 +699,14 @@
           </div>
         </div>
 
-        <!-- Categorie legenda strip -->
         <div style="padding:8px 16px; background:#f8f9fa; border-bottom:1px solid var(--gcal-border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
           <div id="gcalCategoryLegend" style="display:flex; gap:12px; flex-wrap:wrap; align-items:center; font-size:0.8rem;"></div>
           <span id="agendaCountLabel" style="font-size:0.82rem; color:#5f6368;">0 afspraken</span>
         </div>
 
-        <!-- Maand / Week / Dag / Lijst Container -->
         <div id="gcalMainBody"></div>
       </div>
 
-      <!-- FORMULIER NIEUWE AFSPRAAK / HERHALING -->
       <div class="form-card" id="agendaFormCard">
         <h3 id="agendaFormTitle" style="margin-bottom: 12px; color: #333;">Nieuwe Afspraak Toevoegen / Plannen</h3>
         <form onsubmit="handleAgendaSubmit(event)">
@@ -777,7 +773,6 @@
         </form>
       </div>
 
-      <!-- CATEGORIEËN BEHEREN -->
       <div class="form-card" id="agendaCategoryManageCard">
         <h3 style="margin-bottom: 10px; color: #333;">Agenda Categorieën Beheren</h3>
         <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:10px;">
@@ -800,7 +795,6 @@
         <button class="sub-tab-btn" onclick="switchDialyseSubTab('dialyseListSub', this)">Overzicht & Exporteren</button>
       </div>
 
-      <!-- SUBTAB 1A: DIALYSE FORMULIER -->
       <div id="dialyseFormSub" class="sub-content active">
         <div class="form-card" id="dialyseFormCard">
           <form id="dialysisForm" onsubmit="handleDialyseSubmit(event)">
@@ -865,7 +859,6 @@
                 <input type="text" id="ufWerkelijk" class="readonly-field" readonly placeholder="Wordt automatisch berekend">
               </div>
 
-              <!-- Verpleging: Meerdere selecties + Live toevoegen -->
               <div class="form-group full">
                 <label>Betrokken Verpleging (Selecteer één of meerdere)</label>
                 <div id="nurseCheckboxes" class="nurse-checkbox-container"></div>
@@ -921,7 +914,6 @@
         </div>
       </div>
 
-      <!-- SUBTAB 1B: DIALYSE OVERZICHT & EXPORT -->
       <div id="dialyseListSub" class="sub-content">
         <div class="actions-bar">
           <input type="text" id="searchBox" class="search-box" placeholder="Zoek in records..." onkeyup="filterDialyseRecords()">
@@ -986,14 +978,15 @@
       <div class="actions-bar">
         <div style="display:flex; gap:10px; align-items:center;">
           <label style="margin-bottom:0;">Periode:</label>
-          <select id="bpPeriodSelect" onchange="loadBpMeasurements()" style="padding: 8px; border-radius: 6px; border: 1px solid var(--border-color);">
+          <select id="bpPeriodSelect" onchange="renderBpTable(); updateHomeBpSummary();" style="padding: 8px; border-radius: 6px; border: 1px solid var(--border-color);">
+            <option value="all" selected>Alle metingen</option>
             <option value="today">Vandaag</option>
             <option value="7days">Afgelopen 7 dagen</option>
             <option value="30days">Afgelopen 30 dagen</option>
-            <option value="all">Alle metingen</option>
           </select>
         </div>
-        <div style="display: flex; gap: 10px;">
+        <div style="display: flex; gap: 10px; flex-wrap:wrap;">
+          <button class="btn btn-secondary btn-sm" onclick="loadBpMeasurements()">Vernieuwen</button>
           <button class="btn btn-excel" onclick="exportBpExcel()">Excel (.xlsx)</button>
           <button class="btn btn-pdf" onclick="window.print()">Print / PDF</button>
         </div>
@@ -1026,7 +1019,6 @@
         <span id="vochtDateLabel" style="font-size: 0.9rem; color: #555;">Vandaag</span>
       </div>
 
-      <!-- TWEE VOORTGANGSBALKEN -->
       <div class="bars-wrapper">
         <div class="progress-box">
           <div class="progress-info">
@@ -1058,13 +1050,11 @@
         <button class="sub-tab-btn" id="vochtManageAmountsBtn" onclick="switchVochtSubTab('manageAmountsSub', this)">Vaste Hoeveelheden Beheren</button>
       </div>
 
-      <!-- SUBTAB 3A: POS BESTELPANEEL -->
       <div id="posSub" class="sub-content active">
         <h3 style="margin-bottom: 15px; color: #333;">Tik op een drankje om toe te voegen aan je inname:</h3>
         <div id="posGrid" class="pos-grid"></div>
       </div>
 
-      <!-- SUBTAB 3B: INNAME OVERZICHT & EXPORT -->
       <div id="vochtLogSub" class="sub-content">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
           <h3 id="vochtLogTitle" style="color: #333;">Ingenomen Dranken (Actieve 2L Dialyse-cyclus)</h3>
@@ -1092,7 +1082,6 @@
         </div>
       </div>
 
-      <!-- SUBTAB 3C: DRANKEN BEHEREN & FOTO'S -->
       <div id="manageDrinksSub" class="sub-content">
         <div class="form-card" id="vochtAddDrinkCard">
           <h3 style="margin-bottom: 15px; color: #333;">Nieuwe Drank Tegel Toevoegen</h3>
@@ -1133,7 +1122,6 @@
         </div>
       </div>
 
-      <!-- SUBTAB 3D: VASTE HOEVEELHEDEN BEHEREN -->
       <div id="manageAmountsSub" class="sub-content">
         <div class="form-card" id="vochtAddAmountCard">
           <h3 style="margin-bottom: 15px; color: #333;">Nieuwe Vaste Hoeveelheid Toevoegen (ml)</h3>
@@ -1248,15 +1236,16 @@
         <div class="actions-bar">
           <div style="display:flex; gap:10px; align-items:center;">
             <label style="margin-bottom:0;">Periode:</label>
-            <select id="ritPeriodSelect" onchange="loadRitten()" style="padding: 8px; border-radius: 6px; border: 1px solid var(--border-color);">
+            <select id="ritPeriodSelect" onchange="renderRittenTable()" style="padding: 8px; border-radius: 6px; border: 1px solid var(--border-color);">
+              <option value="all" selected>Alle ritten</option>
               <option value="today">Vandaag</option>
               <option value="this_week">Deze week</option>
               <option value="next_week">Komende week</option>
               <option value="this_month">Deze maand</option>
-              <option value="all">Alle ritten</option>
             </select>
           </div>
-          <div style="display: flex; gap: 10px;">
+          <div style="display: flex; gap: 10px; flex-wrap:wrap;">
+            <button class="btn btn-secondary btn-sm" onclick="loadRitten()">Vernieuwen</button>
             <button class="btn btn-excel" onclick="exportRitExcel()">Excel (.xlsx)</button>
             <button class="btn btn-pdf" onclick="window.print()">Print / PDF</button>
           </div>
@@ -1575,7 +1564,6 @@
   let currentUser = null;
   let currentUserData = null;
 
-  // Medicijnen state (3 dagblokken + speciaal na dialyse + tijdstip per dag + herinnering + home filter)
   const medDayBlocksMeta = [
     { key: 'morning', label: 'Ochtend', defaultTime: '08:00', range: '06:00 – 11:59' },
     { key: 'afternoon', label: 'Middag', defaultTime: '12:30', range: '12:00 – 17:59' },
@@ -1584,12 +1572,11 @@
   ];
   let medicationsList = [];
   let medTodayIntakeMap = {};
-  let medSnoozedUntilByKey = {}; // { [doseKey]: timestampMs }
+  let medSnoozedUntilByKey = {};
   let medNotifiedKeysToday = new Set();
   let medReminderTimerId = null;
   let homePostDialysisFilterActive = false;
 
-  // Agenda state (Google Agenda stijl)
   const defaultAgendaCategories = ['Dialyse', 'Ziekenhuis / Arts', 'INR / Bloedprikken', 'Overig'];
   let agendaEventsList = [];
   let agendaSettings = {
@@ -1600,7 +1587,6 @@
   let gcalViewMode = 'month';
   let gcalCursorDate = new Date();
 
-  // Module lijsten
   let allDialyseRecords = [];
   let nursesList = ['Marissa', 'Iris', 'Alice', 'Irmee', 'Sandra'];
   let bpList = [];
@@ -1614,7 +1600,6 @@
   let rittenList = [];
   let dropdownOptions = { Bedrijf: [], Chauffeur: [], Kenteken: [], Vanaf: [], Naar: [] };
 
-  // Brieven & Mappen state
   let letterFolders = ['Algemeen', 'Dialyse & Ziekenhuis', 'Verzekering'];
   let activeFolderFilter = 'ALL';
   let lettersList = [];
@@ -1719,7 +1704,6 @@
 
     let visibleCount = 0;
 
-    // 0. Agenda
     const hasAgenda = isAdmin || agendaPerm !== 'none';
     document.getElementById('tabBtnAgenda').style.display = hasAgenda ? 'block' : 'none';
     document.getElementById('tileAgenda').style.display = hasAgenda ? 'flex' : 'none';
@@ -1732,7 +1716,6 @@
       loadAgendaSettingsAndEvents();
     }
 
-    // 0.B Medicijnen
     const hasMed = isAdmin || medPerm !== 'none';
     document.getElementById('tabBtnMedicijnen').style.display = hasMed ? 'block' : 'none';
     document.getElementById('tileMedicijnen').style.display = hasMed ? 'flex' : 'none';
@@ -1745,7 +1728,6 @@
       startMedReminderLoop();
     }
 
-    // 1. Dialyse Beheer
     const hasDialyse = isAdmin || dialysePerm !== 'none';
     document.getElementById('tabBtnDialyse').style.display = hasDialyse ? 'block' : 'none';
     document.getElementById('tileDialyse').style.display = hasDialyse ? 'flex' : 'none';
@@ -1756,7 +1738,6 @@
       loadDialyseRecords();
     }
 
-    // 2. Bloeddruk & Hartslag
     const hasBp = isAdmin || bpPerm !== 'none';
     document.getElementById('tabBtnBp').style.display = hasBp ? 'block' : 'none';
     document.getElementById('tileBp').style.display = hasBp ? 'flex' : 'none';
@@ -1766,7 +1747,6 @@
       loadBpMeasurements();
     }
 
-    // 3. POS Vocht Intake & Beheer
     const hasVocht = isAdmin || vochtPerm !== 'none';
     document.getElementById('tabBtnVocht').style.display = hasVocht ? 'block' : 'none';
     document.getElementById('tileVocht').style.display = hasVocht ? 'flex' : 'none';
@@ -1779,7 +1759,6 @@
       loadVochtSettingsAndData();
     }
 
-    // 4. Rittenapp
     const hasRitten = isAdmin || rittenPerm !== 'none';
     document.getElementById('tabBtnRitten').style.display = hasRitten ? 'block' : 'none';
     document.getElementById('tileRitten').style.display = hasRitten ? 'flex' : 'none';
@@ -1791,7 +1770,6 @@
       loadDropdownsAndRitten();
     }
 
-    // 5. Brieven Scanner & Mappen
     const hasBrieven = isAdmin || brievenPerm !== 'none';
     document.getElementById('tabBtnBrieven').style.display = hasBrieven ? 'block' : 'none';
     document.getElementById('tileBrieven').style.display = hasBrieven ? 'flex' : 'none';
@@ -1803,7 +1781,6 @@
       loadBrievenAndFolders();
     }
 
-    // 6. Admin paneel
     document.getElementById('adminTabBtn').style.display = isAdmin ? 'block' : 'none';
     document.getElementById('tileAdmin').style.display = isAdmin ? 'flex' : 'none';
     if (isAdmin) {
@@ -1824,9 +1801,9 @@
     document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
     document.getElementById(tabId).classList.add('active');
     if (btn) btn.classList.add('active');
-    if (tabId === 'medicijnenTab') {
-      evaluateMedReminders(false);
-    }
+    if (tabId === 'medicijnenTab') evaluateMedReminders(false);
+    if (tabId === 'rittenTab' && currentUser) loadRitten();
+    if (tabId === 'bpTab' && currentUser) loadBpMeasurements();
   }
 
   function switchDialyseSubTab(subId, btn) {
@@ -1852,6 +1829,12 @@
 
   function getLocalDateKey(date = new Date()) {
     return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+  }
+
+  function isRecordAccessible(docData) {
+    if (!currentUser) return false;
+    if (currentUserData && currentUserData.role === 'admin') return true;
+    return !docData.userId || docData.userId === currentUser.uid;
   }
 
   function canWriteAgenda() {
@@ -1952,7 +1935,7 @@
     }).join('');
   }
 
-  // --- MEDICIJNEN MODULE (3 DAGBLOKKEN + NA DIALYSE + TIJDSTIP PER DAG + HERINNERING + PDF + VERWIJDEREN) ---
+  // --- MEDICIJNEN MODULE ---
   function getSelectedMedBlocks() {
     const blocks = [];
     if (document.getElementById('medChkMorning')?.checked) blocks.push('morning');
@@ -3128,7 +3111,6 @@
       return;
     }
 
-    // Lijstweergave (Planning)
     titleEl.innerText = 'Planning / Lijstoverzicht';
     const now = new Date();
     const allowWrite = canWriteAgenda();
@@ -3533,7 +3515,7 @@
       allDialyseRecords = [];
       snapshot.forEach(doc => {
         const d = doc.data();
-        if (!d.userId || d.userId === currentUser.uid || (currentUserData && currentUserData.role === 'admin')) {
+        if (isRecordAccessible(d)) {
           allDialyseRecords.push({ ...d, id: d.id || doc.id });
         }
       });
@@ -3682,7 +3664,7 @@
     XLSX.writeFile(workbook, "Dialyse_Overzicht_Rapport.xlsx");
   }
 
-  // --- MODULE 2: POS VOCHT INTAKE & BEHEER (1000ML DAG & 2000ML TUSSEN DIALYSES VANAF 22:30) ---
+  // --- MODULE 2: POS VOCHT INTAKE & BEHEER ---
   function renderPhotoPicker() {
     const grid = document.getElementById('iconPickerGrid');
     grid.innerHTML = '';
@@ -3800,10 +3782,11 @@
   }
 
   function loadTodayIntake() {
-    db.collection('vocht_intake').where('userId', '==', currentUser.uid).get().then(snapshot => {
+    db.collection('vocht_intake').get().then(snapshot => {
       allIntakeRecords = [];
       snapshot.forEach(doc => {
         const d = doc.data();
+        if (!isRecordAccessible(d)) return;
         const parsed = parseIntakeDateTime(d);
         allIntakeRecords.push({
           id: doc.id,
@@ -4518,18 +4501,19 @@
     const allowWrite = canWriteBrieven();
     grid.innerHTML = '';
     filtered.forEach(item => {
+      const hasDoctorPhoto = Boolean(item.doctorPhotoUrl && item.doctorPhotoUrl.trim());
       let thumbHtml = '';
-      if (item.doctorPhotoUrl) {
-        thumbHtml = `<img src="${item.doctorPhotoUrl}" class="doctor-thumb" alt="Foto van dokter">`;
+      if (hasDoctorPhoto) {
+        thumbHtml = `<img src="${item.doctorPhotoUrl}" alt="Dokter ${item.title}" class="doctor-thumb" onclick="openReadLetterModal('${item.id}')" style="cursor:pointer;">`;
       } else if (item.mimeType === 'application/pdf') {
-        thumbHtml = `<div class="letter-pdf-box">PDF DOCUMENT</div>`;
+        thumbHtml = `<div class="letter-pdf-box" onclick="openReadLetterModal('${item.id}')" style="cursor:pointer;">PDF DOCUMENT</div>`;
       } else {
-        thumbHtml = `<img src="${item.dataUrl}" class="letter-thumb" alt="${item.title}">`;
+        thumbHtml = `<img src="${item.dataUrl}" alt="${item.title}" class="letter-thumb" onclick="openReadLetterModal('${item.id}')" style="cursor:pointer;">`;
       }
 
       const writeButtons = allowWrite
         ? `<button type="button" class="btn btn-warning btn-sm" onclick="openMoveLetterModal('${item.id}')">Verplaatsen</button>
-           <button type="button" class="btn btn-secondary btn-sm" onclick="openDoctorPhotoModal('${item.id}')">Doktersfoto</button>
+           <button type="button" class="btn btn-secondary btn-sm" onclick="openDoctorPhotoModal('${item.id}')">${hasDoctorPhoto ? 'Doktersfoto' : '+ Dokter'}</button>
            <button type="button" class="btn btn-danger" onclick="deleteLetterItem('${item.id}')">Verwijder</button>`
         : '';
 
@@ -4538,10 +4522,10 @@
       card.innerHTML = `
         <div>
           ${thumbHtml}
-          <div style="margin-top:10px; font-weight:bold; color:#0f172a; font-size:0.95rem;">${item.title}</div>
+          <div style="font-weight:bold; font-size:0.95rem; margin-top:8px; color:#0f172a;">${item.title}</div>
           <div class="letter-meta">Map: <b>${item.folder || 'Algemeen'}</b> • ${item.dateKey || ''} ${item.time || ''}</div>
         </div>
-        <div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:8px;">
+        <div style="display:flex; gap:6px; flex-wrap:wrap;">
           <button type="button" class="btn btn-sm" onclick="openReadLetterModal('${item.id}')">Lezen</button>
           <button type="button" class="btn btn-success btn-sm" onclick="downloadLetterFile('${item.id}')">Download</button>
           ${writeButtons}
@@ -4551,57 +4535,7 @@
     });
   }
 
-  function updateHomeBrievenSummary() {
-    const badge = document.getElementById('dashBrievenBadge');
-    const valEl = document.getElementById('dashBrievenValue');
-    const subEl = document.getElementById('dashBrievenSub');
-    if (!badge || !valEl || !subEl) return;
-
-    badge.innerText = `${lettersList.length}`;
-    valEl.innerText = `${lettersList.length} ${lettersList.length === 1 ? 'brief' : 'brieven'}`;
-    subEl.innerText = `${letterFolders.length} ${letterFolders.length === 1 ? 'map' : 'mappen'}`;
-  }
-
-  // --- HOME DASHBOARD LIVE SAMENVATTINGEN ---
-  function updateHomeDialyseSummary() {
-    const badge = document.getElementById('dashDialyseBadge');
-    const valEl = document.getElementById('dashDialyseValue');
-    const subEl = document.getElementById('dashDialyseSub');
-    if (!badge || !valEl || !subEl) return;
-
-    if (!allDialyseRecords || allDialyseRecords.length === 0) {
-      badge.innerText = '-';
-      badge.className = 'badge bg-gray';
-      valEl.innerText = 'Geen sessies';
-      subEl.innerText = 'Nog geen dialysesessie opgeslagen';
-      return;
-    }
-
-    const latest = allDialyseRecords[0];
-    const ufNum = parseFloat(latest.ufAdvies);
-    let cls = 'bg-green';
-    if (!isNaN(ufNum)) {
-      if (ufNum >= 4.5) cls = 'bg-red';
-      else if (ufNum >= 4.0) cls = 'bg-orange';
-    }
-
-    badge.innerText = latest.soortDialyse || 'Sessie';
-    badge.className = `badge ${cls}`;
-    valEl.innerText = latest.ufAdvies ? `UF Advies: ${latest.ufAdvies}` : `${latest.preGewicht || '-'} kg`;
-    subEl.innerText = `${latest.afspraakTijd || latest.id || ''} • Werkelijk: ${latest.ufWerkelijk || '-'}`;
-  }
-
-  // --- MODULE 1: BLOEDDRUK & HARTSLAG ---
-  function getBpDialyseColor(sys, dia, hr) {
-    if (sys < 90 || sys >= 180 || dia < 55 || dia >= 110 || hr < 50 || hr >= 110) {
-      return { text: 'Afwijkend (Dialyse)', class: 'bg-red' };
-    }
-    if (sys < 100 || sys >= 160 || dia < 60 || dia >= 100 || hr < 55 || hr >= 100) {
-      return { text: 'Let op (Dialyse)', class: 'bg-orange' };
-    }
-    return { text: 'Normaal (Dialyse)', class: 'bg-green' };
-  }
-
+  // --- MODULE 3: BLOEDDRUK & HARTSLAG ---
   function handleBpSubmit(event) {
     event.preventDefault();
     const sys = parseInt(document.getElementById('sysInput').value);
@@ -4612,101 +4546,140 @@
     if (isNaN(sys) || isNaN(dia) || isNaN(hr)) return;
 
     const now = new Date();
-    const record = {
+    const dateKey = getLocalDateKey(now);
+    const timeStr = now.toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' });
+
+    const bpRecord = {
       userId: currentUser.uid,
-      sys: sys,
-      dia: dia,
-      hr: hr,
-      note: note,
-      date: getLocalDateKey(now),
-      time: now.toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' }),
+      sys,
+      dia,
+      hr,
+      note,
+      dateKey,
+      time: timeStr,
       timestamp: firebase.firestore.FieldValue.serverTimestamp()
     };
 
-    db.collection('bp_measurements').add(record).then(() => {
+    db.collection('bp_measurements').add(bpRecord).then(() => {
       document.getElementById('sysInput').value = '';
       document.getElementById('diaInput').value = '';
       document.getElementById('hrInput').value = '';
       document.getElementById('bpNoteInput').value = '';
       loadBpMeasurements();
-    });
+    }).catch(err => alert("Fout bij opslaan: " + err.message));
+  }
+
+  function parseBpDate(m) {
+    if (m.dateKey && /^\d{4}-\d{2}-\d{2}$/.test(String(m.dateKey).slice(0, 10))) {
+      const [y, mo, d] = String(m.dateKey).slice(0, 10).split('-').map(Number);
+      const tParts = String(m.time || '00:00').split(':').map(Number);
+      return new Date(y, (mo || 1) - 1, d || 1, tParts[0] || 0, tParts[1] || 0, 0, 0);
+    }
+    if (m.timestamp && typeof m.timestamp.toDate === 'function') {
+      return m.timestamp.toDate();
+    }
+    return null;
   }
 
   function loadBpMeasurements() {
-    const period = document.getElementById('bpPeriodSelect').value;
-    let query = db.collection('bp_measurements').where('userId', '==', currentUser.uid);
+    const tbody = document.getElementById('bpTableBody');
+    if (!currentUser) return;
 
-    query.get().then(snapshot => {
+    db.collection('bp_measurements').get().then(snapshot => {
       bpList = [];
-      const now = new Date();
-      const todayStr = getLocalDateKey(now);
-
       snapshot.forEach(doc => {
         const d = doc.data();
-        const recDate = d.date ? new Date(d.date) : null;
-        let include = true;
-
-        if (period === 'today') {
-          include = (d.date === todayStr);
-        } else if (period === '7days' && recDate) {
-          include = ((now - recDate) / (1000 * 60 * 60 * 24)) <= 7;
-        } else if (period === '30days' && recDate) {
-          include = ((now - recDate) / (1000 * 60 * 60 * 24)) <= 30;
-        }
-
-        if (include) {
-          bpList.push({ id: doc.id, ...d });
+        if (isRecordAccessible(d)) {
+          const dt = parseBpDate(d);
+          const dk = d.dateKey || (dt ? getLocalDateKey(dt) : '-');
+          const tm = d.time || (dt ? dt.toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' }) : '-');
+          bpList.push({
+            id: doc.id,
+            ...d,
+            dateKey: dk,
+            time: tm,
+            _dt: dt
+          });
         }
       });
 
-      bpList.sort((a, b) => (b.date + b.time).localeCompare(a.date + a.time));
+      bpList.sort((a, b) => {
+        const ta = a._dt ? a._dt.getTime() : 0;
+        const tb = b._dt ? b._dt.getTime() : 0;
+        return tb - ta;
+      });
+
       renderBpTable();
       updateHomeBpSummary();
-    }).catch(err => console.log("Fout bij laden bloeddruk:", err));
+    }).catch(err => {
+      console.error("Fout bij laden bloeddrukmetingen:", err);
+      if (tbody) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#dc3545;">Kan bloeddrukmetingen niet laden uit Firebase: ${err.message}</td></tr>`;
+      }
+    });
   }
 
-  function updateHomeBpSummary() {
-    const badge = document.getElementById('dashBpBadge');
-    const valEl = document.getElementById('dashBpValue');
-    const subEl = document.getElementById('dashBpSub');
-    if (!badge || !valEl || !subEl) return;
+  function getFilteredBpList() {
+    const period = document.getElementById('bpPeriodSelect').value;
+    const now = new Date();
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
-    if (!bpList || bpList.length === 0) {
-      badge.innerText = '-';
-      badge.className = 'badge bg-gray';
-      valEl.innerText = '- / -';
-      subEl.innerText = 'Geen meting in gekozen periode';
-      return;
+    return bpList.filter(m => {
+      if (period === 'all') return true;
+      const mDate = m._dt || (m.dateKey ? new Date(m.dateKey + 'T00:00:00') : null);
+      if (!mDate || isNaN(mDate.getTime())) return false;
+      if (period === 'today') return mDate >= todayStart;
+      if (period === '7days') {
+        const sevenDaysAgo = new Date(todayStart.getTime() - 7 * 86400000);
+        return mDate >= sevenDaysAgo;
+      }
+      if (period === '30days') {
+        const thirtyDaysAgo = new Date(todayStart.getTime() - 30 * 86400000);
+        return mDate >= thirtyDaysAgo;
+      }
+      return true;
+    });
+  }
+
+  function getDialysisBpStatus(sys, dia, hr) {
+    if (sys < 90 || dia < 55 || hr < 50 || hr > 110) {
+      return { text: 'Aandacht (Laag/Afwijkend)', className: 'bg-red' };
     }
-
-    const latest = bpList[0];
-    const color = getBpDialyseColor(latest.sys, latest.dia, latest.hr);
-    badge.innerText = color.text;
-    badge.className = `badge ${color.class}`;
-    valEl.innerText = `${latest.sys}/${latest.dia} (${latest.hr} bpm)`;
-    subEl.innerText = `${latest.date || ''} ${latest.time || ''}${latest.note ? ' • ' + latest.note : ''}`;
+    if (sys >= 160 || dia >= 100 || hr > 100) {
+      return { text: 'Verhoogd', className: 'bg-orange' };
+    }
+    if (sys >= 140 || dia >= 90) {
+      return { text: 'Licht Verhoogd', className: 'bg-orange' };
+    }
+    return { text: 'Stabiel (Dialyse doel)', className: 'bg-green' };
   }
 
   function renderBpTable() {
     const tbody = document.getElementById('bpTableBody');
     tbody.innerHTML = '';
 
-    if (bpList.length === 0) {
+    const filtered = getFilteredBpList();
+    if (filtered.length === 0) {
       tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">Geen metingen gevonden voor deze periode.</td></tr>';
       return;
     }
 
-    bpList.forEach(item => {
-      const color = getBpDialyseColor(item.sys, item.dia, item.hr);
+    const allowDelete = (currentUserData && currentUserData.role === 'admin') || (currentUserData && currentUserData.permissions && currentUserData.permissions.bloeddruk === 'write');
+
+    filtered.forEach(m => {
+      const status = getDialysisBpStatus(m.sys, m.dia, m.hr);
+      const delBtn = allowDelete
+        ? `<button class="btn btn-danger" onclick="deleteBp('${m.id}')">Verwijder</button>`
+        : '-';
       const tr = document.createElement('tr');
       tr.innerHTML = `
-        <td>${item.date}</td>
-        <td>${item.time}</td>
-        <td><b>${item.sys} / ${item.dia}</b> mmHg</td>
-        <td>${item.hr} bpm</td>
-        <td><span class="badge ${color.class}">${color.text}</span></td>
-        <td>${item.note || '-'}</td>
-        <td><button class="btn btn-danger" onclick="deleteBp('${item.id}')">Verwijder</button></td>
+        <td>${m.dateKey || '-'}</td>
+        <td>${m.time || '-'}</td>
+        <td><b>${m.sys} / ${m.dia}</b> mmHg</td>
+        <td><b>${m.hr}</b> bpm</td>
+        <td><span class="badge ${status.className}">${status.text}</span></td>
+        <td>${m.note || '-'}</td>
+        <td>${delBtn}</td>
       `;
       tbody.appendChild(tr);
     });
@@ -4719,102 +4692,109 @@
   }
 
   function exportBpExcel() {
-    if (bpList.length === 0) { alert("Geen metingen om te exporteren."); return; }
-    const data = bpList.map(i => ({
-      "Datum": i.date, "Tijdstip": i.time, "Bovendruk": i.sys, "Onderdruk": i.dia, "Hartslag": i.hr, "Status": getBpDialyseColor(i.sys, i.dia, i.hr).text, "Opmerking": i.note || ''
-    }));
+    const filtered = getFilteredBpList();
+    if (!filtered || filtered.length === 0) {
+      alert("Geen bloeddrukmetingen om te exporteren.");
+      return;
+    }
+    const data = filtered.map(m => {
+      const status = getDialysisBpStatus(m.sys, m.dia, m.hr);
+      return {
+        "Datum": m.dateKey,
+        "Tijdstip": m.time,
+        "Systolisch (mmHg)": m.sys,
+        "Diastolisch (mmHg)": m.dia,
+        "Hartslag (bpm)": m.hr,
+        "Dialyse Status": status.text,
+        "Opmerking": m.note || ''
+      };
+    });
     const ws = XLSX.utils.json_to_sheet(data);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Bloeddruk");
     XLSX.writeFile(wb, `Bloeddruk_${new Date().toISOString().slice(0,10)}.xlsx`);
   }
 
-  // --- MODULE 3: RITTENAPP ---
+  // --- MODULE 1: RITTENAPP ---
   function loadDropdownsAndRitten() {
-    db.collection('dropdowns').doc(currentUser.uid).get().then(doc => {
+    db.collection('ritten_dropdowns').doc(currentUser.uid).get().then(doc => {
       if (doc.exists) {
-        dropdownOptions = Object.assign({ Bedrijf: [], Chauffeur: [], Kenteken: [], Vanaf: [], Naar: [] }, doc.data());
+        dropdownOptions = { Bedrijf: [], Chauffeur: [], Kenteken: [], Vanaf: [], Naar: [], ...doc.data() };
       } else {
-        dropdownOptions = {
-          Bedrijf: ['Centrale Zorgvervoer', 'Taxi Drenthe'],
-          Chauffeur: ['Jan de Vries', 'Piet Bakker'],
-          Kenteken: ['XX-123-Y', 'AB-456-C'],
-          Vanaf: ['Thuis', 'Ziekenhuis'],
-          Naar: ['Dialysecentrum', 'Thuis']
-        };
-        db.collection('dropdowns').doc(currentUser.uid).set(dropdownOptions);
+        db.collection('ritten_dropdowns').doc('config').get().then(cfgDoc => {
+          if (cfgDoc.exists) {
+            dropdownOptions = { Bedrijf: [], Chauffeur: [], Kenteken: [], Vanaf: [], Naar: [], ...cfgDoc.data() };
+          }
+          populateAllDropdowns();
+        }).catch(() => populateAllDropdowns());
       }
       populateAllDropdowns();
-      loadRitten();
-    }).catch(() => loadRitten());
+    }).catch(() => populateAllDropdowns());
+
+    loadRitten();
   }
 
   function populateAllDropdowns() {
-    const fields = [
-      { key: 'Bedrijf', ids: ['bedrijfSelect', 'planBedrijfSelect'], req: true },
-      { key: 'Chauffeur', ids: ['chauffeurSelect', 'planChauffeurSelect'], req: false },
-      { key: 'Kenteken', ids: ['kentekenSelect', 'planKentekenSelect'], req: false },
-      { key: 'Vanaf', ids: ['vanafSelect', 'planVanafSelect'], req: true },
-      { key: 'Naar', ids: ['naarSelect', 'planNaarSelect'], req: true }
+    const fields = ['Bedrijf', 'Chauffeur', 'Kenteken', 'Vanaf', 'Naar'];
+    const selectIds = [
+      ['bedrijfSelect', 'planBedrijfSelect'],
+      ['chauffeurSelect', 'planChauffeurSelect'],
+      ['kentekenSelect', 'planKentekenSelect'],
+      ['vanafSelect', 'planVanafSelect'],
+      ['naarSelect', 'planNaarSelect']
     ];
 
-    fields.forEach(f => {
-      f.ids.forEach(id => {
-        const el = document.getElementById(id);
-        if (!el) return;
-        const currVal = el.value;
-        el.innerHTML = f.req ? `<option value="">-- Kies ${f.key.toLowerCase()} --</option>` : `<option value="">-- Geen --</option>`;
-        (dropdownOptions[f.key] || []).forEach(opt => {
-          el.innerHTML += `<option value="${opt}">${opt}</option>`;
+    fields.forEach((field, idx) => {
+      const opts = (dropdownOptions[field] || []).slice().sort();
+      selectIds[idx].forEach(selId => {
+        const sel = document.getElementById(selId);
+        if (!sel) return;
+        const prevVal = sel.value;
+        const isOptionalPlan = selId.startsWith('plan') && (field === 'Chauffeur' || field === 'Kenteken');
+        sel.innerHTML = isOptionalPlan ? '<option value="">-- Geen --</option>' : `<option value="">-- Kies ${field.toLowerCase()} --</option>`;
+        opts.forEach(o => {
+          sel.innerHTML += `<option value="${o}">${o}</option>`;
         });
-        el.innerHTML += `<option value="__ADD_NEW__">+ Nieuwe ${f.key.toLowerCase()} toevoegen...</option>`;
-        if (currVal && currVal !== '__ADD_NEW__') el.value = currVal;
+        sel.innerHTML += `<option value="__ADD_NEW__">+ Nieuwe ${field.toLowerCase()} toevoegen...</option>`;
+        if (prevVal && prevVal !== '__ADD_NEW__' && opts.includes(prevVal)) {
+          sel.value = prevVal;
+        }
       });
     });
   }
 
-  function checkNewOption(selectEl, category) {
-    if (selectEl.value === '__ADD_NEW__') {
-      const val = prompt(`Voer nieuwe ${category.toLowerCase()} in:`);
-      if (val && val.trim() !== '') {
-        const cleanVal = val.trim();
-        if (!dropdownOptions[category].includes(cleanVal)) {
-          dropdownOptions[category].push(cleanVal);
-          db.collection('dropdowns').doc(currentUser.uid).set(dropdownOptions, { merge: true }).then(() => {
-            populateAllDropdowns();
-            selectEl.value = cleanVal;
-          });
-        } else {
-          selectEl.value = cleanVal;
-        }
-      } else {
-        selectEl.value = '';
+  function checkNewOption(selectEl, fieldName) {
+    if (selectEl.value !== '__ADD_NEW__') return;
+    const entered = prompt(`Nieuwe ${fieldName.toLowerCase()} invoeren:`);
+    if (entered && entered.trim()) {
+      const clean = entered.trim();
+      if (!Array.isArray(dropdownOptions[fieldName])) dropdownOptions[fieldName] = [];
+      if (!dropdownOptions[fieldName].includes(clean)) {
+        dropdownOptions[fieldName].push(clean);
+        db.collection('ritten_dropdowns').doc(currentUser.uid).set(dropdownOptions, { merge: true }).catch(() => {});
       }
+      populateAllDropdowns();
+      selectEl.value = clean;
+    } else {
+      selectEl.value = '';
     }
   }
 
   function setQuickTime(inputId) {
     const now = new Date();
-    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-    document.getElementById(inputId).value = now.toISOString().slice(0, 16);
-  }
-
-  function toggleEindType(val) {
-    const group = document.getElementById('planEindDatumGroup');
-    const input = document.getElementById('planEindDatum');
-    if (val === 'date') {
-      group.style.display = 'flex';
-      input.required = true;
-    } else {
-      group.style.display = 'none';
-      input.required = false;
-    }
+    const yr = now.getFullYear();
+    const mth = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hrs = String(now.getHours()).padStart(2, '0');
+    const mins = String(now.getMinutes()).padStart(2, '0');
+    document.getElementById(inputId).value = `${yr}-${mth}-${day}T${hrs}:${mins}`;
   }
 
   function handleRitSubmit(event) {
     event.preventDefault();
     const editId = document.getElementById('editRitId').value;
-    const record = {
+
+    const ritData = {
       userId: currentUser.uid,
       bedrijf: document.getElementById('bedrijfSelect').value,
       chauffeur: document.getElementById('chauffeurSelect').value,
@@ -4828,17 +4808,35 @@
       timestamp: firebase.firestore.FieldValue.serverTimestamp()
     };
 
-    if (editId) {
-      db.collection('ritten').doc(editId).update(record).then(() => {
-        resetRitForm();
-        loadRitten();
-      });
-    } else {
-      db.collection('ritten').add(record).then(() => {
-        resetRitForm();
-        loadRitten();
-      });
-    }
+    const req = editId
+      ? db.collection('ritten').doc(editId).update(ritData)
+      : db.collection('ritten').add(ritData);
+
+    req.then(() => {
+      resetRitForm();
+      loadRitten();
+    }).catch(err => alert("Fout bij opslaan rit: " + err.message));
+  }
+
+  function editRit(id) {
+    const rit = rittenList.find(r => r.id === id);
+    if (!rit) return;
+
+    document.getElementById('editRitId').value = rit.id;
+    document.getElementById('bedrijfSelect').value = rit.bedrijf || '';
+    document.getElementById('chauffeurSelect').value = rit.chauffeur || '';
+    document.getElementById('kentekenSelect').value = rit.kenteken || '';
+    document.getElementById('vanafSelect').value = rit.vanaf || '';
+    document.getElementById('naarSelect').value = rit.naar || '';
+    document.getElementById('afspraakInput').value = rit.afspraak || '';
+    document.getElementById('startInput').value = rit.start || '';
+    document.getElementById('stopInput').value = rit.stop || '';
+    document.getElementById('opmerkingenInput').value = rit.opmerkingen || '';
+
+    document.getElementById('ritFormTitle').innerText = 'Rit Bewerken';
+    document.getElementById('submitRitBtn').innerText = 'Wijzigingen Opslaan';
+    document.getElementById('cancelEditBtn').style.display = 'inline-block';
+    document.getElementById('ritFormCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   function resetRitForm() {
@@ -4849,30 +4847,14 @@
     document.getElementById('cancelEditBtn').style.display = 'none';
   }
 
-  function editRit(id) {
-    const r = rittenList.find(item => item.id === id);
-    if (!r) return;
-    document.getElementById('editRitId').value = r.id;
-    document.getElementById('bedrijfSelect').value = r.bedrijf || '';
-    document.getElementById('chauffeurSelect').value = r.chauffeur || '';
-    document.getElementById('kentekenSelect').value = r.kenteken || '';
-    document.getElementById('vanafSelect').value = r.vanaf || '';
-    document.getElementById('naarSelect').value = r.naar || '';
-    document.getElementById('afspraakInput').value = r.afspraak || '';
-    document.getElementById('startInput').value = r.start || '';
-    document.getElementById('stopInput').value = r.stop || '';
-    document.getElementById('opmerkingenInput').value = r.opmerkingen || '';
-
-    document.getElementById('ritFormTitle').innerText = 'Rit Bewerken';
-    document.getElementById('submitRitBtn').innerText = 'Wijzigingen Opslaan';
-    document.getElementById('cancelEditBtn').style.display = 'inline-block';
-    document.getElementById('ritFormCard').scrollIntoView({ behavior: 'smooth' });
-  }
-
   function deleteRit(id) {
     if (confirm("Deze rit verwijderen?")) {
       db.collection('ritten').doc(id).delete().then(loadRitten);
     }
+  }
+
+  function toggleEindType(val) {
+    document.getElementById('planEindDatumGroup').style.display = (val === 'date') ? 'flex' : 'none';
   }
 
   function handlePlanSubmit(event) {
@@ -4882,206 +4864,242 @@
     const kenteken = document.getElementById('planKentekenSelect').value;
     const vanaf = document.getElementById('planVanafSelect').value;
     const naar = document.getElementById('planNaarSelect').value;
-    const tijd = document.getElementById('planTijdAfspraak').value;
+    const tijdAfspraak = document.getElementById('planTijdAfspraak').value;
     const freq = document.getElementById('planFrequentie').value;
     const startDatumStr = document.getElementById('planStartDatum').value;
     const eindType = document.getElementById('planEindType').value;
+    const eindDatumStr = document.getElementById('planEindDatum').value;
 
-    const startDate = new Date(startDatumStr + 'T00:00:00');
-    let endDate;
-    if (eindType === 'month') {
-      endDate = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0, 23, 59, 59);
-    } else {
-      const eindDatumStr = document.getElementById('planEindDatum').value;
-      endDate = new Date(eindDatumStr + 'T23:59:59');
-    }
+    if (!startDatumStr || !tijdAfspraak) return;
+    const [sy, sm, sd] = startDatumStr.split('-').map(Number);
+    const startDate = new Date(sy, (sm || 1) - 1, sd || 1);
 
-    let currentDate = new Date(startDate.getTime());
-    let batch = db.batch();
-    let count = 0;
-
-    while (currentDate <= endDate) {
-      let match = false;
-      const dayOfWeek = currentDate.getDay();
-      const diffDays = Math.round((currentDate - startDate) / (1000 * 60 * 60 * 24));
-
-      if (freq === 'single') { match = (diffDays === 0); }
-      else if (freq === 'daily') { match = true; }
-      else if (freq === 'alternate') { match = (diffDays % 2 === 0); }
-      else if (freq === 'mwf') { match = [1, 3, 5].includes(dayOfWeek); }
-      else if (freq === 'tts') { match = [2, 4, 6].includes(dayOfWeek); }
-
-      if (match) {
-        const y = currentDate.getFullYear();
-        const m = String(currentDate.getMonth() + 1).padStart(2, '0');
-        const d = String(currentDate.getDate()).padStart(2, '0');
-        const afspraakStr = `${y}-${m}-${d}T${tijd}`;
-
-        const docRef = db.collection('ritten').doc();
-        batch.set(docRef, {
-          userId: currentUser.uid,
-          bedrijf, chauffeur, kenteken, vanaf, naar,
-          afspraak: afspraakStr,
-          start: '', stop: '', opmerkingen: 'Gepland',
-          timestamp: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        count++;
+    let endDate = new Date(startDate.getTime());
+    if (freq !== 'single') {
+      if (eindType === 'month') {
+        endDate = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0);
+      } else {
+        if (!eindDatumStr) {
+          alert("Kies een einddatum of selecteer 'Voor de geldende maand'.");
+          return;
+        }
+        const [ey, em, ed] = eindDatumStr.split('-').map(Number);
+        endDate = new Date(ey, (em || 1) - 1, ed || 1);
       }
+    }
 
+    const datesToPlan = [];
+    const cur = new Date(startDate.getTime());
+    let guard = 0;
+    while (cur <= endDate && guard < 400) {
+      guard++;
+      const dow = cur.getDay();
+      const diffDays = Math.round((cur.getTime() - startDate.getTime()) / 86400000);
+      const ok =
+        freq === 'single' ||
+        freq === 'daily' ||
+        (freq === 'alternate' && diffDays % 2 === 0) ||
+        (freq === 'mwf' && [1, 3, 5].includes(dow)) ||
+        (freq === 'tts' && [2, 4, 6].includes(dow));
+
+      if (ok) datesToPlan.push(new Date(cur.getTime()));
       if (freq === 'single') break;
-      currentDate.setDate(currentDate.getDate() + 1);
+      cur.setDate(cur.getDate() + 1);
     }
 
-    if (count > 0) {
-      batch.commit().then(() => {
-        alert(`${count} ritten succesvol ingepland!`);
-        switchSubTab('ritLogSub', document.querySelectorAll('#rittenTab .sub-tab-btn')[0]);
-        loadRitten();
-      });
-    } else {
-      alert("Geen dagen gevonden.");
+    if (datesToPlan.length === 0) {
+      alert("Geen ritten gevonden binnen de gekozen periode.");
+      return;
     }
+
+    const batch = db.batch();
+    datesToPlan.forEach(dt => {
+      const ref = db.collection('ritten').doc();
+      batch.set(ref, {
+        userId: currentUser.uid,
+        bedrijf,
+        chauffeur,
+        kenteken,
+        vanaf,
+        naar,
+        afspraak: `${getLocalDateKey(dt)}T${tijdAfspraak}`,
+        start: '',
+        stop: '',
+        opmerkingen: 'Geplande rit',
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    });
+
+    batch.commit().then(() => {
+      alert(`${datesToPlan.length} ritten ingepland!`);
+      loadRitten();
+      switchSubTab('ritLogSub', document.querySelectorAll('#rittenTab .sub-tab-btn')[0]);
+    }).catch(err => alert("Fout bij inplannen: " + err.message));
+  }
+
+  function parseRitDate(r) {
+    const raw = r.afspraak || r.afspraakTijd || r.start || r.datum || '';
+    if (typeof raw === 'string' && raw.length >= 10) {
+      const cleaned = raw.length === 10 ? `${raw}T00:00` : raw.replace(' ', 'T');
+      const dt = new Date(cleaned);
+      if (!isNaN(dt.getTime())) return dt;
+    }
+    if (r.timestamp && typeof r.timestamp.toDate === 'function') {
+      return r.timestamp.toDate();
+    }
+    return null;
   }
 
   function loadRitten() {
-    const period = document.getElementById('ritPeriodSelect').value;
-    db.collection('ritten').where('userId', '==', currentUser.uid).get().then(snapshot => {
+    const tbody = document.getElementById('rittenTableBody');
+    if (!currentUser) return;
+
+    db.collection('ritten').get().then(snapshot => {
       rittenList = [];
-      const now = new Date();
-      const todayStr = getLocalDateKey(now);
-
-      const currentDay = now.getDay() || 7;
-      const startOfWeek = new Date(now);
-      startOfWeek.setDate(now.getDate() - currentDay + 1);
-      startOfWeek.setHours(0, 0, 0, 0);
-      const endOfWeek = new Date(startOfWeek);
-      endOfWeek.setDate(startOfWeek.getDate() + 6);
-      endOfWeek.setHours(23, 59, 59, 999);
-
-      const startOfNextWeek = new Date(endOfWeek);
-      startOfNextWeek.setDate(endOfWeek.getDate() + 1);
-      startOfNextWeek.setHours(0, 0, 0, 0);
-      const endOfNextWeek = new Date(startOfNextWeek);
-      endOfNextWeek.setDate(startOfNextWeek.getDate() + 6);
-      endOfNextWeek.setHours(23, 59, 59, 999);
-
-      const thisMonthPrefix = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-      let todayCount = 0;
-
       snapshot.forEach(doc => {
         const d = doc.data();
-        const ritDateStr = d.afspraak ? d.afspraak.slice(0, 10) : '';
-        if (ritDateStr === todayStr) todayCount++;
-
-        const ritDateObj = d.afspraak ? new Date(d.afspraak) : null;
-        let include = true;
-
-        if (period === 'today') { include = (ritDateStr === todayStr); }
-        else if (period === 'this_week' && ritDateObj) { include = (ritDateObj >= startOfWeek && ritDateObj <= endOfWeek); }
-        else if (period === 'next_week' && ritDateObj) { include = (ritDateObj >= startOfNextWeek && ritDateObj <= endOfNextWeek); }
-        else if (period === 'this_month') { include = ritDateStr.startsWith(thisMonthPrefix); }
-
-        if (include) {
-          rittenList.push({ id: doc.id, ...d });
+        if (isRecordAccessible(d)) {
+          rittenList.push({
+            id: doc.id,
+            bedrijf: d.bedrijf || '',
+            chauffeur: d.chauffeur || '',
+            kenteken: d.kenteken || '',
+            vanaf: d.vanaf || '',
+            naar: d.naar || '',
+            afspraak: d.afspraak || d.afspraakTijd || '',
+            start: d.start || '',
+            stop: d.stop || '',
+            opmerkingen: d.opmerkingen || '',
+            ...d,
+            _dt: parseRitDate(d)
+          });
         }
       });
 
-      rittenList.sort((a, b) => (a.afspraak || '').localeCompare(b.afspraak || ''));
-      renderRittenTable();
+      rittenList.sort((a, b) => {
+        const ta = a._dt ? a._dt.getTime() : 0;
+        const tb = b._dt ? b._dt.getTime() : 0;
+        return tb - ta;
+      });
 
-      const rittenBadge = document.getElementById('dashRittenBadge');
-      if (rittenBadge) rittenBadge.innerText = `${todayCount}`;
-      const rittenVal = document.getElementById('dashRittenValue');
-      if (rittenVal) rittenVal.innerText = `${todayCount} ${todayCount === 1 ? 'rit' : 'ritten'}`;
-      const rittenSub = document.getElementById('dashRittenSub');
-      if (rittenSub) rittenSub.innerText = `Gepland / gereden vandaag`;
-    }).catch(err => console.log("Fout bij laden ritten:", err));
+      renderRittenTable();
+    }).catch(err => {
+      console.error("Fout bij laden ritten:", err);
+      if (tbody) {
+        tbody.innerHTML = `<tr><td colspan="10" style="text-align:center; color:#dc3545;">Kan ritten niet laden uit Firebase: ${err.message}</td></tr>`;
+      }
+    });
   }
 
-  // Punctualiteit op basis van vertrektijd (r.start) ten opzichte van afspraak (r.afspraak):
-  // Te vroeg: <= -15 min | Op tijd: -14 t/m +15 min | Te laat: > +15 min
-  function evaluatePunctuality(afspraakStr, startStr) {
-    if (!afspraakStr || !startStr) return { status: 'Gepland', class: 'bg-gray', category: null };
-    const tAfspraak = new Date(afspraakStr).getTime();
-    const tStart = new Date(startStr).getTime();
-    if (isNaN(tAfspraak) || isNaN(tStart)) return { status: 'Gepland', class: 'bg-gray', category: null };
+  function getFilteredRitten() {
+    const period = document.getElementById('ritPeriodSelect')?.value || 'all';
+    const now = new Date();
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const tomorrowStart = new Date(todayStart.getTime() + 86400000);
+    const monThisWeek = getWeekMonday(now);
+    const monNextWeek = new Date(monThisWeek.getFullYear(), monThisWeek.getMonth(), monThisWeek.getDate() + 7);
+    const monAfterNextWeek = new Date(monNextWeek.getFullYear(), monNextWeek.getMonth(), monNextWeek.getDate() + 7);
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const nextMonthStart = new Date(now.getFullYear(), now.getMonth() + 1, 1);
 
-    const diffMinutes = (tStart - tAfspraak) / 60000;
-    const rounded = Math.round(diffMinutes);
+    return rittenList.filter(r => {
+      if (period === 'all') return true;
+      const dt = r._dt;
+      if (!dt || isNaN(dt.getTime())) return false;
+      if (period === 'today') return dt >= todayStart && dt < tomorrowStart;
+      if (period === 'this_week') return dt >= monThisWeek && dt < monNextWeek;
+      if (period === 'next_week') return dt >= monNextWeek && dt < monAfterNextWeek;
+      if (period === 'this_month') return dt >= monthStart && dt < nextMonthStart;
+      return true;
+    });
+  }
 
-    if (diffMinutes <= -15) {
-      return { status: `Te vroeg (${Math.abs(rounded)}m)`, class: 'bg-orange', category: 'early' };
-    } else if (diffMinutes > 15) {
-      return { status: `Te laat (+${rounded}m)`, class: 'bg-red', category: 'late' };
-    } else {
-      const sign = rounded > 0 ? `+${rounded}m` : `${rounded}m`;
-      return { status: `Op tijd (${sign})`, class: 'bg-green', category: 'ontime' };
-    }
+  function getPerformanceBadge(rit) {
+    if (!rit.stop || !rit.afspraak) return '<span class="badge bg-gray">Gepland / Open</span>';
+    const afs = new Date(rit.afspraak);
+    const stp = new Date(rit.stop);
+    if (isNaN(afs.getTime()) || isNaN(stp.getTime())) return '<span class="badge bg-gray">-</span>';
+
+    const diffMins = Math.round((stp.getTime() - afs.getTime()) / 60000);
+    if (diffMins < -5) return `<span class="badge bg-orange">Te vroeg (${Math.abs(diffMins)}m)</span>`;
+    if (diffMins > 5) return `<span class="badge bg-red">Te laat (+${diffMins}m)</span>`;
+    return `<span class="badge bg-green">Op tijd (${diffMins >= 0 ? '+' : ''}${diffMins}m)</span>`;
   }
 
   function renderRittenTable() {
     const tbody = document.getElementById('rittenTableBody');
     tbody.innerHTML = '';
 
-    let earlyCount = 0, onTimeCount = 0, lateCount = 0, drivenCount = 0;
+    const filtered = getFilteredRitten();
+    const completed = filtered.filter(r => r.stop && r.afspraak);
+    let early = 0, onTime = 0, late = 0;
 
-    if (rittenList.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;">Geen ritten gevonden voor deze periode.</td></tr>';
-      updateRittenStats(0, 0, 0, 0);
+    completed.forEach(r => {
+      const diffMins = Math.round((new Date(r.stop).getTime() - new Date(r.afspraak).getTime()) / 60000);
+      if (diffMins < -5) early++;
+      else if (diffMins > 5) late++;
+      else onTime++;
+    });
+
+    const totalCompleted = completed.length;
+    document.getElementById('statEarly').innerText = totalCompleted ? `${Math.round((early / totalCompleted) * 100)}%` : '0%';
+    document.getElementById('statOnTime').innerText = totalCompleted ? `${Math.round((onTime / totalCompleted) * 100)}%` : '0%';
+    document.getElementById('statLate').innerText = totalCompleted ? `${Math.round((late / totalCompleted) * 100)}%` : '0%';
+    document.getElementById('statTotal').innerText = `${filtered.length}`;
+
+    const todayKey = getLocalDateKey();
+    const todayRitten = rittenList.filter(r => (r.afspraak || '').startsWith(todayKey));
+    document.getElementById('dashRittenBadge').innerText = `${todayRitten.length}`;
+    document.getElementById('dashRittenValue').innerText = `${todayRitten.length} ${todayRitten.length === 1 ? 'rit' : 'ritten'}`;
+    document.getElementById('dashRittenSub').innerText = todayRitten.length > 0
+      ? `${todayRitten[0].vanaf} -> ${todayRitten[0].naar}`
+      : 'Geen ritten vandaag';
+
+    if (filtered.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;">Geen ritten gevonden in Firebase.</td></tr>';
       return;
     }
 
-    rittenList.forEach(r => {
-      const p = evaluatePunctuality(r.afspraak, r.start);
-      if (p.category) {
-        drivenCount++;
-        if (p.category === 'early') earlyCount++;
-        else if (p.category === 'ontime') onTimeCount++;
-        else if (p.category === 'late') lateCount++;
-      }
+    const allowEdit = (currentUserData && currentUserData.role === 'admin') || (currentUserData && currentUserData.permissions && currentUserData.permissions.ritten === 'write');
+
+    filtered.forEach(r => {
+      const btns = allowEdit
+        ? `<div style="display:flex; gap:6px;"><button class="btn btn-warning btn-sm" onclick="editRit('${r.id}')">Bewerk</button><button class="btn btn-danger" onclick="deleteRit('${r.id}')">Verwijder</button></div>`
+        : '-';
 
       const tr = document.createElement('tr');
       tr.innerHTML = `
-        <td>${r.bedrijf}</td>
+        <td>${r.bedrijf || '-'}</td>
         <td>${r.chauffeur || '-'}</td>
         <td>${r.kenteken || '-'}</td>
-        <td><b>${r.vanaf}</b> &rarr; <b>${r.naar}</b></td>
+        <td><b>${r.vanaf || '-'}</b> &rarr; <b>${r.naar || '-'}</b></td>
         <td>${r.afspraak ? r.afspraak.replace('T', ' ') : '-'}</td>
         <td>${r.start ? r.start.replace('T', ' ') : '-'}</td>
         <td>${r.stop ? r.stop.replace('T', ' ') : '-'}</td>
-        <td><span class="badge ${p.class}">${p.status}</span></td>
+        <td>${getPerformanceBadge(r)}</td>
         <td>${r.opmerkingen || '-'}</td>
-        <td>
-          <button class="btn btn-warning" onclick="editRit('${r.id}')">Bewerk</button>
-          <button class="btn btn-danger" onclick="deleteRit('${r.id}')">Verwijder</button>
-        </td>
+        <td>${btns}</td>
       `;
       tbody.appendChild(tr);
     });
-
-    updateRittenStats(earlyCount, onTimeCount, lateCount, drivenCount);
-  }
-
-  function updateRittenStats(early, ontime, late, driven) {
-    document.getElementById('statTotal').innerText = driven;
-    if (driven === 0) {
-      document.getElementById('statEarly').innerText = "0%";
-      document.getElementById('statOnTime').innerText = "0%";
-      document.getElementById('statLate').innerText = "0%";
-      return;
-    }
-    document.getElementById('statEarly').innerText = Math.round((early / driven) * 100) + "%";
-    document.getElementById('statOnTime').innerText = Math.round((ontime / driven) * 100) + "%";
-    document.getElementById('statLate').innerText = Math.round((late / driven) * 100) + "%";
   }
 
   function exportRitExcel() {
-    if (rittenList.length === 0) { alert("Geen ritten om te exporteren."); return; }
-    const data = rittenList.map(r => ({
-      "Bedrijf": r.bedrijf, "Chauffeur": r.chauffeur || '', "Kenteken": r.kenteken || '',
-      "Vanaf": r.vanaf, "Naar": r.naar, "Afspraak": r.afspraak ? r.afspraak.replace('T', ' ') : '',
-      "Start": r.start ? r.start.replace('T', ' ') : '', "Stop": r.stop ? r.stop.replace('T', ' ') : '',
-      "Prestatie": evaluatePunctuality(r.afspraak, r.start).status, "Opmerkingen": r.opmerkingen || ''
+    const filtered = getFilteredRitten();
+    if (!filtered || filtered.length === 0) {
+      alert("Geen ritten om te exporteren.");
+      return;
+    }
+    const data = filtered.map(r => ({
+      "Bedrijf": r.bedrijf,
+      "Chauffeur": r.chauffeur,
+      "Kenteken": r.kenteken,
+      "Vanaf": r.vanaf,
+      "Naar": r.naar,
+      "Afspraak": r.afspraak ? r.afspraak.replace('T', ' ') : '',
+      "Start": r.start ? r.start.replace('T', ' ') : '',
+      "Stop": r.stop ? r.stop.replace('T', ' ') : '',
+      "Opmerkingen": r.opmerkingen || ''
     }));
     const ws = XLSX.utils.json_to_sheet(data);
     const wb = XLSX.utils.book_new();
@@ -5089,7 +5107,62 @@
     XLSX.writeFile(wb, `Ritten_${new Date().toISOString().slice(0,10)}.xlsx`);
   }
 
-  // --- ADMIN BEHEER ---
+  // --- HOME DASHBOARD SAMENVATTING HELPERS ---
+  function updateHomeBpSummary() {
+    const badge = document.getElementById('dashBpBadge');
+    const valEl = document.getElementById('dashBpValue');
+    const subEl = document.getElementById('dashBpSub');
+    if (!badge || !valEl || !subEl) return;
+
+    if (bpList.length === 0) {
+      badge.innerText = '-';
+      badge.className = 'badge bg-gray';
+      valEl.innerText = '- / -';
+      subEl.innerText = 'Geen meting gevonden';
+      return;
+    }
+
+    const latest = bpList[0];
+    const st = getDialysisBpStatus(latest.sys, latest.dia, latest.hr);
+    valEl.innerText = `${latest.sys} / ${latest.dia}`;
+    subEl.innerText = `${latest.hr} bpm • ${latest.dateKey || ''} ${latest.time || ''}`;
+    badge.innerText = st.text;
+    badge.className = `badge ${st.className}`;
+  }
+
+  function updateHomeDialyseSummary() {
+    const badge = document.getElementById('dashDialyseBadge');
+    const valEl = document.getElementById('dashDialyseValue');
+    const subEl = document.getElementById('dashDialyseSub');
+    if (!badge || !valEl || !subEl) return;
+
+    if (allDialyseRecords.length === 0) {
+      badge.innerText = '-';
+      badge.className = 'badge bg-gray';
+      valEl.innerText = '-';
+      subEl.innerText = 'Geen sessie geregistreerd';
+      return;
+    }
+
+    const latest = allDialyseRecords[0];
+    valEl.innerText = `${latest.soortDialyse || 'Sessie'} (${latest.ufAdvies || '-'})`;
+    subEl.innerText = `${latest.afspraakTijd ? latest.afspraakTijd.replace('T', ' ') : latest.id}`;
+    badge.innerText = latest.soortDialyse || 'OK';
+    badge.className = 'badge bg-green';
+  }
+
+  function updateHomeBrievenSummary() {
+    const badge = document.getElementById('dashBrievenBadge');
+    const valEl = document.getElementById('dashBrievenValue');
+    const subEl = document.getElementById('dashBrievenSub');
+    if (!badge || !valEl || !subEl) return;
+
+    badge.innerText = `${lettersList.length}`;
+    valEl.innerText = `${lettersList.length} ${lettersList.length === 1 ? 'brief' : 'brieven'}`;
+    subEl.innerText = `${letterFolders.length} ${letterFolders.length === 1 ? 'map' : 'mappen'}`;
+  }
+
+  // --- ADMIN GEBRUIKERSBEHEER ---
   function loadAllUsersForAdmin() {
     db.collection('users').get().then(snapshot => {
       const tbody = document.getElementById('usersTableBody');
@@ -5097,77 +5170,58 @@
 
       snapshot.forEach(doc => {
         const u = doc.data();
-        const isTargetAdmin = (u.role === 'admin');
-        const perms = u.permissions || { agenda: 'read', medicijnen: 'read', dialyse: 'none', bloeddruk: 'none', vocht: 'none', ritten: 'none', brieven: 'read' };
+        const uid = doc.id;
+        const perms = u.permissions || {};
 
         const statusBadge = u.status === 'active'
           ? '<span class="badge bg-user">Actief</span>'
           : '<span class="badge bg-pending">Standby</span>';
 
-        const roleBadge = isTargetAdmin
+        const roleBadge = u.role === 'admin'
           ? '<span class="badge bg-admin">Admin</span>'
-          : '<span class="badge bg-gray">Gebruiker</span>';
+          : '<span class="badge" style="background:#64748b;">Gebruiker</span>';
 
-        const selectHtml = (modName, currentVal) => {
-          if (isTargetAdmin) return `<span style="color:#666; font-size:0.8rem;">Beheer</span>`;
-          return `
-            <select class="perm-select" onchange="updateUserPermission('${doc.id}', '${modName}', this.value)">
-              <option value="none" ${currentVal === 'none' ? 'selected' : ''}>Geen</option>
-              <option value="read" ${currentVal === 'read' ? 'selected' : ''}>Lezen</option>
-              <option value="write" ${currentVal === 'write' ? 'selected' : ''}>Schrijven</option>
-            </select>
-          `;
-        };
+        const makeSelect = (field, val) => `
+          <select class="perm-select" onchange="updateUserPermission('${uid}', '${field}', this.value)">
+            <option value="none" ${val === 'none' || !val ? 'selected' : ''}>Geen</option>
+            <option value="read" ${val === 'read' ? 'selected' : ''}>Lezen</option>
+            <option value="write" ${val === 'write' ? 'selected' : ''}>Schrijven</option>
+          </select>
+        `;
 
-        let actionButtons = '';
-        if (!isTargetAdmin) {
-          if (u.status === 'pending') {
-            actionButtons += `<button class="btn btn-success btn-sm" onclick="approveUser('${doc.id}')">Goedkeuren</button> `;
-          } else {
-            actionButtons += `<button class="btn btn-warning" onclick="setStandby('${doc.id}')">Standby</button> `;
-          }
-          actionButtons += `<button class="btn btn-danger" onclick="deleteUserDoc('${doc.id}')">Verwijder</button>`;
-        } else {
-          actionButtons = '-';
-        }
+        const actionBtn = u.status === 'active'
+          ? `<button class="btn btn-danger" style="padding: 5px 8px; font-size: 0.75rem;" onclick="updateUserStatus('${uid}', 'pending')">Standby</button>`
+          : `<button class="btn btn-success" style="padding: 5px 8px; font-size: 0.75rem;" onclick="updateUserStatus('${uid}', 'active')">Goedkeuren</button>`;
 
         const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td><b>${u.email}</b></td>
+          <td>${u.email || '-'}</td>
           <td>${statusBadge}</td>
           <td>${roleBadge}</td>
-          <td>${selectHtml('agenda', perms.agenda || 'read')}</td>
-          <td>${selectHtml('medicijnen', perms.medicijnen || 'read')}</td>
-          <td>${selectHtml('dialyse', perms.dialyse)}</td>
-          <td>${selectHtml('bloeddruk', perms.bloeddruk)}</td>
-          <td>${selectHtml('vocht', perms.vocht)}</td>
-          <td>${selectHtml('ritten', perms.ritten)}</td>
-          <td>${selectHtml('brieven', perms.brieven || 'read')}</td>
-          <td>${actionButtons}</td>
+          <td>${makeSelect('agenda', perms.agenda)}</td>
+          <td>${makeSelect('medicijnen', perms.medicijnen)}</td>
+          <td>${makeSelect('dialyse', perms.dialyse)}</td>
+          <td>${makeSelect('bloeddruk', perms.bloeddruk)}</td>
+          <td>${makeSelect('vocht', perms.vocht)}</td>
+          <td>${makeSelect('ritten', perms.ritten)}</td>
+          <td>${makeSelect('brieven', perms.brieven)}</td>
+          <td>${actionBtn}</td>
         `;
         tbody.appendChild(tr);
       });
     });
   }
 
-  function approveUser(uid) {
-    db.collection('users').doc(uid).update({ status: 'active' }).then(loadAllUsersForAdmin);
+  function updateUserStatus(uid, newStatus) {
+    db.collection('users').doc(uid).update({ status: newStatus }).then(() => {
+      loadAllUsersForAdmin();
+    });
   }
 
-  function setStandby(uid) {
-    db.collection('users').doc(uid).update({ status: 'pending' }).then(loadAllUsersForAdmin);
-  }
-
-  function updateUserPermission(uid, moduleName, level) {
-    let updateObj = {};
-    updateObj[`permissions.${moduleName}`] = level;
-    db.collection('users').doc(uid).update(updateObj).then(() => {});
-  }
-
-  function deleteUserDoc(uid) {
-    if (confirm("Weet je zeker dat je dit account wilt verwijderen?")) {
-      db.collection('users').doc(uid).delete().then(loadAllUsersForAdmin);
-    }
+  function updateUserPermission(uid, moduleKey, newPerm) {
+    const updateObj = {};
+    updateObj[`permissions.${moduleKey}`] = newPerm;
+    db.collection('users').doc(uid).update(updateObj).catch(err => alert("Fout bij opslaan recht: " + err.message));
   }
 </script>
 </body>
